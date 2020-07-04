@@ -156,6 +156,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         combo: int,
         ghost: Optional[List[int]]=None,
         stats: Optional[Dict[str, int]]=None,
+        music_rate: int=0,
     ) -> None:
         """
         Given various pieces of a score, update the user's high score and score
@@ -222,6 +223,11 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         if ghost is not None:
             # Update the ghost regardless, but don't bother with it in history
             scoredata.replace_int_array('ghost', len(ghost), ghost)
+
+        if music_rate is not 0:
+            if music_rate > oldscore.data.get_int('music_rate'):
+                scoredata.replace_int('music_rate', music_rate)
+            history.replace_int('music_rate', music_rate)
 
         # Look up where this score was earned
         lid = self.get_machine_id()
