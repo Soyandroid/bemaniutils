@@ -1221,6 +1221,7 @@ class ImportJubeat(ImportBase):
             'prop': VersionConstants.JUBEAT_PROP,
             'qubell': VersionConstants.JUBEAT_QUBELL,
             'clan': VersionConstants.JUBEAT_CLAN,
+            'festo': VersionConstants.JUBEAT_FESTO,
             'all': None,  # Special case for importing metadata
         }.get(version, -1)
 
@@ -1231,6 +1232,7 @@ class ImportJubeat(ImportBase):
             VersionConstants.JUBEAT_PROP,
             VersionConstants.JUBEAT_QUBELL,
             VersionConstants.JUBEAT_CLAN,
+            VersionConstants.JUBEAT_FESTO
         ]:
             self.charts = [0, 1, 2]
         else:
