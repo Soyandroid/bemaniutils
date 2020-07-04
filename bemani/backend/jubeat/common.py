@@ -65,9 +65,9 @@ class JubeatLobbyCheckHandler(JubeatBase):
         data = Node.void('data')
         root.add_child(data)
 
-        data.add_child(Node.s16('interval', 0))
-        data.add_child(Node.s16('entry_timeout', 0))
-        entrant_nr = Node.u32('entrant_nr', 0)
+        data.add_child(Node.s16('interval', 1))
+        data.add_child(Node.s16('entry_timeout', 1))
+        entrant_nr = Node.u32('entrant_nr', 1)
         entrant_nr.set_attribute('time', '0')
         data.add_child(entrant_nr)
         waitlist = Node.void('waitlist')
