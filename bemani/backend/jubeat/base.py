@@ -225,8 +225,9 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             scoredata.replace_int_array('ghost', len(ghost), ghost)
 
         if music_rate is not 0:
-            if music_rate > oldscore.data.get_int('music_rate'):
-                scoredata.replace_int('music_rate', music_rate)
+            if oldscore is not None:
+                if music_rate > oldscore.data.get_int('music_rate'):
+                    scoredata.replace_int('music_rate', music_rate)
             history.replace_int('music_rate', music_rate)
 
         # Look up where this score was earned
