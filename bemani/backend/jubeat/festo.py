@@ -35,7 +35,51 @@ class JubeatFesto(
     JBOX_EMBLEM_NORMAL = 1
     JBOX_EMBLEM_PREMIUM = 2
 
+    EVENT_STATUS_OPEN = 0x1
+    EVENT_STATUS_COMPLETE = 0x2
+
+    EVENTS = {
+        5: {
+            'enabled': False,
+        },
+        6: {
+            'enabled': False,
+        },
+        15: {
+            'enabled': True,
+        },
+        22: {
+            'enabled': False,
+        },
+        23: {
+            'enabled': False,
+        },
+        34: {
+            'enabled': False,
+        },
+    }
+    JBOX_EMBLEM_NORMAL = 1
+    JBOX_EMBLEM_PREMIUM = 2
+
     FIVE_PLAYS_UNLOCK_EVENT_SONG_IDS = set(range(80000301, 80000348))
+
+    COURSE_STATUS_SEEN = 0x01
+    COURSE_STATUS_PLAYED = 0x02
+    COURSE_STATUS_CLEARED = 0x04
+
+    COURSE_TYPE_PERMANENT = 1
+    COURSE_TYPE_TIME_BASED = 2
+
+    COURSE_CLEAR_SCORE = 1
+    COURSE_CLEAR_COMBINED_SCORE = 2
+    COURSE_CLEAR_HAZARD = 3
+
+    COURSE_HAZARD_EXC1 = 1
+    COURSE_HAZARD_EXC2 = 2
+    COURSE_HAZARD_EXC3 = 3
+    COURSE_HAZARD_FC1 = 4
+    COURSE_HAZARD_FC2 = 5
+    COURSE_HAZARD_FC3 = 6
 
     def previous_version(self) -> Optional[JubeatBase]:
         return JubeatClan(self.data, self.config, self.model)
@@ -85,6 +129,36 @@ class JubeatFesto(
         # Event info.
         event_info = Node.void('event_info')
         info.add_child(event_info)
+        for event in self.EVENTS:
+            evt = Node.void('event')
+            event_info.add_child(evt)
+            evt.set_attribute('type', str(event))
+            evt.add_child(Node.u8('state', self.EVENT_STATUS_OPEN if self.EVENTS[event]['enabled'] else 0))
+
+        genre_def_music = Node.void('genre_def_music')
+        info.add_child(genre_def_music)
+
+        info.add_child(Node.s32_array(
+            'black_jacket_list',
+            [
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+            ],
+        ))
 
          # Some sort of music DB whitelist
         info.add_child(Node.s32_array(
@@ -222,6 +296,10 @@ class JubeatFesto(
         info.add_child(collection)
         collection.add_child(Node.void('rating_s'))
 
+        konami_logo_50th = Node.void('konami_logo_50th')
+        info.add_add_child(konami_logo_50th)
+        konami_logo_50th.add_child(Node.bool('is_available', True))
+
         expert_option = Node.void('expert_option')
         info.add_child(expert_option)
         expert_option.add_child(Node.bool('is_available', True))
@@ -232,6 +310,10 @@ class JubeatFesto(
 
         question_list = Node.void('question_list')
         info.add_child(question_list)
+
+        department = Node.void('department')
+        info.add_child(department)
+        department.add_child(Node.void('pack_list'))
 
         return info
 
@@ -700,6 +782,12 @@ class JubeatFesto(
         question_list = Node.void('question_list')
         player.add_child(question_list)
 
+        # Union Battle
+        union_battle = Node.void('union_battle')
+        player.add_child(union_battle)
+        union_battle.set_attribute('id', "-1")
+        union_battle.add_child(Node.s32("power", 0))
+
         # Some server node
         server = Node.void('server')
         player.add_child(server)
@@ -748,13 +836,19 @@ class JubeatFesto(
                 item.set_attribute('id', str(itemid))
                 item.add_child(Node.s32('num', dropdata.get_int(f'item_{itemid}')))
 
+        # Emo node added in festo
+        emo_list = Node.void("emo_list")
+        player.add_child(emo_list)
+        
         # Fill in category
         fill_in_category = Node.void('fill_in_category')
         player.add_child(fill_in_category)
-        fill_in_category.add_child(Node.s32_array('no_gray_flag_list', profile.get_int_array('no_gray_flag_list', 16, [-1] * 16)))
-        fill_in_category.add_child(Node.s32_array('all_yellow_flag_list', profile.get_int_array('all_yellow_flag_list', 16, [-1] * 16)))
-        fill_in_category.add_child(Node.s32_array('full_combo_flag_list', profile.get_int_array('full_combo_flag_list', 16, [-1] * 16)))
-        fill_in_category.add_child(Node.s32_array('excellent_flag_list', profile.get_int_array('excellent_flag_list', 16, [-1] * 16)))
+        normal = Node.void('normal')
+        fill_in_category.add_child(normal)
+        normal.add_child(Node.s32_array('no_gray_flag_list', profile.get_int_array('no_gray_flag_list', 16, [-1] * 16)))
+        normal.add_child(Node.s32_array('all_yellow_flag_list', profile.get_int_array('all_yellow_flag_list', 16, [-1] * 16)))
+        normal.add_child(Node.s32_array('full_combo_flag_list', profile.get_int_array('full_combo_flag_list', 16, [-1] * 16)))
+        normal.add_child(Node.s32_array('excellent_flag_list', profile.get_int_array('excellent_flag_list', 16, [-1] * 16)))
 
         # Daily Bonus
         daily_bonus_list = Node.void('daily_bonus_list')
