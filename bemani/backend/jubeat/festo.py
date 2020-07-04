@@ -484,6 +484,7 @@ class JubeatFesto(
             fc_cnt = data.get_int_array('fc_cnt', 3)
             ex_cnt = data.get_int_array('ex_cnt', 3)
             points = data.get_int_array('points', 3)
+            music_rate = data.get_int_array('music_rate', 3)
 
             # Replace data for this chart type
             play_cnt[score.chart] = score.plays
@@ -491,6 +492,7 @@ class JubeatFesto(
             fc_cnt[score.chart] = score.data.get_int('full_combo_count')
             ex_cnt[score.chart] = score.data.get_int('excellent_count')
             points[score.chart] = score.points
+            music_rate[score.chart] = score.data.get_int('music_rate')
 
             # Format the clear flags
             clear_flags[score.chart] = self.GAME_FLAG_BIT_PLAYED
@@ -508,16 +510,11 @@ class JubeatFesto(
             data.replace_int_array('fc_cnt', 3, fc_cnt)
             data.replace_int_array('ex_cnt', 3, ex_cnt)
             data.replace_int_array('points', 3, points)
-
+            data.replace_int_array('music_rate', 3, music_rate)
             # Update the ghost (untyped)
             ghost = data.get('ghost', [None, None, None])
             ghost[score.chart] = score.data.get('ghost')
             data['ghost'] = ghost
-
-            # Update music_rate
-            music_rate = data.get_int_array('music_rate', 3, [0, 0, 0])
-            music_rate[score.chart] = score.data.get_int_array('music_rate', 3)
-            data['music_rate'] = music_rate
 
             # Save it back
             if score.id in self.FIVE_PLAYS_UNLOCK_EVENT_SONG_IDS:
