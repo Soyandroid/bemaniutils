@@ -297,7 +297,7 @@ class JubeatFesto(
         collection.add_child(Node.void('rating_s'))
 
         konami_logo_50th = Node.void('konami_logo_50th')
-        info.add_add_child(konami_logo_50th)
+        info.add_child(konami_logo_50th)
         konami_logo_50th.add_child(Node.bool('is_available', True))
 
         expert_option = Node.void('expert_option')
@@ -839,7 +839,7 @@ class JubeatFesto(
         # Emo node added in festo
         emo_list = Node.void("emo_list")
         player.add_child(emo_list)
-        
+
         # Fill in category
         fill_in_category = Node.void('fill_in_category')
         player.add_child(fill_in_category)
