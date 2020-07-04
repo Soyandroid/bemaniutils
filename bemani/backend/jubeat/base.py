@@ -224,8 +224,8 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             # Update the ghost regardless, but don't bother with it in history
             scoredata.replace_int_array('ghost', len(ghost), ghost)
 
-        if music_rate is not 0:
-            if oldscore is None:
+        if music_rate != 0:
+            if oldscore is not None:
                 if music_rate > oldscore.data.get_int('music_rate'):
                     scoredata.replace_int('music_rate', music_rate)
             else:

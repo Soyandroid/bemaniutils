@@ -19,6 +19,7 @@ from bemani.common import Time, ValidatedDict, VersionConstants
 from bemani.data import Data, Achievement, Score, Song, UserID
 from bemani.protocol import Node
 
+
 class JubeatFesto(
     JubeatDemodataGetHitchartHandler,
     JubeatDemodataGetNewsHandler,
@@ -160,7 +161,7 @@ class JubeatFesto(
             ],
         ))
 
-         # Some sort of music DB whitelist
+        # Some sort of music DB whitelist
         info.add_child(Node.s32_array(
             'white_music_list',
             [
@@ -343,9 +344,9 @@ class JubeatFesto(
         officialnews = Node.void('officialnews')
         officialnews.set_attribute('count', '0')
         data.add_child(officialnews)
-        
+
         return root
-        
+
     def handle_demodata_get_jbox_list_request(self, request: Node) -> Node:
         root = Node.void('demodata')
         return root
@@ -415,7 +416,7 @@ class JubeatFesto(
             root = Node.void('gametop')
             root.set_attribute('status', str(Status.NO_PROFILE))
         return root
-        
+
     def handle_gameend_final_request(self, request: Node) -> Node:
         data = request.child('data')
         player = data.child('player')
@@ -532,7 +533,7 @@ class JubeatFesto(
             musicdata = Node.void('musicdata')
             playdata.add_child(musicdata)
             musicdata.set_attribute('music_id', scoreid)
-            
+
             # Pretend as if every score is normal mode
             normal = Node.void('normal')
             musicdata.add_child(normal)
@@ -553,7 +554,7 @@ class JubeatFesto(
                 bar.set_attribute('seq', str(i))
 
         return root
-        
+
     def format_profile(self, userid: UserID, profile: ValidatedDict) -> Node:
         root = Node.void('gametop')
         data = Node.void('data')
@@ -725,7 +726,6 @@ class JubeatFesto(
             if achievement.type == 'course':
                 course_completion[achievement.id] = achievement.data
 
-
         # JBox stuff
         jbox = Node.void('jbox')
         jboxdict = profile.get_dict('jbox')
@@ -840,7 +840,6 @@ class JubeatFesto(
                 item_list.add_child(item)
                 item.set_attribute('id', str(itemid))
                 item.add_child(Node.s32('num', dropdata.get_int(f'item_{itemid}')))
-        
 
         department = Node.void('department')
         player.add_child(department)
