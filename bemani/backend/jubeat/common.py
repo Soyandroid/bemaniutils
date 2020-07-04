@@ -70,6 +70,9 @@ class JubeatLobbyCheckHandler(JubeatBase):
         entrant_nr = Node.u32('entrant_nr', 0)
         entrant_nr.set_attribute('time', '0')
         data.add_child(entrant_nr)
+        waitlist = Node.void('waitlist')
+        waitlist.set_attribute('count', '0')
+        data.add_child(waitlist)
 
         return root
 

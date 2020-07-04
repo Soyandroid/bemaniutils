@@ -345,6 +345,7 @@ class JubeatFesto(
         data.add_child(officialnews)
         
         return root
+        
     def handle_demodata_get_jbox_list_request(self, request: Node) -> Node:
         root = Node.void('demodata')
         return root
