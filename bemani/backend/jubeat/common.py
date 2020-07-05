@@ -66,7 +66,7 @@ class JubeatLobbyCheckHandler(JubeatBase):
         root.add_child(data)
 
         data.add_child(Node.s16('interval', 1))
-        data.add_child(Node.s16('entry_timeout', 15))
+        data.add_child(Node.s16('entry_timeout', 1))
         entrant_nr = Node.u32('entrant_nr', 1)
         entrant_nr.set_attribute('time', '0')
         data.add_child(entrant_nr)
@@ -74,6 +74,43 @@ class JubeatLobbyCheckHandler(JubeatBase):
         waitlist.set_attribute('count', '0')
         data.add_child(waitlist)
 
+        return root
+
+    def handle_lobby_entry_request(self, request: Node) -> Node:
+        root = Node.void('lobby')
+        data = Node.void('data')
+        root.add_child(data)
+        roomid = Node.s64('roomid', -2)
+        roomid.set_attribute('master', '1')
+        data.add_child(roomid)
+        refresh_intr = Node.s16('refresh_intr', 3)
+        data.add_child(refresh_intr)
+
+        # Grab music id from the request
+        request_data = request.child('data')
+        request_music = request_data.child('music')
+        music_id = request_music.child('id')
+        seq_id = request_music.child('seq')
+        music = Node.void('music')
+        music.add_child(music_id)
+        music.add_child(seq_id)
+        data.add_child(music)
+        return root
+
+    def handle_lobby_refresh_request(self, request: Node) -> Node:
+        root = Node.void('lobby')
+        data = Node.void('data')
+        refresh_intr = Node.s16('refresh_intr', 3)
+        data.add_child(refresh_intr)
+        start = Node.bool('start', 1)
+        data.add_child(start)
+        return root
+
+    def handle_lobby_report_request(self, request: Node) -> Node:
+        root = Node.void('lobby')
+        data = Node.void('data')
+        refresh_intr = Node.s16('refresh_intr', 3)
+        data.add_child(refresh_intr)
         return root
 
 
