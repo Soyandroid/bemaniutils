@@ -1077,14 +1077,14 @@ class JubeatFesto(
         root = Node.void('gametop')
         data = Node.void('data')
         root.add_child(data)
-        
+
         # Jubeat Clan appears to allow full event overrides per-player
         data.add_child(self.__get_global_info())
 
         player = Node.void('player')
         data.add_child(player)
 
-         # Set up TUNE RUN course requirements
+        # Set up TUNE RUN course requirements
         clan_course_list = Node.void('course_list')
         player.add_child(clan_course_list)
 
