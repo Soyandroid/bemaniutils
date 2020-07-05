@@ -100,6 +100,7 @@ class JubeatLobbyCheckHandler(JubeatBase):
     def handle_lobby_refresh_request(self, request: Node) -> Node:
         root = Node.void('lobby')
         data = Node.void('data')
+        root.add_child(data)
         refresh_intr = Node.s16('refresh_intr', 3)
         data.add_child(refresh_intr)
         start = Node.bool('start', 1)
@@ -109,6 +110,7 @@ class JubeatLobbyCheckHandler(JubeatBase):
     def handle_lobby_report_request(self, request: Node) -> Node:
         root = Node.void('lobby')
         data = Node.void('data')
+        root.add_child(data)
         refresh_intr = Node.s16('refresh_intr', 3)
         data.add_child(refresh_intr)
         return root
