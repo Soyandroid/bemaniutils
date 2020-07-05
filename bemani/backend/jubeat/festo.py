@@ -833,24 +833,6 @@ class JubeatFesto(
             reward_list = Node.void('reward_list')
             clear.add_child(reward_list)
 
-        # Set up NOBOLOT category display
-        category_list = Node.void('category_list')
-        clan_course_list.add_child(category_list)
-
-        # Each category has one of the following nodes
-        categories: List[Tuple[int, int]] = [
-            (1, 3),
-            (4, 6),
-            (7, 9),
-            (10, 12),
-            (13, 14),
-            (15, 16),
-        ]
-        for categoryid, (min_level, max_level) in enumerate(categories):
-            category = Node.void('category')
-            category_list.add_child(category)
-            category.set_attribute('id', str(categoryid + 1))
-            category.add_child(Node.bool('is_display', True))
         return info
 
     def handle_shopinfo_regist_request(self, request: Node) -> Node:
