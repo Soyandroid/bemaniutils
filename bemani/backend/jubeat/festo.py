@@ -769,25 +769,6 @@ class JubeatFesto(
         question_list = Node.void('question_list')
         info.add_child(question_list)
 
-        return info
-
-    def handle_shopinfo_regist_request(self, request: Node) -> Node:
-        # Update the name of this cab for admin purposes
-        self.update_machine_name(request.child_value('shop/name'))
-
-        shopinfo = Node.void('shopinfo')
-
-        data = Node.void('data')
-        shopinfo.add_child(data)
-        data.add_child(Node.u32('cabid', 1))
-        data.add_child(Node.string('locationid', 'nowhere'))
-        data.add_child(Node.u8('tax_phase', 1))
-
-        facility = Node.void('facility')
-        data.add_child(facility)
-        facility.add_child(Node.u32('exist', 1))
-        info = self.__get_global_info()
-
         # Set up TUNE RUN course requirements
         clan_course_list = Node.void('course_list')
         info.add_child(clan_course_list)
@@ -852,7 +833,25 @@ class JubeatFesto(
             reward_list = Node.void('reward_list')
             clear.add_child(reward_list)
 
-        data.add_child(info)
+        return info
+
+    def handle_shopinfo_regist_request(self, request: Node) -> Node:
+        # Update the name of this cab for admin purposes
+        self.update_machine_name(request.child_value('shop/name'))
+
+        shopinfo = Node.void('shopinfo')
+
+        data = Node.void('data')
+        shopinfo.add_child(data)
+        data.add_child(Node.u32('cabid', 1))
+        data.add_child(Node.string('locationid', 'nowhere'))
+        data.add_child(Node.u8('tax_phase', 1))
+
+        facility = Node.void('facility')
+        data.add_child(facility)
+        facility.add_child(Node.u32('exist', 1))
+        data.add_child(self.__get_global_info())
+
         return shopinfo
 
     def handle_demodata_get_info_request(self, request: Node) -> Node:
@@ -1084,7 +1083,7 @@ class JubeatFesto(
         player = Node.void('player')
         data.add_child(player)
 
-        # Set up TUNE RUN course requirements
+        # Tune rune status
         clan_course_list = Node.void('course_list')
         player.add_child(clan_course_list)
 
@@ -1108,45 +1107,9 @@ class JubeatFesto(
 
             # Basics
             clan_course = Node.void('course')
-            clan_course_list.add_child(clan_course)
-            clan_course.set_attribute('release_code', '2018112700')
-            clan_course.set_attribute('version_id', '0')
+            clan_course_list.add_child(clan_course)                                             
             clan_course.set_attribute('id', str(course['id']))
-            clan_course.set_attribute('course_type', str(course['course_type']))
-            clan_course.add_child(Node.s32('difficulty', course['difficulty']))
-            clan_course.add_child(Node.u64('etime', (course['end_time'] if 'end_time' in course else 0) * 1000))
-            clan_course.add_child(Node.string('name', course['name']))
-
-            # List of included songs
-            tune_list = Node.void('tune_list')
-            clan_course.add_child(tune_list)
-            for order, charts in enumerate(course['music']):
-                tune = Node.void('tune')
-                tune_list.add_child(tune)
-                tune.set_attribute('no', str(order + 1))
-
-                seq_list = Node.void('seq_list')
-                tune.add_child(seq_list)
-
-                for songid, chart in charts:
-                    seq = Node.void('seq')
-                    seq_list.add_child(seq)
-                    seq.add_child(Node.s32('music_id', songid))
-                    seq.add_child(Node.s32('difficulty', chart))
-                    seq.add_child(Node.bool('is_secret', False))
-
-            # Clear criteria
-            clear = Node.void('clear')
-            clan_course.add_child(clear)
-            ex_option = Node.void('ex_option')
-            clear.add_child(ex_option)
-            ex_option.add_child(Node.bool('is_hard', course['hard'] if 'hard' in course else False))
-            ex_option.add_child(Node.s32('hazard_type', course['hazard_type'] if 'hazard_type' in course else 0))
-            clear.set_attribute('type', str(course['clear_type']))
-            clear.add_child(Node.s32('score', course['score'] if 'score' in course else 0))
-
-            reward_list = Node.void('reward_list')
-            clear.add_child(reward_list)
+            clan_course.add_child(Node.void('status'))
 
         # Basic profile info
         player.add_child(Node.string('name', profile.get_str('name', 'なし')))
