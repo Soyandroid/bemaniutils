@@ -850,10 +850,7 @@ class JubeatFesto(
             category = Node.void('category')
             category_list.add_child(category)
             category.set_attribute('id', str(categoryid + 1))
-            category.add_child(Node.bool('is_secret', False))
-            category.add_child(Node.s32('level_min', min_level))
-            category.add_child(Node.s32('level_max', max_level))
-
+            category.add_child(Node.bool('is_display', True))
         return info
 
     def handle_shopinfo_regist_request(self, request: Node) -> Node:
