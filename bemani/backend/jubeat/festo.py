@@ -1083,34 +1083,6 @@ class JubeatFesto(
         player = Node.void('player')
         data.add_child(player)
 
-        # Tune rune status
-        clan_course_list = Node.void('course_list')
-        player.add_child(clan_course_list)
-
-        valid_courses: Set[int] = set()
-        for course in self.__get_course_list():
-            if course['id'] < 1:
-                raise Exception(f"Invalid course ID {course['id']} found in course list!")
-            if course['id'] in valid_courses:
-                raise Exception(f"Duplicate ID {course['id']} found in course list!")
-            if course['clear_type'] == self.COURSE_CLEAR_HAZARD and 'hazard_type' not in course:
-                raise Exception(f"Need 'hazard_type' set in course {course['id']}!")
-            if course['course_type'] == self.COURSE_TYPE_TIME_BASED and 'end_time' not in course:
-                raise Exception(f"Need 'end_time' set in course {course['id']}!")
-            if course['clear_type'] in [self.COURSE_CLEAR_SCORE, self.COURSE_CLEAR_COMBINED_SCORE] and 'score' not in course:
-                raise Exception(f"Need 'score' set in course {course['id']}!")
-            if course['clear_type'] == self.COURSE_CLEAR_SCORE and course['score'] > 1000000:
-                raise Exception(f"Invalid per-coure score in course {course['id']}!")
-            if course['clear_type'] == self.COURSE_CLEAR_COMBINED_SCORE and course['score'] <= 1000000:
-                raise Exception(f"Invalid combined score in course {course['id']}!")
-            valid_courses.add(course['id'])
-
-            # Basics
-            clan_course = Node.void('course')
-            clan_course_list.add_child(clan_course)                                             
-            clan_course.set_attribute('id', str(course['id']))
-            clan_course.add_child(Node.void('status'))
-
         # Basic profile info
         player.add_child(Node.string('name', profile.get_str('name', 'なし')))
         player.add_child(Node.s32('jid', profile.get_int('extid')))
@@ -1348,6 +1320,23 @@ class JubeatFesto(
 
         category_list = Node.void('category_list')
         player.add_child(category_list)
+
+        # Clan Course List Progress
+        clan_course_list = Node.void('course_list')
+        player.add_child(clan_course_list)
+
+        # Each course that we have completed has one of the following nodes.
+        for course in self.__get_course_list():
+            status_dict = course_completion.get(course['id'], ValidatedDict())
+            status = 0
+            status |= self.COURSE_STATUS_SEEN if status_dict.get_bool('seen') else 0
+            status |= self.COURSE_STATUS_PLAYED if status_dict.get_bool('played') else 0
+            status |= self.COURSE_STATUS_CLEARED if status_dict.get_bool('cleared') else 0
+
+            clan_course = Node.void('course')
+            clan_course_list.add_child(clan_course)
+            clan_course.set_attribute('id', str(course['id']))
+            clan_course.add_child(Node.s8('status', status))
 
         # Each category has one of the following nodes
         for categoryid in range(1, 7):
@@ -1659,6 +1648,78 @@ class JubeatFesto(
         if born is not None:
             newprofile.replace_int('born_status', born.child_value('status'))
             newprofile.replace_int('born_year', born.child_value('year'))
+
+        # Clan course saving
+        clan_course_list = player.child('course_list')
+        if clan_course_list is not None:
+            for course in clan_course_list.children:
+                if course.name != 'course':
+                    continue
+
+                courseid = int(course.attribute('id'))
+                status = course.child_value('status')
+                is_seen = (status & self.COURSE_STATUS_SEEN) != 0
+                is_played = (status & self.COURSE_STATUS_PLAYED) != 0
+
+                # Update seen status and played status
+                oldcourse = self.data.local.user.get_achievement(
+                    self.game,
+                    self.version,
+                    userid,
+                    courseid,
+                    'course',
+                )
+
+                if oldcourse is None:
+                    # Create a new course structure for this
+                    oldcourse = ValidatedDict()
+
+                oldcourse.replace_bool('seen', oldcourse.get_bool('seen') or is_seen)
+                oldcourse.replace_bool('played', oldcourse.get_bool('played') or is_played)
+
+                # Save it as an achievement
+                self.data.local.user.put_achievement(
+                    self.game,
+                    self.version,
+                    userid,
+                    courseid,
+                    'course',
+                    oldcourse,
+                )
+
+        select_course = player.child('select_course')
+        if select_course is not None:
+            try:
+                courseid = int(select_course.attribute('id'))
+            except Exception:
+                courseid = 0
+            cleared = select_course.child_value('is_cleared')
+
+            if courseid > 0 and cleared:
+                # Update course cleared status
+                oldcourse = self.data.local.user.get_achievement(
+                    self.game,
+                    self.version,
+                    userid,
+                    courseid,
+                    'course',
+                )
+
+                if oldcourse is None:
+                    # Create a new course structure for this
+                    oldcourse = ValidatedDict()
+
+                oldcourse.replace_bool('cleared', True)
+
+                # Save it as an achievement
+                self.data.local.user.put_achievement(
+                    self.game,
+                    self.version,
+                    userid,
+                    courseid,
+                    'course',
+                    oldcourse,
+                )
 
         # Save back last information gleaned from results
         newprofile.replace_dict('last', last)
