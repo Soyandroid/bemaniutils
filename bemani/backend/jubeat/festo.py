@@ -1318,8 +1318,8 @@ class JubeatFesto(
         eamuse_gift_list = Node.void('eamuse_gift_list')
         player.add_child(eamuse_gift_list)
 
-        category_list = Node.void('category_list')
-        player.add_child(category_list)
+        #   category_list = Node.void('category_list')
+        #   player.add_child(category_list)
 
         # Clan Course List Progress
         clan_course_list = Node.void('course_list')
@@ -1339,11 +1339,11 @@ class JubeatFesto(
             clan_course.add_child(Node.s8('status', status))
 
         # Each category has one of the following nodes
-        for categoryid in range(1, 7):
-            category = Node.void('category')
-            category_list.add_child(category)
-            category.set_attribute('id', str(categoryid))
-            category.add_child(Node.bool('is_display', True))
+        #   for categoryid in range(1, 7):
+        #       category = Node.void('category')
+        #       category_list.add_child(category)
+        #       category.set_attribute('id', str(categoryid))
+        #       category.add_child(Node.bool('is_display', True))
 
         # Drop list
         drop_list = Node.void('drop_list')
@@ -1614,6 +1614,7 @@ class JubeatFesto(
                 combo = int(result.child('score').attribute('combo'))
                 ghost = result.child_value('mbar')
                 music_rate = result.child_value('music_rate')
+                is_hard_mode = bool(result.child_value('is_hard_mode'))
 
                 stats = {
                     'perfect': result.child_value('nr_perfect'),
@@ -1641,7 +1642,8 @@ class JubeatFesto(
                     if flags & bit > 0:
                         medal = max(medal, mapping[bit])
 
-                self.update_score(userid, timestamp, songid, chart, points, medal, combo, ghost, stats, music_rate)
+                self.update_score(userid, timestamp, songid, chart, points, medal,
+                                  combo, ghost, stats, music_rate, is_hard_mode)
 
         # Born stuff
         born = player.child('born')

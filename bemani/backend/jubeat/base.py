@@ -157,6 +157,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         ghost: Optional[List[int]]=None,
         stats: Optional[Dict[str, int]]=None,
         music_rate: int=0,
+        hard_mode: bool=False,
     ) -> None:
         """
         Given various pieces of a score, update the user's high score and score
