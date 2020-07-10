@@ -1236,7 +1236,7 @@ class ImportJubeat(ImportBase):
         ]:
             self.charts = [0, 1, 2]
         else:
-            raise Exception("Unsupported Jubeat version, expected one of the following: saucer, saucer-fulfill, prop, qubell, clan!")
+            raise Exception("Unsupported Jubeat version, expected one of the following: saucer, saucer-fulfill, prop, qubell, clan, festo!")
 
         super().__init__(config, GameConstants.JUBEAT, actual_version, no_combine, update)
 

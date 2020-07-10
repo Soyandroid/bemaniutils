@@ -1318,8 +1318,8 @@ class JubeatFesto(
         eamuse_gift_list = Node.void('eamuse_gift_list')
         player.add_child(eamuse_gift_list)
 
-        #   category_list = Node.void('category_list')
-        #   player.add_child(category_list)
+        category_list = Node.void('category_list')
+        player.add_child(category_list)
 
         # Clan Course List Progress
         clan_course_list = Node.void('course_list')
@@ -1339,11 +1339,11 @@ class JubeatFesto(
             clan_course.add_child(Node.s8('status', status))
 
         # Each category has one of the following nodes
-        #   for categoryid in range(1, 7):
-        #       category = Node.void('category')
-        #       category_list.add_child(category)
-        #       category.set_attribute('id', str(categoryid))
-        #       category.add_child(Node.bool('is_display', True))
+        for categoryid in range(1, 7):
+            category = Node.void('category')
+            category_list.add_child(category)
+            category.set_attribute('id', str(categoryid))
+            category.add_child(Node.bool('is_display', True))
 
         # Drop list
         drop_list = Node.void('drop_list')
@@ -1485,11 +1485,12 @@ class JubeatFesto(
 
         # Grab categories stuff
         fill_in_category = player.child('fill_in_category')
+        fill_in_category_normal = fill_in_category.child('normal')
         if fill_in_category is not None:
-            newprofile.replace_int_array('no_gray_flag_list', 16, fill_in_category.child_value('no_gray_flag_list'))
-            newprofile.replace_int_array('all_yellow_flag_list', 16, fill_in_category.child_value('all_yellow_flag_list'))
-            newprofile.replace_int_array('full_combo_flag_list', 16, fill_in_category.child_value('full_combo_flag_list'))
-            newprofile.replace_int_array('excellent_flag_list', 16, fill_in_category.child_value('excellent_flag_list'))
+            newprofile.replace_int_array('no_gray_flag_list', 16, fill_in_category_normal.child_value('no_gray_flag_list'))
+            newprofile.replace_int_array('all_yellow_flag_list', 16, fill_in_category_normal.child_value('all_yellow_flag_list'))
+            newprofile.replace_int_array('full_combo_flag_list', 16, fill_in_category_normal.child_value('full_combo_flag_list'))
+            newprofile.replace_int_array('excellent_flag_list', 16, fill_in_category_normal.child_value('excellent_flag_list'))
 
         # jbox stuff
         jbox = player.child('jbox')
