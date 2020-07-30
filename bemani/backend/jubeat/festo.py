@@ -996,45 +996,87 @@ class JubeatFesto(
 
         music = ValidatedDict()
         for score in scores:
-            data = music.get_dict(str(score.id))
-            play_cnt = data.get_int_array('play_cnt', 3)
-            clear_cnt = data.get_int_array('clear_cnt', 3)
-            clear_flags = data.get_int_array('clear_flags', 3)
-            fc_cnt = data.get_int_array('fc_cnt', 3)
-            ex_cnt = data.get_int_array('ex_cnt', 3)
-            points = data.get_int_array('points', 3)
-            music_rate = data.get_int_array('music_rate', 3)
+            # Normal Mode
+            if score.chart < 3:
+                data = music.get_dict(str(score.id))
+                play_cnt = data.get_int_array('play_cnt', 3)
+                clear_cnt = data.get_int_array('clear_cnt', 3)
+                clear_flags = data.get_int_array('clear_flags', 3)
+                fc_cnt = data.get_int_array('fc_cnt', 3)
+                ex_cnt = data.get_int_array('ex_cnt', 3)
+                points = data.get_int_array('points', 3)
+                music_rate = data.get_int_array('music_rate', 3)
 
-            # Replace data for this chart type
-            play_cnt[score.chart] = score.plays
-            clear_cnt[score.chart] = score.data.get_int('clear_count')
-            fc_cnt[score.chart] = score.data.get_int('full_combo_count')
-            ex_cnt[score.chart] = score.data.get_int('excellent_count')
-            points[score.chart] = score.points
-            music_rate[score.chart] = score.data.get_int('music_rate')
+                # Replace data for this chart type
+                play_cnt[score.chart] = score.plays
+                clear_cnt[score.chart] = score.data.get_int('clear_count')
+                fc_cnt[score.chart] = score.data.get_int('full_combo_count')
+                ex_cnt[score.chart] = score.data.get_int('excellent_count')
+                points[score.chart] = score.points
+                music_rate[score.chart] = score.data.get_int('music_rate')
 
-            # Format the clear flags
-            clear_flags[score.chart] = self.GAME_FLAG_BIT_PLAYED
-            if score.data.get_int('clear_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_CLEARED
-            if score.data.get_int('full_combo_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_FULL_COMBO
-            if score.data.get_int('excellent_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_EXCELLENT
+                # Format the clear flags
+                clear_flags[score.chart] = self.GAME_FLAG_BIT_PLAYED
+                if score.data.get_int('clear_count') > 0:
+                    clear_flags[score.chart] |= self.GAME_FLAG_BIT_CLEARED
+                if score.data.get_int('full_combo_count') > 0:
+                    clear_flags[score.chart] |= self.GAME_FLAG_BIT_FULL_COMBO
+                if score.data.get_int('excellent_count') > 0:
+                    clear_flags[score.chart] |= self.GAME_FLAG_BIT_EXCELLENT
 
-            # Save chart data back
-            data.replace_int_array('play_cnt', 3, play_cnt)
-            data.replace_int_array('clear_cnt', 3, clear_cnt)
-            data.replace_int_array('clear_flags', 3, clear_flags)
-            data.replace_int_array('fc_cnt', 3, fc_cnt)
-            data.replace_int_array('ex_cnt', 3, ex_cnt)
-            data.replace_int_array('points', 3, points)
-            data.replace_int_array('music_rate', 3, music_rate)
-            # Update the ghost (untyped)
-            ghost = data.get('ghost', [None, None, None])
-            ghost[score.chart] = score.data.get('ghost')
-            data['ghost'] = ghost
+                # Save chart data back
+                data.replace_int_array('play_cnt', 3, play_cnt)
+                data.replace_int_array('clear_cnt', 3, clear_cnt)
+                data.replace_int_array('clear_flags', 3, clear_flags)
+                data.replace_int_array('fc_cnt', 3, fc_cnt)
+                data.replace_int_array('ex_cnt', 3, ex_cnt)
+                data.replace_int_array('points', 3, points)
+                data.replace_int_array('music_rate', 3, music_rate)
+                # Update the ghost (untyped)
+                ghost = data.get('ghost', [None, None, None])
+                ghost[score.chart] = score.data.get('ghost')
+                data['ghost'] = ghost
+            # Hard Mode
+            else:
+                chart = score.chart - 3
+                data = music.get_dict(str(score.id))
+                play_cnt = data.get_int_array('hard_play_cnt', 3)
+                clear_cnt = data.get_int_array('hard_clear_cnt', 3)
+                clear_flags = data.get_int_array('hard_clear_flags', 3)
+                fc_cnt = data.get_int_array('hard_fc_cnt', 3)
+                ex_cnt = data.get_int_array('hard_ex_cnt', 3)
+                points = data.get_int_array('hard_points', 3)
+                music_rate = data.get_int_array('hard_music_rate', 3)
 
+                # Replace data for this chart type
+                play_cnt[chart] = score.plays
+                clear_cnt[chart] = score.data.get_int('clear_count')
+                fc_cnt[chart] = score.data.get_int('full_combo_count')
+                ex_cnt[chart] = score.data.get_int('excellent_count')
+                points[chart] = score.points
+                music_rate[chart] = score.data.get_int('music_rate')
+
+                # Format the clear flags
+                clear_flags[chart] = self.GAME_FLAG_BIT_PLAYED
+                if score.data.get_int('clear_count') > 0:
+                    clear_flags[chart] |= self.GAME_FLAG_BIT_CLEARED
+                if score.data.get_int('full_combo_count') > 0:
+                    clear_flags[chart] |= self.GAME_FLAG_BIT_FULL_COMBO
+                if score.data.get_int('excellent_count') > 0:
+                    clear_flags[chart] |= self.GAME_FLAG_BIT_EXCELLENT
+
+                # Save chart data back
+                data.replace_int_array('hard_play_cnt', 3, play_cnt)
+                data.replace_int_array('hard_clear_cnt', 3, clear_cnt)
+                data.replace_int_array('hard_clear_flags', 3, clear_flags)
+                data.replace_int_array('hard_fc_cnt', 3, fc_cnt)
+                data.replace_int_array('hard_ex_cnt', 3, ex_cnt)
+                data.replace_int_array('hard_points', 3, points)
+                data.replace_int_array('hard_music_rate', 3, music_rate)
+                # Update the ghost (untyped)
+                ghost = data.get('hard_ghost', [None, None, None])
+                ghost[score.chart] = score.data.get('ghost')
+                data['hard_ghost'] = ghost
             # Save it back
             if score.id in self.FIVE_PLAYS_UNLOCK_EVENT_SONG_IDS:
                 # Mirror it to every version so the score shows up regardless of
@@ -1051,7 +1093,6 @@ class JubeatFesto(
             playdata.add_child(musicdata)
             musicdata.set_attribute('music_id', scoreid)
 
-            # Pretend as if every score is normal mode
             normal = Node.void('normal')
             musicdata.add_child(normal)
             normal.add_child(Node.s32_array('play_cnt', scoredata.get_int_array('play_cnt', 3)))
@@ -1068,6 +1109,24 @@ class JubeatFesto(
 
                 bar = Node.u8_array('bar', ghost)
                 normal.add_child(bar)
+                bar.set_attribute('seq', str(i))
+
+            hard = Node.void('hard')
+            musicdata.add_child(hard)
+            hard.add_child(Node.s32_array('play_cnt', scoredata.get_int_array('hard_play_cnt', 3)))
+            hard.add_child(Node.s32_array('clear_cnt', scoredata.get_int_array('hard_clear_cnt', 3)))
+            hard.add_child(Node.s32_array('fc_cnt', scoredata.get_int_array('hard_fc_cnt', 3)))
+            hard.add_child(Node.s32_array('ex_cnt', scoredata.get_int_array('hard_ex_cnt', 3)))
+            hard.add_child(Node.s32_array('score', scoredata.get_int_array('hard_points', 3)))
+            hard.add_child(Node.s8_array('clear', scoredata.get_int_array('hard_clear_flags', 3)))
+            hard.add_child(Node.s32_array('music_rate', scoredata.get_int_array('hard_music_rate', 3)))
+
+            for i, ghost in enumerate(scoredata.get('hard_ghost', [None, None, None])):
+                if ghost is None:
+                    continue
+
+                bar = Node.u8_array('bar', ghost)
+                hard.add_child(bar)
                 bar.set_attribute('seq', str(i))
 
         return root

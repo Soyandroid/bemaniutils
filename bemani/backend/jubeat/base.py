@@ -174,7 +174,8 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             self.PLAY_MEDAL_EXCELLENT,
         ]:
             raise Exception(f"Invalid medal value {medal}")
-
+        if hard_mode:
+            chart += 3
         oldscore = self.data.local.music.get_score(
             self.game,
             self.version,

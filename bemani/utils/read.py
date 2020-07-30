@@ -1234,8 +1234,8 @@ class ImportJubeat(ImportBase):
             VersionConstants.JUBEAT_CLAN
         ]:
             self.charts = [0, 1, 2]
-        # jubeat festo adds in separation of normal and hard mode scores. 
-        # This adds a duplicate of each chart so that we show separated scores. 
+        # jubeat festo adds in separation of normal and hard mode scores.
+        # This adds a duplicate of each chart so that we show separated scores.
         elif actual_version == VersionConstants.JUBEAT_FESTO:
             self.charts = [0, 1, 2, 3, 4, 5]
         else:
@@ -1422,7 +1422,7 @@ class ImportJubeat(ImportBase):
                         print(f"Reused entry for {songid} chart {chart}")
                         next_id = old_id
                     data = {
-                        'difficulty': song['difficulty'][chart_map[chart-3]],
+                        'difficulty': song['difficulty'][chart_map[chart - 3]],
                         'bpm_min': song['bpm_min'],
                         'bpm_max': song['bpm_max'],
                     }
@@ -1456,8 +1456,8 @@ class ImportJubeat(ImportBase):
         self.finish_batch()
 
     def import_metadata(self, tsvfile: str) -> None:
-        #if self.version is not None:
-        #    raise Exception("Unsupported Jubeat version, expected one of the following: all")
+        # if self.version is not None:
+        #   raise Exception("Unsupported Jubeat version, expected one of the following: all")
 
         with open(tsvfile, newline='') as tsvhandle:
             jubeatreader = csv.reader(tsvhandle, delimiter='\t', quotechar='"')  # type: ignore
