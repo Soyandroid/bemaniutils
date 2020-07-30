@@ -1075,7 +1075,7 @@ class JubeatFesto(
                 data.replace_int_array('hard_music_rate', 3, music_rate)
                 # Update the ghost (untyped)
                 ghost = data.get('hard_ghost', [None, None, None])
-                ghost[score.chart] = score.data.get('ghost')
+                ghost[chart] = score.data.get('ghost')
                 data['hard_ghost'] = ghost
             # Save it back
             if score.id in self.FIVE_PLAYS_UNLOCK_EVENT_SONG_IDS:
