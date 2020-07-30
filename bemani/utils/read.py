@@ -1456,8 +1456,8 @@ class ImportJubeat(ImportBase):
         self.finish_batch()
 
     def import_metadata(self, tsvfile: str) -> None:
-        if self.version is not None:
-            raise Exception("Unsupported Jubeat version, expected one of the following: all")
+        #if self.version is not None:
+        #    raise Exception("Unsupported Jubeat version, expected one of the following: all")
 
         with open(tsvfile, newline='') as tsvhandle:
             jubeatreader = csv.reader(tsvhandle, delimiter='\t', quotechar='"')  # type: ignore
