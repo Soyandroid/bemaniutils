@@ -50,6 +50,12 @@ var top_scores = React.createClass({
                 return 1;
             case 'Extreme':
                 return 2;
+            case 'Hard Mode Basic':
+                return 3;
+            case 'Hard Mode Advanced':
+                return 4;
+            case 'Hard Mode Extreme':
+                return 5;
             default:
                 return null;
         }
