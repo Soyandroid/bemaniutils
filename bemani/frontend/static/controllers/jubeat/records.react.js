@@ -1,7 +1,7 @@
 /*** @jsx React.DOM */
 
 var valid_sorts = ['series', 'name', 'popularity'];
-var valid_charts = ['Basic', 'Advanced', 'Extreme'];
+var valid_charts = ['Basic', 'Advanced', 'Extreme', 'Hard Mode Basic', 'Hard Mode Advanced', 'Hard Mode Extreme'];
 var valid_mixes = Object.keys(window.versions).map(function(mix) {
     return (parseInt(mix) - 1).toString();
 });
