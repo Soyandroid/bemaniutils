@@ -35,6 +35,9 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     CHART_TYPE_BASIC = 0
     CHART_TYPE_ADVANCED = 1
     CHART_TYPE_EXTREME = 2
+    CHART_TYPE_HARD_BASIC = 3
+    CHART_TYPE_HARD_ADVANCED = 4
+    CHART_TYPE_HARD_EXTREME = 5
 
     def previous_version(self) -> Optional['JubeatBase']:
         """

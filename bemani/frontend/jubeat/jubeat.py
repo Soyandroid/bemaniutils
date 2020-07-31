@@ -15,6 +15,9 @@ class JubeatFrontend(FrontendBase):
         JubeatBase.CHART_TYPE_BASIC,
         JubeatBase.CHART_TYPE_ADVANCED,
         JubeatBase.CHART_TYPE_EXTREME,
+        JubeatBase.CHART_TYPE_HARD_BASIC,
+        JubeatBase.CHART_TYPE_ADVANCED,
+        JubeatBase.CHART_TYPE_HARD_EXTREME,
     ]
 
     valid_rival_types = ['rival']
