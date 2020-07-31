@@ -1183,7 +1183,7 @@ class JubeatFesto(
         last.add_child(Node.string('areaname', lastdict.get_str('areaname')))
         last.add_child(Node.s32('music_id', lastdict.get_int('music_id')))
         last.add_child(Node.s8('seq_id', lastdict.get_int('seq_id')))
-        last.add_child(Node.s8('seq_edit_id', lastdict.get_int('seq_edit_id')))
+        last.add_child(Node.string('seq_edit_id', '12345678'))
         last.add_child(Node.s8('sort', lastdict.get_int('sort')))
         last.add_child(Node.s8('category', lastdict.get_int('category')))
         last.add_child(Node.s8('expert_option', lastdict.get_int('expert_option')))
