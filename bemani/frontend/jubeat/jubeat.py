@@ -16,7 +16,7 @@ class JubeatFrontend(FrontendBase):
         JubeatBase.CHART_TYPE_ADVANCED,
         JubeatBase.CHART_TYPE_EXTREME,
         JubeatBase.CHART_TYPE_HARD_BASIC,
-        JubeatBase.CHART_TYPE_ADVANCED,
+        JubeatBase.CHART_TYPE_HARD_ADVANCED,
         JubeatBase.CHART_TYPE_HARD_EXTREME,
     ]
 
