@@ -76,7 +76,7 @@ class JubeatFrontend(FrontendBase):
         return formatted_profile
 
     def format_song(self, song: Song) -> Dict[str, Any]:
-        difficulties = [0, 0, 0]
+        difficulties = [0, 0, 0, 0, 0, 0]
         difficulties[song.chart] = song.data.get_int('difficulty', 13)
 
         formatted_song = super().format_song(song)
