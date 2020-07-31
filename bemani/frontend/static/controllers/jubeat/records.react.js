@@ -204,6 +204,9 @@ var network_records = React.createClass({
                                             <td className="subheader">Basic</td>
                                             <td className="subheader">Advanced</td>
                                             <td className="subheader">Extreme</td>
+                                            <td className="subheader">Hard Mode Basic</td>
+                                            <td className="subheader">Hard Mode Advanced</td>
+                                            <td className="subheader">Hard Mode Extreme</td>
                                         </tr>
                                     );
                                 } else {
@@ -414,6 +417,9 @@ var network_records = React.createClass({
                         <th className="subheader">Basic</th>
                         <th className="subheader">Advanced</th>
                         <th className="subheader">Extreme</th>
+                        <th className="subheader">Hard Mode Basic</th>
+                        <th className="subheader">Hard Mode Advanced</th>
+                        <th className="subheader">Hard Mode Extreme</th>
                     </tr>
                 </thead>
                 <tbody>
