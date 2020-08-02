@@ -1167,7 +1167,8 @@ class JubeatFesto(
 
         # Looks to be set to true when there's an old profile, stops tutorial from
         # happening on first load.
-        info.add_child(Node.bool('inherit', profile.get_bool('has_old_version')))
+        # For some reason this breaks category select and sorting on festo so it has to be falses
+        info.add_child(Node.bool('inherit', False))
 
         # Not saved, but loaded
         info.add_child(Node.s32('mtg_entry_cnt', 123))
