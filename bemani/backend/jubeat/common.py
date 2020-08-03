@@ -103,7 +103,7 @@ class JubeatLobbyCheckHandler(JubeatBase):
         root.add_child(data)
         refresh_intr = Node.s16('refresh_intr', 3)
         data.add_child(refresh_intr)
-        start = Node.bool('start', 1)
+        start = Node.bool('start', True)
         data.add_child(start)
         return root
 

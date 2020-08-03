@@ -1167,7 +1167,6 @@ class JubeatFesto(
 
         # Looks to be set to true when there's an old profile, stops tutorial from
         # happening on first load.
-        # For some reason this breaks category select and sorting on festo so it has to be falses
         info.add_child(Node.bool('inherit', False))
 
         # Not saved, but loaded
@@ -1452,13 +1451,13 @@ class JubeatFesto(
         normal.add_child(Node.s32_array('all_yellow_flag_list', profile.get_int_array('all_yellow_flag_list', 16, [0] * 16)))
         normal.add_child(Node.s32_array('full_combo_flag_list', profile.get_int_array('full_combo_flag_list', 16, [0] * 16)))
         normal.add_child(Node.s32_array('excellent_flag_list', profile.get_int_array('excellent_flag_list', 16, [0] * 16)))
-        # Bandaid solution for hard mode flags(will need to implement properly later)
+
         hard = Node.void('hard')
         fill_in_category.add_child(hard)
-        hard.add_child(Node.s32_array('no_gray_flag_list', profile.get_int_array('no_gray_flag_list', 16, [0] * 16)))
-        hard.add_child(Node.s32_array('all_yellow_flag_list', profile.get_int_array('all_yellow_flag_list', 16, [0] * 16)))
-        hard.add_child(Node.s32_array('full_combo_flag_list', profile.get_int_array('full_combo_flag_list', 16, [0] * 16)))
-        hard.add_child(Node.s32_array('excellent_flag_list', profile.get_int_array('excellent_flag_list', 16, [0] * 16)))
+        hard.add_child(Node.s32_array('no_gray_flag_list', profile.get_int_array('hard_no_gray_flag_list', 16, [0] * 16)))
+        hard.add_child(Node.s32_array('all_yellow_flag_list', profile.get_int_array('hard_all_yellow_flag_list', 16, [0] * 16)))
+        hard.add_child(Node.s32_array('full_combo_flag_list', profile.get_int_array('hard_full_combo_flag_list', 16, [0] * 16)))
+        hard.add_child(Node.s32_array('excellent_flag_list', profile.get_int_array('hard_excellent_flag_list', 16, [0] * 16)))
 
         # Daily Bonus
         daily_bonus_list = Node.void('daily_bonus_list')
@@ -1552,7 +1551,12 @@ class JubeatFesto(
             newprofile.replace_int_array('all_yellow_flag_list', 16, fill_in_category_normal.child_value('all_yellow_flag_list'))
             newprofile.replace_int_array('full_combo_flag_list', 16, fill_in_category_normal.child_value('full_combo_flag_list'))
             newprofile.replace_int_array('excellent_flag_list', 16, fill_in_category_normal.child_value('excellent_flag_list'))
-
+        fill_in_category_hard = fill_in_category.child('hard')
+        if fill_in_category is not None:
+            newprofile.replace_int_array('hard_no_gray_flag_list', 16, fill_in_category_hard.child_value('no_gray_flag_list'))
+            newprofile.replace_int_array('hard_all_yellow_flag_list', 16, fill_in_category_hard.child_value('all_yellow_flag_list'))
+            newprofile.replace_int_array('hard_full_combo_flag_list', 16, fill_in_category_hard.child_value('full_combo_flag_list'))
+            newprofile.replace_int_array('hard_excellent_flag_list', 16, fill_in_category_hard.child_value('excellent_flag_list'))
         # jbox stuff
         jbox = player.child('jbox')
         jboxdict = newprofile.get_dict('jbox')
