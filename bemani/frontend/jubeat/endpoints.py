@@ -185,7 +185,7 @@ def viewtopscores(musicid: int) -> Response:
     difficulties = [0, 0, 0, 0, 0, 0]
 
     for version in versions:
-        for chart in [0, 1, 2]:
+        for chart in [0, 1, 2, 3, 4, 5]:
             details = g.data.local.music.get_song(GameConstants.JUBEAT, version, musicid, chart)
             if details is not None:
                 name = details.name
