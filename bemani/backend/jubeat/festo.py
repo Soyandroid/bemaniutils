@@ -1167,6 +1167,7 @@ class JubeatFesto(
 
         # Looks to be set to true when there's an old profile, stops tutorial from
         # happening on first load.
+        # Should only be true on the first load, stuff breaks otherwise
         info.add_child(Node.bool('inherit', False))
 
         # Not saved, but loaded
