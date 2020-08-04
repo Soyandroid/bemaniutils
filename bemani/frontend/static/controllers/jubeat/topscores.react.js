@@ -1,15 +1,14 @@
 /*** @jsx React.DOM */
 
-var chart_map = [0, 1, 2, 3, 4, 5];
 var valid_charts = ['Basic', 'Advanced', 'Extreme', 'Hard Mode Basic', 'Hard Mode Advanced', 'Hard Mode Extreme'].filter(function(val, index) {
-    return window.difficulties[window.chart_map[index]] > 0;
+    return window.difficulties[index] > 0;
 });
 var pagenav = new History(valid_charts);
 
 var top_scores = React.createClass({
 
     sortTopScores: function(topscores) {
-        var newscores = [[], [], [], [], [], [], []];
+        var newscores = [[], [], [], [], [], []];
         topscores.map(function(score) {
             newscores[score.chart].push(score);
         }.bind(this));
@@ -72,7 +71,7 @@ var top_scores = React.createClass({
                 <div className="section">
                     <div className="songname">{window.name}</div>
                     <div className="songartist">{window.artist}</div>
-                    <div className="songdifficulty">{window.difficulties[window.chart_map[chart]]}★</div>
+                    <div className="songdifficulty">{window.difficulties[chart]}★</div>
                 </div>
                 <div className="section">
                     {valid_charts.map(function(chart) {
