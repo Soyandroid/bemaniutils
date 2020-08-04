@@ -1,8 +1,6 @@
 /*** @jsx React.DOM */
 
-var valid_charts = ['Basic', 'Advanced', 'Extreme', 'Hard Mode Basic', 'Hard Mode Advanced', 'Hard Mode Extreme'].filter(function(val, index) {
-    return window.difficulties[index] > 0;
-});
+var valid_charts = ['Basic', 'Advanced', 'Extreme', 'Hard Mode Basic', 'Hard Mode Advanced', 'Hard Mode Extreme'];
 var pagenav = new History(valid_charts);
 
 var top_scores = React.createClass({
