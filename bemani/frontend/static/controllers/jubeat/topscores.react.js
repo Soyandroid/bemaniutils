@@ -9,7 +9,7 @@ var pagenav = new History(valid_charts);
 var top_scores = React.createClass({
 
     sortTopScores: function(topscores) {
-        var newscores = [[], [], [], []];
+        var newscores = [[], [], [], [], [], [], []];
         topscores.map(function(score) {
             newscores[score.chart].push(score);
         }.bind(this));
