@@ -1,12 +1,12 @@
 /*** @jsx React.DOM */
 
-var valid_charts = ['Basic', 'Advanced', 'Extreme'];
+var valid_charts = ['Basic', 'Advanced', 'Extreme', 'Hard Mode Basic', 'Hard Mode Advanced', 'Hard Mode Extreme'];
 var pagenav = new History(valid_charts);
 
 var top_scores = React.createClass({
 
     sortTopScores: function(topscores) {
-        var newscores = [[], [], [], []];
+        var newscores = [[], [], [], [], [], []];
         topscores.map(function(score) {
             newscores[score.chart].push(score);
         }.bind(this));
@@ -50,6 +50,12 @@ var top_scores = React.createClass({
                 return 1;
             case 'Extreme':
                 return 2;
+            case 'Hard Mode Basic':
+                return 3;
+            case 'Hard Mode Advanced':
+                return 4;
+            case 'Hard Mode Extreme':
+                return 5;
             default:
                 return null;
         }

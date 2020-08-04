@@ -35,6 +35,9 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     CHART_TYPE_BASIC = 0
     CHART_TYPE_ADVANCED = 1
     CHART_TYPE_EXTREME = 2
+    CHART_TYPE_HARD_BASIC = 3
+    CHART_TYPE_HARD_ADVANCED = 4
+    CHART_TYPE_HARD_EXTREME = 5
 
     def previous_version(self) -> Optional['JubeatBase']:
         """
@@ -156,6 +159,8 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         combo: int,
         ghost: Optional[List[int]]=None,
         stats: Optional[Dict[str, int]]=None,
+        music_rate: int=0,
+        hard_mode: bool=False,
     ) -> None:
         """
         Given various pieces of a score, update the user's high score and score
@@ -172,7 +177,8 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             self.PLAY_MEDAL_EXCELLENT,
         ]:
             raise Exception(f"Invalid medal value {medal}")
-
+        if hard_mode:
+            chart += 3
         oldscore = self.data.local.music.get_score(
             self.game,
             self.version,
@@ -222,6 +228,14 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         if ghost is not None:
             # Update the ghost regardless, but don't bother with it in history
             scoredata.replace_int_array('ghost', len(ghost), ghost)
+
+        if music_rate != 0:
+            if oldscore is not None:
+                if music_rate > oldscore.data.get_int('music_rate'):
+                    scoredata.replace_int('music_rate', music_rate)
+            else:
+                scoredata.replace_int('music_rate', music_rate)
+            history.replace_int('music_rate', music_rate)
 
         # Look up where this score was earned
         lid = self.get_machine_id()

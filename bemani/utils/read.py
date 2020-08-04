@@ -1221,6 +1221,7 @@ class ImportJubeat(ImportBase):
             'prop': VersionConstants.JUBEAT_PROP,
             'qubell': VersionConstants.JUBEAT_QUBELL,
             'clan': VersionConstants.JUBEAT_CLAN,
+            'festo': VersionConstants.JUBEAT_FESTO,
             'all': None,  # Special case for importing metadata
         }.get(version, -1)
 
@@ -1230,11 +1231,15 @@ class ImportJubeat(ImportBase):
             VersionConstants.JUBEAT_SAUCER_FULFILL,
             VersionConstants.JUBEAT_PROP,
             VersionConstants.JUBEAT_QUBELL,
-            VersionConstants.JUBEAT_CLAN,
+            VersionConstants.JUBEAT_CLAN
         ]:
             self.charts = [0, 1, 2]
+        # jubeat festo adds in separation of normal and hard mode scores.
+        # This adds a duplicate of each chart so that we show separated scores.
+        elif actual_version == VersionConstants.JUBEAT_FESTO:
+            self.charts = [0, 1, 2, 3, 4, 5]
         else:
-            raise Exception("Unsupported Jubeat version, expected one of the following: saucer, saucer-fulfill, prop, qubell, clan!")
+            raise Exception("Unsupported Jubeat version, expected one of the following: saucer, saucer-fulfill, prop, qubell, clan, festo!")
 
         super().__init__(config, GameConstants.JUBEAT, actual_version, no_combine, update)
 
@@ -1389,21 +1394,38 @@ class ImportJubeat(ImportBase):
 
             self.start_batch()
             for chart in self.charts:
-                # First, try to find in the DB from another version
-                old_id = self.get_music_id_for_song(songid, chart)
-                if self.no_combine or old_id is None:
-                    # Insert original
-                    print(f"New entry for {songid} chart {chart}")
-                    next_id = self.get_next_music_id()
+                if(chart <= 2):
+                    # First, try to find in the DB from another version
+                    old_id = self.get_music_id_for_song(songid, chart)
+                    if self.no_combine or old_id is None:
+                        # Insert original
+                        print(f"New entry for {songid} chart {chart}")
+                        next_id = self.get_next_music_id()
+                    else:
+                        # Insert pointing at same ID so scores transfer
+                        print(f"Reused entry for {songid} chart {chart}")
+                        next_id = old_id
+                    data = {
+                        'difficulty': song['difficulty'][chart_map[chart]],
+                        'bpm_min': song['bpm_min'],
+                        'bpm_max': song['bpm_max'],
+                    }
                 else:
-                    # Insert pointing at same ID so scores transfer
-                    print(f"Reused entry for {songid} chart {chart}")
-                    next_id = old_id
-                data = {
-                    'difficulty': song['difficulty'][chart_map[chart]],
-                    'bpm_min': song['bpm_min'],
-                    'bpm_max': song['bpm_max'],
-                }
+                    # First, try to find in the DB from another version
+                    old_id = self.get_music_id_for_song(songid, chart)
+                    if self.no_combine or old_id is None:
+                        # Insert original
+                        print(f"New entry for {songid} chart {chart}")
+                        next_id = self.get_next_music_id()
+                    else:
+                        # Insert pointing at same ID so scores transfer
+                        print(f"Reused entry for {songid} chart {chart}")
+                        next_id = old_id
+                    data = {
+                        'difficulty': song['difficulty'][chart_map[chart - 3]],
+                        'bpm_min': song['bpm_min'],
+                        'bpm_max': song['bpm_max'],
+                    }
                 self.insert_music_id_for_song(next_id, songid, chart, song['title'], song['artist'], song['genre'], data)
             self.finish_batch()
 
@@ -1434,8 +1456,8 @@ class ImportJubeat(ImportBase):
         self.finish_batch()
 
     def import_metadata(self, tsvfile: str) -> None:
-        if self.version is not None:
-            raise Exception("Unsupported Jubeat version, expected one of the following: all")
+        # if self.version is not None:
+        #   raise Exception("Unsupported Jubeat version, expected one of the following: all")
 
         with open(tsvfile, newline='') as tsvhandle:
             jubeatreader = csv.reader(tsvhandle, delimiter='\t', quotechar='"')  # type: ignore

@@ -549,7 +549,7 @@ class GlobalMusicData(BaseGlobalData):
         for score in localscores:
             add_score(score)
 
-        # Second, merge in remote scorse
+        # Second, merge in remote scores
         for remotescore in scores:
             songid = int(remotescore['song'])
             chart = int(remotescore['chart'])

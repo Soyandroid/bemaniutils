@@ -40,6 +40,12 @@ var network_scores = React.createClass({
                 return 'Advanced';
             case 2:
                 return 'Extreme';
+            case 3:
+                return 'Hard Mode Basic';
+            case 4:
+                return 'Hard Mode Advanced';
+            case 5:
+                return 'Hard Mode Extreme';
             default:
                 return 'u broke it';
         }

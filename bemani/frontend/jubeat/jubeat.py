@@ -15,6 +15,9 @@ class JubeatFrontend(FrontendBase):
         JubeatBase.CHART_TYPE_BASIC,
         JubeatBase.CHART_TYPE_ADVANCED,
         JubeatBase.CHART_TYPE_EXTREME,
+        JubeatBase.CHART_TYPE_HARD_BASIC,
+        JubeatBase.CHART_TYPE_HARD_ADVANCED,
+        JubeatBase.CHART_TYPE_HARD_EXTREME,
     ]
 
     valid_rival_types = ['rival']
@@ -73,7 +76,7 @@ class JubeatFrontend(FrontendBase):
         return formatted_profile
 
     def format_song(self, song: Song) -> Dict[str, Any]:
-        difficulties = [0, 0, 0]
+        difficulties = [0, 0, 0, 0, 0, 0]
         difficulties[song.chart] = song.data.get_int('difficulty', 13)
 
         formatted_song = super().format_song(song)
