@@ -182,7 +182,7 @@ def viewtopscores(musicid: int) -> Response:
     name = None
     artist = None
     genre = None
-    difficulties = [0, 0, 0]
+    difficulties = [0, 0, 0, 0, 0, 0]
 
     for version in versions:
         for chart in [0, 1, 2]:
