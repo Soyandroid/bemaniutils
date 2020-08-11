@@ -54,7 +54,7 @@ class JubeatFrontend(FrontendBase):
             JubeatBase.PLAY_MEDAL_NEARLY_EXCELLENT: "NEARLY EXCELLENT",
             JubeatBase.PLAY_MEDAL_EXCELLENT: "EXCELLENT",
         }.get(score.data.get_int('medal'), 'NO PLAY')
-        formatted_score['music_rate'] = score.data.get_float('music_rate', 0) / 10
+        formatted_score['music_rate'] = score.data.get_int('music_rate', 0) / 10
         formatted_score["clear_cnt"] = score.data.get_int('clear_count', 0)
         return formatted_score
 
@@ -70,7 +70,7 @@ class JubeatFrontend(FrontendBase):
             JubeatBase.PLAY_MEDAL_NEARLY_EXCELLENT: "NEARLY EXCELLENT",
             JubeatBase.PLAY_MEDAL_EXCELLENT: "EXCELLENT",
         }.get(attempt.data.get_int('medal'), 'NO PLAY')
-        formatted_attempt['music_rate'] = attempt.data.get_float('music_rate', 0) / 10
+        formatted_attempt['music_rate'] = attempt.data.get_int('music_rate', 0) / 10
         return formatted_attempt
 
     def format_profile(self, profile: ValidatedDict, playstats: ValidatedDict) -> Dict[str, Any]:
