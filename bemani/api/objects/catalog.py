@@ -137,6 +137,7 @@ class CatalogObject(BaseObject):
             VersionConstants.JUBEAT_PROP,
             VersionConstants.JUBEAT_QUBELL,
             VersionConstants.JUBEAT_CLAN,
+            VersionConstants.JUBEAT_FESTO,
         }:
             return {
                 "emblems": [
@@ -183,7 +184,7 @@ class CatalogObject(BaseObject):
 
         # Fetch the songs
         songs = self.data.local.music.get_all_songs(self.game, self.music_version)
-        if self.game == GameConstants.JUBEAT and self.version == VersionConstants.JUBEAT_CLAN:
+        if self.game == GameConstants.JUBEAT and self.version == VersionConstants.JUBEAT_CLAN or self.version == VersionConstants.JUBEAT_FESTO:
             # There's always a special case. We don't store all music IDs since those in
             # the range of 80000301-80000347 are actually the same song, but copy-pasted
             # for different prefectures and slightly different charts. So, we need to copy

@@ -1295,6 +1295,7 @@ class ImportJubeat(ImportBase):
             VersionConstants.JUBEAT_PROP,
             VersionConstants.JUBEAT_QUBELL,
             VersionConstants.JUBEAT_CLAN,
+            VersionConstants.JUBEAT_FESTO,
         }:
             for emblem_entry in root.find('emblem_list') or []:
                 print(emblem_entry)
@@ -1360,6 +1361,7 @@ class ImportJubeat(ImportBase):
             VersionConstants.JUBEAT_PROP,
             VersionConstants.JUBEAT_QUBELL,
             VersionConstants.JUBEAT_CLAN,
+            VersionConstants.JUBEAT_FESTO,
         }:
             game = self.remote_game(server, token)
             for item in game.get_items(self.game, self.version):
