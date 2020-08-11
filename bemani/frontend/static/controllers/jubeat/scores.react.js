@@ -59,6 +59,8 @@ var network_scores = React.createClass({
                     <span className="score">{score.points}</span>
                     <span className="label">Combo</span>
                     <span className="score">{score.combo < 0 ? '-' : score.combo}</span>
+                    <span className="label">Music Rate</span>
+                    <span className="score">{score.music_rate < 0 ? '-' : score.music_rate}</span>
                 </div>
                 <div>
                     <span className="status">{score.status}</span>

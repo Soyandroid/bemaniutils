@@ -32,6 +32,8 @@ var HighScore = React.createClass({
                     <span className="score">{this.props.score.points}</span>
                     <span className="label">Combo</span>
                     <span className="score">{this.props.score.combo < 0 ? '-' : this.props.score.combo}</span>
+                    <span className="label">Music Rate</span>
+                    <span className="score">{this.props.score.music_rate < 0 ? '-' : this.props.score.music_rate}</span>
                 </div>
                 <div>
                     <span className="status">{this.props.score.status}</span>
