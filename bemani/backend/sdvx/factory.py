@@ -19,6 +19,7 @@ class SoundVoltexFactory(Factory):
         SoundVoltexInfiniteInfection,
         SoundVoltexGravityWars,
         SoundVoltexHeavenlyHaven,
+        SoundVoltexVividWave,
     ]
 
     @classmethod
