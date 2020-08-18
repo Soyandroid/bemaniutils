@@ -112,6 +112,7 @@ class VersionConstants:
     SDVX_INFINITE_INFECTION = 2
     SDVX_GRAVITY_WARS = 3
     SDVX_HEAVENLY_HAVEN = 4
+    SDVX_VIVID_WAVE = 5
 
 
 class APIConstants:

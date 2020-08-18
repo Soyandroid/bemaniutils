@@ -159,6 +159,7 @@ class APIClient:
                 VersionConstants.SDVX_INFINITE_INFECTION: '2',
                 VersionConstants.SDVX_GRAVITY_WARS: '3',
                 VersionConstants.SDVX_HEAVENLY_HAVEN: '4',
+                VersionConstants.SDVX_VIVID_WAVE: '5',
             },
         }.get(game, {}).get(version)
         if serverversion is None:
