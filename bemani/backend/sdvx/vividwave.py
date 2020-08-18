@@ -167,22 +167,22 @@ class SoundVoltexVividWave(
             self.GRADE_S: self.GAME_GRADE_S,
         }[grade]
 
-    def handle_game_sv4_exception_request(self, request: Node) -> Node:
+    def handle_game_sv5_exception_request(self, request: Node) -> Node:
         return Node.void('game')
 
-    def handle_game_sv4_lounge_request(self, request: Node) -> Node:
+    def handle_game_sv5_lounge_request(self, request: Node) -> Node:
         game = Node.void('game')
         # Refresh interval in seconds.
         game.add_child(Node.u32('interval', 10))
         return game
 
-    def handle_game_sv4_entry_s_request(self, request: Node) -> Node:
+    def handle_game_sv5_entry_s_request(self, request: Node) -> Node:
         game = Node.void('game')
         # This should be created on the fly for a lobby that we're in.
         game.add_child(Node.u32('entry_id', 1))
         return game
 
-    def handle_game_sv4_entry_e_request(self, request: Node) -> Node:
+    def handle_game_sv5_entry_e_request(self, request: Node) -> Node:
         # Lobby destroy method, eid node (u32) should be used
         # to destroy any open lobbies.
         return Node.void('game')
@@ -3243,7 +3243,7 @@ class SoundVoltexVividWave(
             },
         ]
 
-    def handle_game_sv4_common_request(self, request: Node) -> Node:
+    def handle_game_sv5_common_request(self, request: Node) -> Node:
         game = Node.void('game')
 
         limited = Node.void('music_limited')
@@ -3401,7 +3401,7 @@ class SoundVoltexVividWave(
 
         return game
 
-    def handle_game_sv4_shop_request(self, request: Node) -> Node:
+    def handle_game_sv5_shop_request(self, request: Node) -> Node:
         self.update_machine_name(request.child_value('shopname'))
 
         # Respond with number of milliseconds until next request
@@ -3409,7 +3409,7 @@ class SoundVoltexVividWave(
         game.add_child(Node.u32('nxt_time', 1000 * 5 * 60))
         return game
 
-    def handle_game_sv4_hiscore_request(self, request: Node) -> Node:
+    def handle_game_sv5_hiscore_request(self, request: Node) -> Node:
         # Grab location for local scores
         locid = ID.parse_machine_id(request.child_value('locid'))
 
@@ -3485,7 +3485,7 @@ class SoundVoltexVividWave(
 
         return game
 
-    def handle_game_sv4_load_request(self, request: Node) -> Node:
+    def handle_game_sv5_load_request(self, request: Node) -> Node:
         refid = request.child_value('refid')
         root = self.get_profile_by_refid(refid)
         if root is not None:
@@ -3514,12 +3514,12 @@ class SoundVoltexVividWave(
             root.add_child(Node.u8('result', 1))
             return root
 
-    def handle_game_sv4_frozen_request(self, request: Node) -> Node:
+    def handle_game_sv5_frozen_request(self, request: Node) -> Node:
         game = Node.void('game')
         game.add_child(Node.u8('result', 0))
         return game
 
-    def handle_game_sv4_new_request(self, request: Node) -> Node:
+    def handle_game_sv5_new_request(self, request: Node) -> Node:
         refid = request.child_value('refid')
         name = request.child_value('name')
         loc = ID.parse_machine_id(request.child_value('locid'))
@@ -3528,7 +3528,7 @@ class SoundVoltexVividWave(
         root = Node.void('game')
         return root
 
-    def handle_game_sv4_load_m_request(self, request: Node) -> Node:
+    def handle_game_sv5_load_m_request(self, request: Node) -> Node:
         refid = request.child_value('refid')
 
         if refid is not None:
@@ -3581,7 +3581,7 @@ class SoundVoltexVividWave(
 
         return game
 
-    def handle_game_sv4_load_r_request(self, request: Node) -> Node:
+    def handle_game_sv5_load_r_request(self, request: Node) -> Node:
         refid = request.child_value('refid')
         game = Node.void('game')
 
@@ -3630,7 +3630,7 @@ class SoundVoltexVividWave(
 
         return game
 
-    def handle_game_sv4_save_request(self, request: Node) -> Node:
+    def handle_game_sv5_save_request(self, request: Node) -> Node:
         refid = request.child_value('refid')
 
         if refid is not None:
@@ -3649,7 +3649,7 @@ class SoundVoltexVividWave(
 
         return Node.void('game')
 
-    def handle_game_sv4_save_m_request(self, request: Node) -> Node:
+    def handle_game_sv5_save_m_request(self, request: Node) -> Node:
         refid = request.child_value('refid')
 
         if refid is not None:
@@ -3688,10 +3688,10 @@ class SoundVoltexVividWave(
         # Return a blank response
         return Node.void('game')
 
-    def handle_game_sv4_play_e_request(self, request: Node) -> Node:
+    def handle_game_sv5_play_e_request(self, request: Node) -> Node:
         return Node.void('game')
 
-    def handle_game_sv4_save_e_request(self, request: Node) -> Node:
+    def handle_game_sv5_save_e_request(self, request: Node) -> Node:
         # This has to do with Policy floor infection, but we don't
         # implement multi-game support so meh.
         game = Node.void('game')
@@ -3714,12 +3714,12 @@ class SoundVoltexVividWave(
 
         return game
 
-    def handle_game_sv4_play_s_request(self, request: Node) -> Node:
+    def handle_game_sv5_play_s_request(self, request: Node) -> Node:
         root = Node.void('game')
         root.add_child(Node.u32('play_id', 1))
         return root
 
-    def handle_game_sv4_buy_request(self, request: Node) -> Node:
+    def handle_game_sv5_buy_request(self, request: Node) -> Node:
         refid = request.child_value('refid')
 
         if refid is not None:
@@ -3808,7 +3808,7 @@ class SoundVoltexVividWave(
         game.add_child(Node.s8('result', result))
         return game
 
-    def handle_game_sv4_save_c_request(self, request: Node) -> Node:
+    def handle_game_sv5_save_c_request(self, request: Node) -> Node:
         refid = request.child_value('refid')
 
         if refid is not None:
