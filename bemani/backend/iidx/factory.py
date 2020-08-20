@@ -28,6 +28,8 @@ from bemani.backend.iidx.pendual import IIDXPendual
 from bemani.backend.iidx.copula import IIDXCopula
 from bemani.backend.iidx.sinobuz import IIDXSinobuz
 from bemani.backend.iidx.cannonballers import IIDXCannonBallers
+from bemani.backend.iidx.rootage import IIDXRootage
+from bemani.backend.iidx.heroicverse import IIDXHeroicVerse
 from bemani.common import Model, VersionConstants
 from bemani.data import Data
 
@@ -60,6 +62,8 @@ class IIDXFactory(Factory):
         IIDXCopula,
         IIDXSinobuz,
         IIDXCannonBallers,
+        IIDXRootage,
+        IIDXHeroicVerse,
     ]
 
     @classmethod
@@ -81,8 +85,12 @@ class IIDXFactory(Factory):
                 return VersionConstants.IIDX_COPULA
             if date >= 2016102600 and date < 2017122100:
                 return VersionConstants.IIDX_SINOBUZ
-            if date >= 2017122100:
+            if date >= 2017122100 and date < 2018110700:
                 return VersionConstants.IIDX_CANNON_BALLERS
+            if date >= 2018110700 and date < 2019101600:
+                return VersionConstants.IIDX_ROOTAGE
+            if date >= 2019101600:
+                return VersionConstants.IIDX_HEROIC_VERSE
             return None
 
         if model.game == 'JDJ':
@@ -111,6 +119,10 @@ class IIDXFactory(Factory):
                     return IIDXCopula(data, config, model)
                 if parentversion == VersionConstants.IIDX_CANNON_BALLERS:
                     return IIDXSinobuz(data, config, model)
+                if parentversion == VersionConstants.IIDX_ROOTAGE:
+                    return IIDXCannonBallers(data, config, model)
+                if parentversion == VersionConstants.IIDX_HEROIC_VERSE:
+                    return IIDXRootage(Data, config, model)
 
                 # Unknown older version
                 return None
@@ -128,6 +140,10 @@ class IIDXFactory(Factory):
                 return IIDXSinobuz(data, config, model)
             if version == VersionConstants.IIDX_CANNON_BALLERS:
                 return IIDXCannonBallers(data, config, model)
+            if version == VersionConstants.IIDX_ROOTAGE:
+                return IIDXRootage(data, config, model)
+            if version == VersionConstants.IIDX_HEROIC_VERSE:
+                return IIDXHeroicVerse(data, config, model)
 
         # Unknown game version
         return None

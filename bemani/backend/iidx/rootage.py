@@ -6,17 +6,17 @@ from typing import Optional, Dict, Any, List, Tuple
 
 from bemani.backend.iidx.base import IIDXBase
 from bemani.backend.iidx.course import IIDXCourse
-from bemani.backend.iidx.sinobuz import IIDXSinobuz
+from bemani.backend.iidx.cannonballers import IIDXCannonBallers
 
 from bemani.common import ValidatedDict, VersionConstants, Time, ID, intish
 from bemani.data import Data, UserID
 from bemani.protocol import Node
 
 
-class IIDXCannonBallers(IIDXCourse, IIDXBase):
+class IIDXRootage(IIDXCourse, IIDXBase):
 
-    name = 'Beatmania IIDX CANNON BALLERS'
-    version = VersionConstants.IIDX_CANNON_BALLERS
+    name = 'Beatmania IIDX ROOTAGE'
+    version = VersionConstants.IIDX_ROOTAGE
 
     GAME_CLTYPE_SINGLE = 0
     GAME_CLTYPE_DOUBLE = 1
@@ -87,7 +87,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
     FAVORITE_LIST_LENGTH = 20
 
     def previous_version(self) -> Optional[IIDXBase]:
-        return IIDXSinobuz(self.data, self.config, self.model)
+        return IIDXCannonBallers(self.data, self.config, self.model)
 
     @classmethod
     def run_scheduled_work(cls, data: Data, config: Dict[str, Any]) -> List[Tuple[str, Dict[str, Any]]]:
@@ -287,7 +287,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         else:
             raise Exception('Invalid cltype!')
 
-    def handle_IIDX25shop_getname_request(self, request: Node) -> Node:
+    def handle_IIDX26shop_getname_request(self, request: Node) -> Node:
         machine = self.data.local.machine.get_machine(self.config['machine']['pcbid'])
         if machine is not None:
             machine_name = machine.name
@@ -300,7 +300,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             hour = 0
             minute = 0
 
-        root = Node.void('IIDX25shop')
+        root = Node.void('IIDX26shop')
         root.set_attribute('opname', machine_name)
         root.set_attribute('pid', '51')
         root.set_attribute('cls_opt', '1' if close else '0')
@@ -308,7 +308,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.set_attribute('mi', str(minute))
         return root
 
-    def handle_IIDX25shop_savename_request(self, request: Node) -> Node:
+    def handle_IIDX26shop_savename_request(self, request: Node) -> Node:
         self.update_machine_name(request.attribute('opname'))
 
         shop_close = intish(request.attribute('cls_opt')) or 0
@@ -321,18 +321,18 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             'hours': hours,
         })
 
-        return Node.void('IIDX25shop')
+        return Node.void('IIDX26shop')
 
-    def handle_IIDX25shop_sentinfo_request(self, request: Node) -> Node:
-        return Node.void('IIDX25shop')
+    def handle_IIDX26shop_sentinfo_request(self, request: Node) -> Node:
+        return Node.void('IIDX26shop')
 
-    def handle_IIDX25shop_sendescapepackageinfo_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25shop')
+    def handle_IIDX26shop_sendescapepackageinfo_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26shop')
         root.set_attribute('expire', str((Time.now() + 86400 * 365) * 1000))
         return root
 
-    def handle_IIDX25shop_getconvention_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25shop')
+    def handle_IIDX26shop_getconvention_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26shop')
         machine = self.data.local.machine.get_machine(self.config['machine']['pcbid'])
         if machine.arcade is not None:
             course = self.data.local.machine.get_settings(machine.arcade, self.game, self.music_version, 'shop_course')
@@ -349,7 +349,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.add_child(Node.bool('valid', course.get_bool('valid')))
         return root
 
-    def handle_IIDX25shop_setconvention_request(self, request: Node) -> Node:
+    def handle_IIDX26shop_setconvention_request(self, request: Node) -> Node:
         machine = self.data.local.machine.get_machine(self.config['machine']['pcbid'])
         if machine.arcade is not None:
             course = ValidatedDict()
@@ -360,10 +360,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             course.replace_bool('valid', request.child_value('valid'))
             self.data.local.machine.put_settings(machine.arcade, self.game, self.music_version, 'shop_course', course)
 
-        return Node.void('IIDX25shop')
+        return Node.void('IIDX26shop')
 
-    def handle_IIDX25ranking_getranker_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25ranking')
+    def handle_IIDX26ranking_getranker_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26ranking')
         chart = int(request.attribute('clid'))
         if chart not in [
             self.CHART_TYPE_N7,
@@ -453,7 +453,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25ranking_entry_request(self, request: Node) -> Node:
+    def handle_IIDX26ranking_entry_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         courseid = int(request.attribute('coid'))
         chart = int(request.attribute('clid'))
@@ -484,12 +484,12 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         # We should return the user's position, but its not displayed anywhere
         # so fuck it.
-        root = Node.void('IIDX25ranking')
+        root = Node.void('IIDX26ranking')
         root.set_attribute('anum', '1')
         root.set_attribute('jun', '1')
         return root
 
-    def handle_IIDX25ranking_classicentry_request(self, request: Node) -> Node:
+    def handle_IIDX26ranking_classicentry_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidx_id'))
         courseid = int(request.attribute('course_id'))
         coursestyle = int(request.attribute('play_style'))
@@ -510,10 +510,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 greats,
             )
 
-        return Node.void('IIDX25ranking')
+        return Node.void('IIDX26ranking')
 
-    def handle_IIDX25music_crate_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25music')
+    def handle_IIDX26music_crate_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26music')
         attempts = self.get_clear_rates()
 
         all_songs = list(set([song.id for song in self.data.local.music.get_all_songs(self.game, self.music_version)]))
@@ -539,10 +539,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25music_getrank_request(self, request: Node) -> Node:
+    def handle_IIDX26music_getrank_request(self, request: Node) -> Node:
         cltype = int(request.attribute('cltype'))
 
-        root = Node.void('IIDX25music')
+        root = Node.void('IIDX26music')
         style = Node.void('style')
         root.add_child(style)
         style.set_attribute('type', str(cltype))
@@ -590,14 +590,14 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25music_appoint_request(self, request: Node) -> Node:
+    def handle_IIDX26music_appoint_request(self, request: Node) -> Node:
         musicid = int(request.attribute('mid'))
         chart = int(request.attribute('clid'))
         ghost_type = int(request.attribute('ctype'))
         extid = int(request.attribute('iidxid'))
         userid = self.data.remote.user.from_extid(self.game, self.version, extid)
 
-        root = Node.void('IIDX25music')
+        root = Node.void('IIDX26music')
 
         if userid is not None:
             # Try to look up previous ghost for user
@@ -640,7 +640,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25music_breg_request(self, request: Node) -> Node:
+    def handle_IIDX26music_breg_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         musicid = int(request.attribute('mid'))
         userid = self.data.remote.user.from_extid(self.game, self.version, extid)
@@ -663,9 +663,9 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         )
 
         # Return nothing.
-        return Node.void('IIDX25music')
+        return Node.void('IIDX26music')
 
-    def handle_IIDX25music_reg_request(self, request: Node) -> Node:
+    def handle_IIDX26music_reg_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         musicid = int(request.attribute('mid'))
         chart = int(request.attribute('clid'))
@@ -729,7 +729,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             )
 
         # Calculate and return statistics about this song
-        root = Node.void('IIDX25music')
+        root = Node.void('IIDX26music')
         root.set_attribute('clid', request.attribute('clid'))
         root.set_attribute('mid', request.attribute('mid'))
 
@@ -834,7 +834,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25music_play_request(self, request: Node) -> Node:
+    def handle_IIDX26music_play_request(self, request: Node) -> Node:
         musicid = int(request.attribute('mid'))
         chart = int(request.attribute('clid'))
         clear_status = self.game_to_db_status(int(request.attribute('cflg')))
@@ -852,7 +852,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         )
 
         # Calculate and return statistics about this song
-        root = Node.void('IIDX25music')
+        root = Node.void('IIDX26music')
         root.set_attribute('clid', request.attribute('clid'))
         root.set_attribute('mid', request.attribute('mid'))
 
@@ -870,7 +870,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25grade_raised_request(self, request: Node) -> Node:
+    def handle_IIDX26grade_raised_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         cltype = int(request.attribute('gtype'))
         rank = self.game_to_db_rank(int(request.attribute('gid')), cltype)
@@ -905,12 +905,12 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 continue
             num_players = num_players + 1
 
-        root = Node.void('IIDX25grade')
+        root = Node.void('IIDX26grade')
         root.set_attribute('pnum', str(num_players))
         return root
 
-    def handle_IIDX25pc_common_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25pc')
+    def handle_IIDX26pc_common_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26pc')
         root.set_attribute('expire', '600')
 
         ir = Node.void('ir')
@@ -1257,17 +1257,17 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25pc_delete_request(self, request: Node) -> Node:
-        return Node.void('IIDX25pc')
+    def handle_IIDX26pc_delete_request(self, request: Node) -> Node:
+        return Node.void('IIDX26pc')
 
-    def handle_IIDX25pc_playstart_request(self, request: Node) -> Node:
-        return Node.void('IIDX25pc')
+    def handle_IIDX26pc_playstart_request(self, request: Node) -> Node:
+        return Node.void('IIDX26pc')
 
-    def handle_IIDX25pc_playend_request(self, request: Node) -> Node:
-        return Node.void('IIDX25pc')
+    def handle_IIDX26pc_playend_request(self, request: Node) -> Node:
+        return Node.void('IIDX26pc')
 
-    def handle_IIDX25pc_visit_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25pc')
+    def handle_IIDX26pc_visit_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26pc')
         root.set_attribute('anum', '0')
         root.set_attribute('snum', '0')
         root.set_attribute('pnum', '0')
@@ -1276,7 +1276,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.set_attribute('pflg', '0')
         return root
 
-    def handle_IIDX25pc_shopregister_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_shopregister_request(self, request: Node) -> Node:
         extid = int(request.child_value('iidx_id'))
         location = ID.parse_machine_id(request.child_value('location_id'))
 
@@ -1288,10 +1288,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             profile.replace_int('shop_location', location)
             self.put_profile(userid, profile)
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         return root
 
-    def handle_IIDX25pc_oldget_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_oldget_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         userid = self.data.remote.user.from_refid(self.game, self.version, refid)
         if userid is not None:
@@ -1300,11 +1300,11 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         else:
             profile = None
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         root.set_attribute('status', '1' if profile is None else '0')
         return root
 
-    def handle_IIDX25pc_getname_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_getname_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         userid = self.data.remote.user.from_refid(self.game, self.version, refid)
         if userid is not None:
@@ -1319,50 +1319,50 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 'which should tell the game not to present a migration.'
             )
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         root.set_attribute('name', profile.get_str('name'))
         root.set_attribute('idstr', ID.format_extid(profile.get_int('extid')))
         root.set_attribute('pid', str(profile.get_int('pid')))
         return root
 
-    def handle_IIDX25pc_takeover_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_takeover_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         name = request.attribute('name')
         pid = int(request.attribute('pid'))
         newprofile = self.new_profile_by_refid(refid, name, pid)
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         if newprofile is not None:
             root.set_attribute('id', str(newprofile.get_int('extid')))
         return root
 
-    def handle_IIDX25pc_reg_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_reg_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         name = request.attribute('name')
         pid = int(request.attribute('pid'))
         profile = self.new_profile_by_refid(refid, name, pid)
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         if profile is not None:
             root.set_attribute('id', str(profile.get_int('extid')))
             root.set_attribute('id_str', ID.format_extid(profile.get_int('extid')))
         return root
 
-    def handle_IIDX25pc_get_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_get_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         root = self.get_profile_by_refid(refid)
         if root is None:
-            root = Node.void('IIDX25pc')
+            root = Node.void('IIDX26pc')
         return root
 
-    def handle_IIDX25pc_save_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_save_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         self.put_profile_by_extid(extid, request)
 
-        return Node.void('IIDX25pc')
+        return Node.void('IIDX26pc')
 
     def format_profile(self, userid: UserID, profile: ValidatedDict) -> Node:
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
 
         # Look up play stats we bridge to every mix
         play_stats = self.get_play_statistics(userid)

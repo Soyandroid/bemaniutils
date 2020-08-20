@@ -236,6 +236,8 @@ def lookup(protoversion: str, requestgame: str, requestversion: str) -> Dict[str
             '23': VersionConstants.IIDX_COPULA,
             '24': VersionConstants.IIDX_SINOBUZ,
             '25': VersionConstants.IIDX_CANNON_BALLERS,
+            '26': VersionConstants.IIDX_ROOTAGE,
+            '27': VersionConstants.IIDX_HEROIC_VERSE,
         },
         GameConstants.JUBEAT: {
             '5': VersionConstants.JUBEAT_SAUCER,

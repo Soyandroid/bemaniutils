@@ -56,6 +56,8 @@ class VersionConstants:
     IIDX_COPULA = 23
     IIDX_SINOBUZ = 24
     IIDX_CANNON_BALLERS = 25
+    IIDX_ROOTAGE = 26
+    IIDX_HEROIC_VERSE = 27
 
     JUBEAT = 1
     JUBEAT_RIPPLES = 2
