@@ -917,6 +917,9 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         root.add_child(ir)
         ir.set_attribute('beat', '2')
 
+        escape_package_info = Node.void('escape_package_info')
+        root.add_child(escape_package_info)
+
         # See if we configured event overrides
         if self.machine_joined_arcade():
             game_config = self.get_game_config()
@@ -971,289 +974,26 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         root.add_child(common_evnet)
         common_evnet.set_attribute('flg', '0')
 
-        # Course definitions
-        courses: List[Dict[str, Any]] = [
-            {
-                'name': 'NINJA',
-                'id': 1,
-                'songs': [
-                    24068,
-                    24011,
-                    24031,
-                    24041,
-                ],
-            },
-            {
-                'name': '24A12',
-                'id': 2,
-                'songs': [
-                    24024,
-                    24023,
-                    24005,
-                    24012,
-                ],
-            },
-            {
-                'name': '80\'S',
-                'id': 3,
-                'songs': [
-                    20033,
-                    15029,
-                    24056,
-                    20068,
-                ],
-            },
-            {
-                'name': 'DJ TECHNORCH',
-                'id': 4,
-                'songs': [
-                    21029,
-                    22035,
-                    22049,
-                    21063,
-                ],
-            },
-            {
-                'name': 'COLORS',
-                'id': 5,
-                'songs': [
-                    11032,
-                    15022,
-                    15004,
-                    22089,
-                ],
-            },
-            {
-                'name': 'OHANA',
-                'id': 6,
-                'songs': [
-                    16050,
-                    13000,
-                    22087,
-                    10022,
-                ],
-            },
-            {
-                'name': 'DPER',
-                'id': 7,
-                'songs': [
-                    18004,
-                    19063,
-                    20047,
-                    17059,
-                ],
-            },
-            {
-                'name': 'DA',
-                'id': 8,
-                'songs': [
-                    23058,
-                    17021,
-                    18025,
-                    22006,
-                ],
-            },
-            {
-                'name': 'SOF-LAN',
-                'id': 9,
-                'songs': [
-                    23079,
-                    15005,
-                    7002,
-                    15023,
-                ],
-            },
-            {
-                'name': 'TEMPEST',
-                'id': 10,
-                'songs': [
-                    19008,
-                    20038,
-                    16020,
-                    23051,
-                ],
-            },
-            {
-                'name': 'STAR LIGHT',
-                'id': 11,
-                'songs': [
-                    23082,
-                    24027,
-                    20066,
-                    23031,
-                ],
-            },
-            {
-                'name': 'SCRATCH',
-                'id': 12,
-                'songs': [
-                    11025,
-                    16053,
-                    16031,
-                    22067,
-                ],
-            },
-            {
-                'name': 'L.E.D.-G',
-                'id': 13,
-                'songs': [
-                    15007,
-                    24000,
-                    22011,
-                    17009,
-                ],
-            },
-            {
-                'name': 'QQQ',
-                'id': 14,
-                'songs': [
-                    18062,
-                    18019,
-                    12011,
-                    16045,
-                ],
-            },
-            {
-                'name': 'BMK 2017',
-                'id': 15,
-                'songs': [
-                    24084,
-                    24017,
-                    24022,
-                    24043,
-                ],
-            },
-        ]
+        expert = Node.void('expert')
+        root.add_child(expert)
+        expert.set_attribute('phase', '1')
 
-        # Secret course definitions
-        secret_courses: List[Dict[str, Any]] = [
-            {
-                'name': 'L.E.D.-K',
-                'id': 1,
-                'songs': [
-                    13034,
-                    21068,
-                    17060,
-                    24089,
-                ],
-            },
-            {
-                'name': 'SOTA K',
-                'id': 2,
-                'songs': [
-                    16010,
-                    14038,
-                    20016,
-                    24090,
-                ],
-            },
-            {
-                'name': 'POP',
-                'id': 3,
-                'songs': [
-                    22042,
-                    14056,
-                    15003,
-                    24091,
-                ],
-            },
-            {
-                'name': 'REMO-CON',
-                'id': 4,
-                'songs': [
-                    15030,
-                    12031,
-                    22078,
-                    24092,
-                ],
-            },
-            {
-                'name': 'NUMBER',
-                'id': 5,
-                'songs': [
-                    1003,
-                    17051,
-                    17041,
-                    24093,
-                ],
-            },
-            {
-                'name': 'FANTASY',
-                'id': 6,
-                'songs': [
-                    20102,
-                    24013,
-                    23092,
-                    24094,
-                ],
-            },
-            {
-                'name': 'DRUM\'N\'BASS',
-                'id': 7,
-                'songs': [
-                    6013,
-                    22016,
-                    20073,
-                    24095,
-                ],
-            },
-        ]
+        expert_random_select = Node.void('expert_random_secret')
+        root.add_child(expert_random_select)
+        expert_random_select.set_attribute('phase', '1')
 
-        # For some reason, omnimix crashes on course mode, so don't enable it
-        if not self.omnimix:
-            internet_ranking = Node.void('internet_ranking')
-            root.add_child(internet_ranking)
+        expert_full = Node.void('expert_secret_full_open')
+        root.add_child(expert_full)
 
-            used_ids: List[int] = []
-            for c in courses:
-                if c['id'] in used_ids:
-                    raise Exception('Cannot have multiple courses with the same ID!')
-                elif c['id'] < 0 or c['id'] >= 20:
-                    raise Exception('Course ID is out of bounds!')
-                else:
-                    used_ids.append(c['id'])
+        # some new nodes for rootage
 
-                course = Node.void('course')
-                internet_ranking.add_child(course)
-                course.set_attribute('course_id', str(c['id']))
-                course.set_attribute('name', c['name'])
-                course.set_attribute('mid0', str(c['songs'][0]))
-                course.set_attribute('mid1', str(c['songs'][1]))
-                course.set_attribute('mid2', str(c['songs'][2]))
-                course.set_attribute('mid3', str(c['songs'][3]))
-                course.set_attribute('opflg', '1')
+        system_voice = Node.void('system_voice_phase')
+        root.add_child(system_voice)
+        system_voice.set_attribute('phase', '1')
 
-            secret_ex_course = Node.void('secret_ex_course')
-            root.add_child(secret_ex_course)
-
-            used_secret_ids: List[int] = []
-            for c in secret_courses:
-                if c['id'] in used_secret_ids:
-                    raise Exception('Cannot have multiple secret courses with the same ID!')
-                elif c['id'] < 0 or c['id'] >= 20:
-                    raise Exception('Secret course ID is out of bounds!')
-                else:
-                    used_secret_ids.append(c['id'])
-
-                course = Node.void('course')
-                secret_ex_course.add_child(course)
-                course.set_attribute('course_id', str(c['id']))
-                course.set_attribute('name', c['name'])
-                course.set_attribute('mid0', str(c['songs'][0]))
-                course.set_attribute('mid1', str(c['songs'][1]))
-                course.set_attribute('mid2', str(c['songs'][2]))
-                course.set_attribute('mid3', str(c['songs'][3]))
-
-            expert = Node.void('expert')
-            root.add_child(expert)
-            expert.set_attribute('phase', '1')
-
-            expert_random_select = Node.void('expert_random_select')
-            root.add_child(expert_random_select)
-            expert_random_select.set_attribute('phase', '1')
-
-            expert_full = Node.void('expert_secret_full_open')
-            root.add_child(expert_full)
+        anniv20 = Node.void('anniv20_phase')
+        root.add_child(anniv20)
+        anniv20.set_attribute('phase', '1')
 
         return root
 
