@@ -1110,10 +1110,6 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         # Look up play stats we bridge to every mix
         play_stats = self.get_play_statistics(userid)
 
-        # Look up judge window adjustments
-        judge_dict = profile.get_dict('machine_judge_adjust')
-        machine_judge = judge_dict.get_dict(self.config['machine']['pcbid'])
-
         # Profile data
         pcdata = Node.void('pcdata')
         root.add_child(pcdata)
@@ -1160,14 +1156,27 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         pcdata.set_attribute('d_disp_judge', str(profile.get_int('d_disp_judge')))
         pcdata.set_attribute('s_opstyle', str(profile.get_int('s_opstyle')))
         pcdata.set_attribute('d_opstyle', str(profile.get_int('d_opstyle')))
-        pcdata.set_attribute('s_exscore', str(profile.get_int('s_exscore')))
-        pcdata.set_attribute('d_exscore', str(profile.get_int('d_exscore')))
         pcdata.set_attribute('s_graph_score', str(profile.get_int('s_graph_score')))
         pcdata.set_attribute('d_graph_score', str(profile.get_int('d_graph_score')))
+        pcdata.set_attribute('s_auto_scratch', str(profile.get_int('s_auto_scratch')))
+        pcdata.set_attribute('d_auto_scratch', str(profile.get_int('d_auto_scratch')))
+        pcdata.set_attribute('s_guage_disp', str(profile.get_int('s_guage_dis)p')))
+        pcdata.set_attribute('d_guage_disp', str(profile.get_int('d_guage_dis)p')))
+        pcdata.set_attribute('s_lane_brignt', str(profile.get_int('s_lane_brignt')))
+        pcdata.set_attribute('d_lane_brignt', str(profile.get_int('d_lane_brignt')))
+        pcdata.set_attribute('s_camera_layout', str(profile.get_int('s_camera_layout')))
+        pcdata.set_attribute('d_camera_layout', str(profile.get_int('d_camera_layout')))
+        pcdata.set_attribute('s_ghost_score', str(profile.get_int('s_ghost_score')))
+        pcdata.set_attribute('d_ghost_score', str(profile.get_int('d_ghost_score')))
+        pcdata.set_attribute('s_tsujigiri_disp', str(profile.get_int('s_tsujigiri_disp')))
+        pcdata.set_attribute('d_tsujigiri_disp', str(profile.get_int('d_tsujigiri_disp')))
 
         spdp_rival = Node.void('spdp_rival')
         root.add_child(spdp_rival)
         spdp_rival.set_attribute('flg', str(profile.get_int('spdp_rival_flag')))
+
+        bind_eaappli = Node.void('bind_eaappli')
+        root.add_child(bind_eaappli)
 
         premium_unlocks = Node.void('ea_premium_course')
         root.add_child(premium_unlocks)
@@ -1344,47 +1353,16 @@ class IIDXRootage(IIDXCourse, IIDXBase):
             qprodata.set_attribute('body', str(qpro.get_int('body')))
             qprodata.set_attribute('hand', str(qpro.get_int('hand')))
 
-        # Expert courses
+        # Expert  (removed in rootage)
         ir_data = Node.void('ir_data')
         root.add_child(ir_data)
-        for course in achievements:
-            if course.type == self.COURSE_TYPE_INTERNET_RANKING:
-                courseid, coursechart = self.id_and_chart_from_courseid(course.id)
-                ir_data.add_child(Node.s32_array('e', [
-                    courseid,  # course ID
-                    coursechart,  # course chart
-                    self.db_to_game_status(course.data.get_int('clear_status')),  # course clear status
-                    course.data.get_int('pgnum'),  # flashing great count
-                    course.data.get_int('gnum'),  # great count
-                ]))
 
         secret_course_data = Node.void('secret_course_data')
         root.add_child(secret_course_data)
-        for course in achievements:
-            if course.type == self.COURSE_TYPE_SECRET:
-                courseid, coursechart = self.id_and_chart_from_courseid(course.id)
-                secret_course_data.add_child(Node.s32_array('e', [
-                    courseid,  # course ID
-                    coursechart,  # course chart
-                    self.db_to_game_status(course.data.get_int('clear_status')),  # course clear status
-                    course.data.get_int('pgnum'),  # flashing great count
-                    course.data.get_int('gnum'),  # great count
-                ]))
-
+       
         classic_course_data = Node.void('classic_course_data')
         root.add_child(classic_course_data)
-        for course in achievements:
-            if course.type == self.COURSE_TYPE_CLASSIC:
-                courseid, playstyle = self.id_and_chart_from_courseid(course.id)
-                score_data = Node.void('score_data')
-                classic_course_data.add_child(score_data)
-                score_data.set_attribute('play_style', str(playstyle))
-                score_data.set_attribute('course_id', str(courseid))
-                score_data.set_attribute('score', str(course.data.get_int('pgnum') * 2 + course.data.get_int('gnum')))
-                score_data.set_attribute('pgnum', str(course.data.get_int('pgnum')))
-                score_data.set_attribute('gnum', str(course.data.get_int('gnum')))
-                score_data.set_attribute('cflg', str(self.db_to_game_status(course.data.get_int('clear_status'))))
-
+        
         # Ninja ranking
         for ninja_rank in achievements:
             if ninja_rank.type != 'ninja_rank':
