@@ -1361,6 +1361,9 @@ class IIDXHeroicVerse(IIDXCourse, IIDXBase):
 
         return Node.void('IIDX27pc')
 
+    def handle_IIDX27gameSystem_systemInfo_request(self, request: Node) -> Node:
+        return Node.void('IIDX27gameSystem')
+
     def format_profile(self, userid: UserID, profile: ValidatedDict) -> Node:
         root = Node.void('IIDX27pc')
 

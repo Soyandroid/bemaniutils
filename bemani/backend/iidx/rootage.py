@@ -1361,6 +1361,9 @@ class IIDXRootage(IIDXCourse, IIDXBase):
 
         return Node.void('IIDX26pc')
 
+    def handle_IIDX26gameSystem_systemInfo_request(self, request: Node) -> Node:
+        return Node.void('IIDX26gameSystem')
+
     def format_profile(self, userid: UserID, profile: ValidatedDict) -> Node:
         root = Node.void('IIDX26pc')
 
