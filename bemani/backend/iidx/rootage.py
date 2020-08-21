@@ -1110,6 +1110,10 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         # Look up play stats we bridge to every mix
         play_stats = self.get_play_statistics(userid)
 
+        # Look up judge window adjustments
+        judge_dict = profile.get_dict('machine_judge_adjust')
+        machine_judge = judge_dict.get_dict(self.config['machine']['pcbid'])
+
         # Profile data
         pcdata = Node.void('pcdata')
         root.add_child(pcdata)
