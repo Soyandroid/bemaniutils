@@ -1279,6 +1279,9 @@ class IIDXRootage(IIDXCourse, IIDXBase):
                 settings_dict.get_int('pacemaker'),
                 settings_dict.get_int('effector_lock'),
                 settings_dict.get_int('effector_preset'),
+                0,
+                0,
+                0,
             ],
         )
         root.add_child(skin)
@@ -1367,17 +1370,46 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         classic_course_data = Node.void('classic_course_data')
         root.add_child(classic_course_data)
         
-        # Ninja ranking
-        for ninja_rank in achievements:
-            if ninja_rank.type != 'ninja_rank':
-                continue
 
-            ninja_rank_node = Node.void('ninja_rank')
-            root.add_child(ninja_rank_node)
-            ninja_rank_node.set_attribute('style', str(ninja_rank.id))
-            ninja_rank_node.add_child(Node.s32_array('rank', ninja_rank.data.get_int_array('rank', 13)))
-            ninja_rank_node.add_child(Node.s32_array('point', ninja_rank.data.get_int_array('point', 13)))
+        dj_rank = Node.void('dj_rank')
+        root.add_child(dj_rank)
 
+        dj_ranking = Node.void('dj_rank_ranking')
+        root.add_child(dj_ranking)
+
+        season_rank = Node.void('season_dj_rank')
+        root.add_child(season_rank)
+        
+        sp_list = Node.void('sp_list')
+        root.add_child(sp_list)
+
+        dp_list = Node.void('dp_list')
+        root.add_child(dp_list)
+        
+        tonyutsu = Node.void('tonyutsu')
+        tonyutsu.set_attribute('platinum_pass', '0')
+        tonyutsu.set_attribute('black_pass', '0')
+        root.add_child(tonyutsu)
+
+        shitei = Node.void('shitei')
+        root.add_child(shitei)
+
+        bingo = Node.void('bingo_data')
+        root.add_child(bingo)
+
+        mass_data = Node.void('mass_data')
+        root.add_child(mass_data)
+
+        extra_boss_event = Node.void('extra_boss_event')
+        root.add_child(extra_boss_event)
+
+        visitor = Node.void('visitor')
+        visitor.set_attribute('anum', '0')
+        visitor.set_attribute('snum', '0')
+        visitor.set_attribute('pnum', '0')
+        visitor.set_attribute('vs_flg', '0')
+        root.add_child(visitor)
+        
         # SINOBUZ Den event
         event1_dict = profile.get_dict('event1')
         event1 = Node.void('event1')
