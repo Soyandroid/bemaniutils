@@ -150,10 +150,6 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                     'setting': 'event_phase',
                     'values': {
                         0: 'No Event',
-                        1: 'Koujyo SINOBUZ Den Phase 1',
-                        2: 'Koujyo SINOBUZ Den Phase 2',
-                        3: 'Koujyo SINOBUZ Den Phase 3',
-                        4: 'Ninnin Shichikenden',
                     }
                 },
             ],
@@ -1645,67 +1641,6 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 score_data.set_attribute('gnum', str(course.data.get_int('gnum')))
                 score_data.set_attribute('cflg', str(self.db_to_game_status(course.data.get_int('clear_status'))))
 
-        # Ninja ranking
-        for ninja_rank in achievements:
-            if ninja_rank.type != 'ninja_rank':
-                continue
-
-            ninja_rank_node = Node.void('ninja_rank')
-            root.add_child(ninja_rank_node)
-            ninja_rank_node.set_attribute('style', str(ninja_rank.id))
-            ninja_rank_node.add_child(Node.s32_array('rank', ninja_rank.data.get_int_array('rank', 13)))
-            ninja_rank_node.add_child(Node.s32_array('point', ninja_rank.data.get_int_array('point', 13)))
-
-        # SINOBUZ Den event
-        event1_dict = profile.get_dict('event1')
-        event1 = Node.void('event1')
-        root.add_child(event1)
-        event1.set_attribute('last_select_map', str(event1_dict.get_int('last_select_map')))
-        event1.set_attribute('hold_rice', str(event1_dict.get_int('hold_rice')))
-        event1.set_attribute('tax_rice', str(event1_dict.get_int('tax_rice')))
-        event1.set_attribute('tips_list', str(event1_dict.get_int('tips_list')))
-
-        for map_data in achievements:
-            if map_data.type != 'map_data':
-                continue
-
-            map_data_node = Node.void('map_data')
-            event1.add_child(map_data_node)
-            map_data_node.set_attribute('map_id', str(map_data.id))
-            map_data_node.set_attribute('play_num', str(map_data.data.get_int('play_num')))
-            map_data_node.set_attribute('progress', str(map_data.data.get_int('progress')))
-            map_data_node.set_attribute('battle_point', str(map_data.data.get_int('battle_point')))
-            map_data_node.set_attribute('rice_point', str(map_data.data.get_int('rice_point')))
-            map_data_node.set_attribute('is_clear', '1' if map_data.data.get_bool('is_clear') else '0')
-            map_data_node.add_child(Node.binary('ninjyutsu', map_data.data.get_bytes('ninjyutsu')))
-            map_data_node.add_child(Node.binary('map_card_damage', map_data.data.get_bytes('map_card_damage')))
-            map_data_node.add_child(Node.binary('map_card_clear', map_data.data.get_bytes('map_card_clear')))
-
-        # Shichikenden event
-        event2_dict = profile.get_dict('event2')
-        event2 = Node.void('event2')
-        root.add_child(event2)
-        event2.set_attribute('play_num', str(event2_dict.get_int('play_num')))
-        event2.set_attribute('chakra_point', str(event2_dict.get_int('chakra_point')))
-        event2.set_attribute('last_select_ryuha', str(event2_dict.get_int('last_select_ryuha')))
-        event2.add_child(Node.binary('last_select_dojo', event2_dict.get_bytes('last_select_dojo', b'\0' * 12)))
-        event2.add_child(Node.binary('enemy_damage', event2_dict.get_bytes('enemy_damage', b'\0' * 532)))
-
-        # OMES Data
-        omes_dict = profile.get_dict('omes')
-        onemore_data = Node.void('onemore_data')
-        root.add_child(onemore_data)
-        onemore_data.set_attribute('defeat_0', str(omes_dict.get_int('defeat_0')))
-        onemore_data.set_attribute('defeat_1', str(omes_dict.get_int('defeat_1')))
-        onemore_data.set_attribute('defeat_2', str(omes_dict.get_int('defeat_2')))
-        onemore_data.set_attribute('defeat_3', str(omes_dict.get_int('defeat_3')))
-        onemore_data.set_attribute('defeat_4', str(omes_dict.get_int('defeat_4')))
-        onemore_data.set_attribute('defeat_5', str(omes_dict.get_int('defeat_5')))
-        onemore_data.set_attribute('defeat_6', str(omes_dict.get_int('defeat_6')))
-        onemore_data.set_attribute('challenge_num_n', str(omes_dict.get_int('challenge_num_n')))
-        onemore_data.set_attribute('challenge_num_h', str(omes_dict.get_int('challenge_num_h')))
-        onemore_data.set_attribute('challenge_num_a', str(omes_dict.get_int('challenge_num_a')))
-
         # If the user joined a particular shop, let the game know.
         if 'shop_location' in profile:
             shop_id = profile.get_int('shop_location')
@@ -1983,88 +1918,6 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                     'double': doubles,
                 },
             )
-
-        # Ninja rank saving
-        for ninja_rank in request.children:
-            if ninja_rank.name != 'ninja_rank':
-                continue
-
-            rankid = int(ninja_rank.attribute('style'))
-            rank = ninja_rank.child_value('rank')
-            point = ninja_rank.child_value('point')
-
-            self.data.local.user.put_achievement(
-                self.game,
-                self.version,
-                userid,
-                rankid,
-                'ninja_rank',
-                {
-                    'rank': rank,
-                    'point': point,
-                }
-            )
-
-        # SINOBUZ Den Event Saving
-        event1 = request.child('event1')
-        if event1 is not None:
-            event1_dict = newprofile.get_dict('event1')
-            last_select_map = int(event1.attribute('last_select_map'))
-            event1_dict.replace_int('hold_rice', int(event1.attribute('hold_rice')))
-            event1_dict.replace_int('tax_rice', int(event1.attribute('tax_rice')))
-            event1_dict.replace_int('tips_list', int(event1.attribute('tipls_read')))
-
-            # Save any map data, also see if we need to update last_select_map
-            for map_data in event1.children:
-                if map_data.name != 'map_data':
-                    continue
-
-                # Update the map's progress in the DB
-                mapid = int(map_data.attribute('map_id'))
-                play_num = int(map_data.attribute('play_num'))
-                progress = int(map_data.attribute('progress'))
-                battle_point = int(map_data.attribute('battle_point'))
-                rice_point = int(map_data.attribute('rice_point'))
-                is_clear = map_data.child_value('is_clear') or False
-                ninjyutsu = map_data.child_value('ninjyutsu')
-                card_damage = map_data.child_value('card_damage')
-                card_clear = map_data.child_value('card_clear')
-
-                self.data.local.user.put_achievement(
-                    self.game,
-                    self.version,
-                    userid,
-                    mapid,
-                    'map_data',
-                    {
-                        'play_num': play_num,
-                        'progress': progress,
-                        'battle_point': battle_point,
-                        'rice_point': rice_point,
-                        'is_clear': is_clear,
-                        'ninjyutsu': ninjyutsu,
-                        'map_card_damage': card_damage,
-                        'map_card_clear': card_clear,
-                    }
-                )
-
-                # If they cleared this map, then we should be at least onto the next one.
-                if is_clear:
-                    last_select_map = max(last_select_map, mapid + 1)
-
-            event1_dict.replace_int('last_select_map', last_select_map)
-            newprofile.replace_dict('event1', event1_dict)
-
-        # Shichikenden Event Saving
-        event2 = request.child('event2')
-        if event2 is not None:
-            event2_dict = newprofile.get_dict('event2')
-            event2_dict.replace_int('play_num', int(event2.attribute('play_num')))
-            event2_dict.replace_int('last_select_ryuha', int(event2.attribute('last_select_ryuha')))
-            event2_dict.replace_int('chakra_point', int(event2.attribute('chakra_point')))
-            event2_dict.replace_bytes('last_select_dojo', event2.child_value('last_select_dojo'))
-            event2_dict.replace_bytes('enemy_damage', event2.child_value('enemy_damage'))
-            newprofile.replace_dict('event2', event2_dict)
 
         # Step-up mode
         step = request.child('step')
