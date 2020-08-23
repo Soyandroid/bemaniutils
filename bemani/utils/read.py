@@ -883,15 +883,15 @@ class ImportPopn(ImportBase):
                     mask & 0x4000000 > 0,  # Battle hyper chart bit
                 )
         elif self.version == VersionConstants.POPN_MUSIC_USANEKO:
-            # Based on M39:J:A:A:2018101500
+            # Based on M39:J:A:A:2018082100
 
             # Normal offset for music DB, size
-            offset = 0x299210
+            offset = 0x299410
             step = 172
             length = 1704
 
             # Offset and step of file DB
-            file_offset = 0x28AF08
+            file_offset = 0x28B108
             file_step = 32
 
             # Standard lookups
