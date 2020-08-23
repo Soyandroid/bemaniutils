@@ -122,7 +122,7 @@ class IIDXFactory(Factory):
                 if parentversion == VersionConstants.IIDX_ROOTAGE:
                     return IIDXCannonBallers(data, config, model)
                 if parentversion == VersionConstants.IIDX_HEROIC_VERSE:
-                    return IIDXRootage(Data, config, model)
+                    return IIDXRootage(data, config, model)
 
                 # Unknown older version
                 return None

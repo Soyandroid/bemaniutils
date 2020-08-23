@@ -1362,10 +1362,9 @@ class IIDXRootage(IIDXCourse, IIDXBase):
 
         secret_course_data = Node.void('secret_course_data')
         root.add_child(secret_course_data)
-       
+
         classic_course_data = Node.void('classic_course_data')
         root.add_child(classic_course_data)
-        
 
         dj_rank = Node.void('dj_rank')
         root.add_child(dj_rank)
@@ -1375,13 +1374,13 @@ class IIDXRootage(IIDXCourse, IIDXBase):
 
         season_rank = Node.void('season_dj_rank')
         root.add_child(season_rank)
-        
+
         sp_list = Node.void('sp_list')
         root.add_child(sp_list)
 
         dp_list = Node.void('dp_list')
         root.add_child(dp_list)
-        
+
         tonyutsu = Node.void('tonyutsu')
         tonyutsu.set_attribute('platinum_pass', '0')
         tonyutsu.set_attribute('black_pass', '0')
@@ -1405,7 +1404,7 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         visitor.set_attribute('pnum', '0')
         visitor.set_attribute('vs_flg', '0')
         root.add_child(visitor)
-        
+
         # If the user joined a particular shop, let the game know.
         if 'shop_location' in profile:
             shop_id = profile.get_int('shop_location')
