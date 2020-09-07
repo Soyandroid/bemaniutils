@@ -1171,6 +1171,12 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         pcdata.set_attribute('s_tsujigiri_disp', str(profile.get_int('s_tsujigiri_disp')))
         pcdata.set_attribute('d_tsujigiri_disp', str(profile.get_int('d_tsujigiri_disp')))
 
+        # I have no idea what this does for now
+        weekly_achieve = Node.void('weekly_achieve')
+        root.add_child(weekly_achieve)
+        for i in range(0, 4):
+            weekly_achieve.set_attribute('weekly_achieve' + str(i), '3')
+
         spdp_rival = Node.void('spdp_rival')
         root.add_child(spdp_rival)
         spdp_rival.set_attribute('flg', str(profile.get_int('spdp_rival_flag')))
@@ -1180,6 +1186,18 @@ class IIDXRootage(IIDXCourse, IIDXBase):
 
         premium_unlocks = Node.void('ea_premium_course')
         root.add_child(premium_unlocks)
+
+        qr_reward = Node.void('enable_qr_reward')
+        root.add_child(qr_reward)
+
+        # KAC stuff
+        kac_entry_info = Node.void('kac_entry_info')
+        root.add_child(kac_entry_info)
+        kac_entry_info.add_child(Node.void('enable_kac_deller'))
+        kac_entry_info.add_child(Node.void('disp_kac_mark'))
+        kac_entry_info.add_child(Node.void('is_kac_evnet_entry'))
+        kac_secret_music = Node.void('kac_secret_music')
+        kac_entry_info.add_child(kac_secret_music)
 
         legendarias = Node.void('leggendaria_open')
         root.add_child(legendarias)
@@ -1231,6 +1249,20 @@ class IIDXRootage(IIDXCourse, IIDXBase):
             favorite.add_child(Node.binary('dp_mlist', dp_mlist))
             favorite.add_child(Node.binary('dp_clist', dp_clist))
 
+        # Playlist stuff, not currently saved
+        playlist = Node.void('playlist')
+        root.add_child(playlist)
+
+        # Qpro secret data from step-up mode
+        qpro_secrete_dict = profile.get_dict('qpro_secret')
+        qpro_secret = Node.void('qpro_secret')
+        root.add_child(qpro_secret)
+        qpro_secret.add_child(Node.s64_array('head', qpro_secrete_dict.get_int_array('head', 5)))
+        qpro_secret.add_child(Node.s64_array('hair', qpro_secrete_dict.get_int_array('hair', 5)))
+        qpro_secret.add_child(Node.s64_array('face', qpro_secrete_dict.get_int_array('face', 5)))
+        qpro_secret.add_child(Node.s64_array('body', qpro_secrete_dict.get_int_array('body', 5)))
+        qpro_secret.add_child(Node.s64_array('hand', qpro_secrete_dict.get_int_array('hand', 5)))
+
         # DAN rankings
         grade = Node.void('grade')
         root.add_child(grade)
@@ -1277,7 +1309,7 @@ class IIDXRootage(IIDXCourse, IIDXBase):
                 settings_dict.get_int('effector_preset'),
                 0,
                 0,
-                0,
+                1,
             ],
         )
         root.add_child(skin)
@@ -1294,16 +1326,6 @@ class IIDXRootage(IIDXCourse, IIDXBase):
                 qpro_dict.get_int('body'),
             ],
         ))
-
-        # Qpro secret data from step-up mode
-        qpro_secrete_dict = profile.get_dict('qpro_secret')
-        qpro_secret = Node.void('qpro_secret')
-        root.add_child(qpro_secret)
-        qpro_secret.add_child(Node.s64_array('head', qpro_secrete_dict.get_int_array('head', 5)))
-        qpro_secret.add_child(Node.s64_array('hair', qpro_secrete_dict.get_int_array('hair', 5)))
-        qpro_secret.add_child(Node.s64_array('face', qpro_secrete_dict.get_int_array('face', 5)))
-        qpro_secret.add_child(Node.s64_array('body', qpro_secrete_dict.get_int_array('body', 5)))
-        qpro_secret.add_child(Node.s64_array('hand', qpro_secrete_dict.get_int_array('hand', 5)))
 
         # Rivals
         rlist = Node.void('rlist')
@@ -1356,6 +1378,9 @@ class IIDXRootage(IIDXCourse, IIDXBase):
             qprodata.set_attribute('body', str(qpro.get_int('body')))
             qprodata.set_attribute('hand', str(qpro.get_int('hand')))
 
+            challenge = Node.void('challenge')
+            rival.add_child(challenge)
+
         # Expert  (removed in rootage)
         ir_data = Node.void('ir_data')
         root.add_child(ir_data)
@@ -1365,6 +1390,9 @@ class IIDXRootage(IIDXCourse, IIDXBase):
 
         classic_course_data = Node.void('classic_course_data')
         root.add_child(classic_course_data)
+
+        follow = Node.void('follow_data')
+        root.add_child(follow)
 
         dj_rank = Node.void('dj_rank')
         root.add_child(dj_rank)

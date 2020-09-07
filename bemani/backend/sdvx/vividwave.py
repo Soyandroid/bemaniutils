@@ -3300,9 +3300,9 @@ class SoundVoltexVividWave(
         enable_event("TOTAL_MEMORIAL_ENABLE")
         enable_event("EVENT_IDS_SERIALCODE_TOHO_02")
         enable_event("KONAMI_50TH_LOGO")
-        enable_event("KAC6TH_FINISH")
-        enable_event("KAC7TH_FINISH")
-        enable_event("KAC8TH_FINISH")
+        enable_event("PREMIUM_TIME_ENABLE")
+        #enable_event("SKILL_ANALYZER_ABLE")
+        # Uncomment when skill analyser courses are imported
 
         # An old collaboration event we don't support.
         reitaisai = Node.void('reitaisai2018')
