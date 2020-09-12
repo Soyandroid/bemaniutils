@@ -1,10 +1,10 @@
 # vim: set fileencoding=utf-8
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from bemani.backend.base import Base
 from bemani.backend.core import CoreHandler, CardManagerHandler, PASELIHandler
-from bemani.common import DBConstants, GameConstants, ValidatedDict
-from bemani.data import Score, UserID
+from bemani.common import DBConstants, GameConstants, ValidatedDict, Model
+from bemani.data import Data, Score, UserID
 from bemani.protocol import Node
 
 
@@ -38,6 +38,13 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     CHART_TYPE_HARD_BASIC = 3
     CHART_TYPE_HARD_ADVANCED = 4
     CHART_TYPE_HARD_EXTREME = 5
+
+    def __init__(self, data: Data, config: Dict[str, Any], model: Model) -> None:
+        super().__init__(data, config, model)
+        if model.rev == 'X':
+            self.omnimix = True
+        else:
+            self.omnimix = False
 
     def previous_version(self) -> Optional['JubeatBase']:
         """

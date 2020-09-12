@@ -1314,15 +1314,27 @@ class ImportJubeat(ImportBase):
         no_combine: bool,
         update: bool,
     ) -> None:
-        actual_version = {
-            'saucer': VersionConstants.JUBEAT_SAUCER,
-            'saucer-fulfill': VersionConstants.JUBEAT_SAUCER_FULFILL,
-            'prop': VersionConstants.JUBEAT_PROP,
-            'qubell': VersionConstants.JUBEAT_QUBELL,
-            'clan': VersionConstants.JUBEAT_CLAN,
-            'festo': VersionConstants.JUBEAT_FESTO,
-            'all': None,  # Special case for importing metadata
-        }.get(version, -1)
+        if version in ['saucer', 'saucer-fulfill', 'prop', 'qubell', 'clan', 'festo']:
+            actual_version = {
+                'saucer': VersionConstants.JUBEAT_SAUCER,
+                'saucer-fulfill': VersionConstants.JUBEAT_SAUCER_FULFILL,
+                'prop': VersionConstants.JUBEAT_PROP,
+                'qubell': VersionConstants.JUBEAT_QUBELL,
+                'clan': VersionConstants.JUBEAT_CLAN,
+                'festo': VersionConstants.JUBEAT_FESTO,
+            }.get(version, -1)
+            print(actual_version)
+        elif version in ['omni-prop', 'omni-qubell', 'omni-clan', 'omni-festo']:
+            actual_version = {
+                'omni-prop': VersionConstants.JUBEAT_PROP,
+                'omni-qubell': VersionConstants.JUBEAT_QUBELL,
+                'omni-clan': VersionConstants.JUBEAT_CLAN,
+                'omni-festo': VersionConstants.JUBEAT_FESTO,
+            }.get(version, -1) + DBConstants.OMNIMIX_VERSION_BUMP
+            print(actual_version)
+
+        elif version == 'all':
+            actual_version = None
 
         if actual_version in [
             None,
@@ -1330,15 +1342,21 @@ class ImportJubeat(ImportBase):
             VersionConstants.JUBEAT_SAUCER_FULFILL,
             VersionConstants.JUBEAT_PROP,
             VersionConstants.JUBEAT_QUBELL,
-            VersionConstants.JUBEAT_CLAN
+            VersionConstants.JUBEAT_CLAN,
+            VersionConstants.JUBEAT_PROP + DBConstants.OMNIMIX_VERSION_BUMP,
+            VersionConstants.JUBEAT_QUBELL + DBConstants.OMNIMIX_VERSION_BUMP,
+            VersionConstants.JUBEAT_CLAN + DBConstants.OMNIMIX_VERSION_BUMP,
         ]:
             self.charts = [0, 1, 2]
         # jubeat festo adds in separation of normal and hard mode scores.
         # This adds a duplicate of each chart so that we show separated scores.
-        elif actual_version == VersionConstants.JUBEAT_FESTO:
+        # previous versions also send the hard_mode variable so ideally we
+        # would save it for all games but sending back the right scores becomes
+        # harder. Will likely get to it though.
+        elif actual_version == VersionConstants.JUBEAT_FESTO or actual_version == VersionConstants.JUBEAT_FESTO + DBConstants.OMNIMIX_VERSION_BUMP:
             self.charts = [0, 1, 2, 3, 4, 5]
         else:
-            raise Exception("Unsupported Jubeat version, expected one of the following: saucer, saucer-fulfill, prop, qubell, clan, festo!")
+            raise Exception("Unsupported Jubeat version, expected one of the following: saucer, saucer-fulfill, prop, omni-prop, qubell, omni-qubell, clan, omni-clan, festo, omni-festo!")
 
         super().__init__(config, GameConstants.JUBEAT, actual_version, no_combine, update)
 

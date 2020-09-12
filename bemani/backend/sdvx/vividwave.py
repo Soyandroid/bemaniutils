@@ -3301,7 +3301,7 @@ class SoundVoltexVividWave(
         enable_event("EVENT_IDS_SERIALCODE_TOHO_02")
         enable_event("KONAMI_50TH_LOGO")
         enable_event("PREMIUM_TIME_ENABLE")
-        #enable_event("SKILL_ANALYZER_ABLE")
+        # enable_event("SKILL_ANALYZER_ABLE")
         # Uncomment when skill analyser courses are imported
 
         # An old collaboration event we don't support.
