@@ -153,7 +153,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             return None
 
         userid = self.data.remote.user.from_extid(self.game, self.version, extid)
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
         if scores is None:
             return None
         profile = self.get_profile(userid)
@@ -194,7 +194,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             chart += 3
         oldscore = self.data.local.music.get_score(
             self.game,
-            self.version,
+            self.music_version,
             userid,
             songid,
             chart,
@@ -256,7 +256,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         # Write the new score back
         self.data.local.music.put_score(
             self.game,
-            self.version,
+            self.music_version,
             userid,
             songid,
             chart,
@@ -270,7 +270,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         # Save the history of this score too
         self.data.local.music.put_attempt(
             self.game,
-            self.version,
+            self.music_version,
             userid,
             songid,
             chart,

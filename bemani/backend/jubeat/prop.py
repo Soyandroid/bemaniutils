@@ -1329,7 +1329,7 @@ class JubeatProp(
         return newprofile
 
     def format_scores(self, userid: UserID, profile: ValidatedDict, scores: List[Score]) -> Node:
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
 
         root = Node.void('gametop')
         datanode = Node.void('data')
