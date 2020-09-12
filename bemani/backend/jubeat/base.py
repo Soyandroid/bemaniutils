@@ -46,6 +46,12 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         else:
             self.omnimix = False
 
+    @property
+    def music_version(self) -> int:
+        if self.omnimix:
+            return DBConstants.OMNIMIX_VERSION_BUMP + self.version
+        return self.version
+
     def previous_version(self) -> Optional['JubeatBase']:
         """
         Returns the previous version of the game, based on this game. Should
