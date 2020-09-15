@@ -57,6 +57,9 @@ class JubeatFesto(
         },
         33: {
             'enabled': False,
+        },
+        101: {
+            'enabled': False,
         }
     }
     JBOX_EMBLEM_NORMAL = 1
@@ -715,7 +718,7 @@ class JubeatFesto(
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, -4194304, -2080769, -1,
-                -17, -35651587, 234555391, 0,
+                -1, -1, -1, -1,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
@@ -832,7 +835,16 @@ class JubeatFesto(
 
             reward_list = Node.void('reward_list')
             clear.add_child(reward_list)
+        # add stuff for newer festo to boot
 
+        info.add_child(Node.void('share_music'))
+        info.add_child(Node.void('weekly_music'))
+        info.add_child(Node.void('add_default_music_list'))
+        info.add_child(Node.void('department'))
+        info.add_child(Node.void('team_battle'))
+        info.add_child(Node.void('qr'))
+        info.add_child(Node.void('emo_list'))
+        info.add_child(Node.void('tip_list'))
         return info
 
     def handle_shopinfo_regist_request(self, request: Node) -> Node:
