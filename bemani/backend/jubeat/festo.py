@@ -774,7 +774,7 @@ class JubeatFesto(
 
         # Set up TUNE RUN course requirements
         clan_course_list = Node.void('course_list')
-        info.add_child(clan_course_list)
+        #info.add_child(clan_course_list)
 
         valid_courses: Set[int] = set()
         for course in self.__get_course_list():
@@ -839,10 +839,29 @@ class JubeatFesto(
 
         info.add_child(Node.void('share_music'))
         info.add_child(Node.void('weekly_music'))
-        info.add_child(Node.void('add_default_music_list'))
+        info.add_child(Node.s32_array(
+            'add_default_music_list',
+            [
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+            ],
+        ))
         info.add_child(Node.void('department'))
         info.add_child(Node.void('team_battle'))
-        info.add_child(Node.void('qr'))
         info.add_child(Node.void('emo_list'))
         info.add_child(Node.void('tip_list'))
         return info
