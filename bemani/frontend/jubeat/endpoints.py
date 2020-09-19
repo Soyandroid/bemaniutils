@@ -19,32 +19,32 @@ jubeat_pages = Blueprint(
 )
 
 
-@jubeat_pages.route('/scores')
-@loginrequired
-def viewnetworkscores() -> Response:
-    # Only load the last 100 results for the initial fetch, so we can render faster
-    frontend = JubeatFrontend(g.data, g.config, g.cache)
-    network_scores = frontend.get_network_scores(limit=100)
-    if len(network_scores['attempts']) > 10:
-        network_scores['attempts'] = frontend.round_to_ten(network_scores['attempts'])
+# @jubeat_pages.route('/scores')
+# @loginrequired
+# def viewnetworkscores() -> Response:
+#     # Only load the last 100 results for the initial fetch, so we can render faster
+#     frontend = JubeatFrontend(g.data, g.config, g.cache)
+#     network_scores = frontend.get_network_scores(limit=100)
+#     if len(network_scores['attempts']) > 10:
+#         network_scores['attempts'] = frontend.round_to_ten(network_scores['attempts'])
 
-    return render_react(
-        'Global Jubeat Scores',
-        'jubeat/scores.react.js',
-        {
-            'attempts': network_scores['attempts'],
-            'songs': frontend.get_all_songs(),
-            'players': network_scores['players'],
-            'versions': {version: name for (game, version, name) in frontend.sanitized_games()},
-            'shownames': True,
-            'shownewrecords': False,
-        },
-        {
-            'refresh': url_for('jubeat_pages.listnetworkscores'),
-            'player': url_for('jubeat_pages.viewplayer', userid=-1),
-            'individual_score': url_for('jubeat_pages.viewtopscores', musicid=-1),
-        },
-    )
+#     return render_react(
+#         'Global Jubeat Scores',
+#         'jubeat/scores.react.js',
+#         {
+#             'attempts': network_scores['attempts'],
+#             'songs': frontend.get_all_songs(),
+#             'players': network_scores['players'],
+#             'versions': {version: name for (game, version, name) in frontend.sanitized_games()},
+#             'shownames': True,
+#             'shownewrecords': False,
+#         },
+#         {
+#             'refresh': url_for('jubeat_pages.listnetworkscores'),
+#             'player': url_for('jubeat_pages.viewplayer', userid=-1),
+#             'individual_score': url_for('jubeat_pages.viewtopscores', musicid=-1),
+#         },
+#     )
 
 
 @jubeat_pages.route('/scores/list')
@@ -97,30 +97,30 @@ def listscores(userid: UserID) -> Dict[str, Any]:
     }
 
 
-@jubeat_pages.route('/records')
-@loginrequired
-def viewnetworkrecords() -> Response:
-    frontend = JubeatFrontend(g.data, g.config, g.cache)
-    network_records = frontend.get_network_records()
+# @jubeat_pages.route('/records')
+# @loginrequired
+# def viewnetworkrecords() -> Response:
+#     frontend = JubeatFrontend(g.data, g.config, g.cache)
+#     network_records = frontend.get_network_records()
 
-    # return render_react(
-    #     'Global Jubeat Records',
-    #     'jubeat/records.react.js',
-    #     {
-    #         'records': network_records['records'],
-    #         'songs': frontend.get_all_songs(),
-    #         'players': network_records['players'],
-    #         'versions': {version: name for (game, version, name) in frontend.sanitized_games()},
-    #         'shownames': True,
-    #         'showpersonalsort': False,
-    #         'filterempty': False,
-    #     },
-    #     {
-    #         'refresh': url_for('jubeat_pages.listnetworkrecords'),
-    #         'player': url_for('jubeat_pages.viewplayer', userid=-1),
-    #         'individual_score': url_for('jubeat_pages.viewtopscores', musicid=-1),
-    #     },
-    # )
+#     return render_react(
+#         'Global Jubeat Records',
+#         'jubeat/records.react.js',
+#         {
+#             'records': network_records['records'],
+#             'songs': frontend.get_all_songs(),
+#             'players': network_records['players'],
+#             'versions': {version: name for (game, version, name) in frontend.sanitized_games()},
+#             'shownames': True,
+#             'showpersonalsort': False,
+#             'filterempty': False,
+#         },
+#         {
+#             'refresh': url_for('jubeat_pages.listnetworkrecords'),
+#             'player': url_for('jubeat_pages.viewplayer', userid=-1),
+#             'individual_score': url_for('jubeat_pages.viewtopscores', musicid=-1),
+#         },
+#     )
 
 
 @jubeat_pages.route('/records/list')
