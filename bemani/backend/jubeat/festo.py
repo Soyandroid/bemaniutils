@@ -708,22 +708,22 @@ class JubeatFesto(
         info.add_child(Node.s32_array(
             'hot_music_list',
             [
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, -4194304, -2080769, -5, 
-                -17, -35651587, 234571775, 939654912, 
-                14, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, -4194304, -2080769, -1,
+                -17, -35651587, 234571775, 939654912,
+                14, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
             ]
         ))
 
@@ -774,7 +774,7 @@ class JubeatFesto(
 
         # Set up TUNE RUN course requirements
         clan_course_list = Node.void('course_list')
-        #info.add_child(clan_course_list)
+        info.add_child(clan_course_list)
 
         valid_courses: Set[int] = set()
         for course in self.__get_course_list():

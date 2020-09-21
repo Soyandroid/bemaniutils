@@ -139,7 +139,8 @@ class GlobalMusicData(BaseGlobalData):
             {
                 'medal': status,
                 'combo': int(data.get('combo', -1)),
-                'ghost': [int(x) for x in data.get('ghost', [])]
+                'ghost': [int(x) for x in data.get('ghost', [])],
+                'music_rate': int(data.get('music_rate', -1))
             },
         )
 
