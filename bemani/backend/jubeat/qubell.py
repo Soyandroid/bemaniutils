@@ -844,6 +844,7 @@ class JubeatQubell(
 
         music = ValidatedDict()
         for score in scores:
+            chart = score.chart if score.chart < 3 else score.chart - 3
             data = music.get_dict(str(score.id))
             play_cnt = data.get_int_array('play_cnt', 3)
             clear_cnt = data.get_int_array('clear_cnt', 3)
@@ -852,6 +853,11 @@ class JubeatQubell(
             ex_cnt = data.get_int_array('ex_cnt', 3)
             points = data.get_int_array('points', 3)
 
+            # This means that we already assigned a value and it was greater than current
+            # This is possible because we iterate through both hard mode and normal mode scores
+            # and treat them equally.
+            if points[chart] >= score.points:
+                continue
             # Replace data for this chart type
             play_cnt[score.chart] = score.plays
             clear_cnt[score.chart] = score.data.get_int('clear_count')
@@ -1131,6 +1137,7 @@ class JubeatQubell(
                 flags = int(result.child('score').attribute('clear'))
                 combo = int(result.child('score').attribute('combo'))
                 ghost = result.child_value('mbar')
+                is_hard_mode = bool(result.child_value('is_hard_mode'))
 
                 stats = {
                     'perfect': result.child_value('nr_perfect'),
@@ -1158,7 +1165,7 @@ class JubeatQubell(
                     if flags & bit > 0:
                         medal = max(medal, mapping[bit])
 
-                self.update_score(userid, timestamp, songid, chart, points, medal, combo, ghost, stats)
+                self.update_score(userid, timestamp, songid, chart, points, medal, combo, ghost, stats, hard_mode=is_hard_mode)
 
         # Born stuff
         born = player.child('born')

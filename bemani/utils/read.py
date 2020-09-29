@@ -1343,18 +1343,16 @@ class ImportJubeat(ImportBase):
             VersionConstants.JUBEAT_PROP,
             VersionConstants.JUBEAT_QUBELL,
             VersionConstants.JUBEAT_CLAN,
+            VersionConstants.JUBEAT_FESTO,
             VersionConstants.JUBEAT_PROP + DBConstants.OMNIMIX_VERSION_BUMP,
             VersionConstants.JUBEAT_QUBELL + DBConstants.OMNIMIX_VERSION_BUMP,
             VersionConstants.JUBEAT_CLAN + DBConstants.OMNIMIX_VERSION_BUMP,
+            VersionConstants.JUBEAT_FESTO + DBConstants.OMNIMIX_VERSION_BUMP,
         ]:
-            self.charts = [0, 1, 2]
+            self.charts = [0, 1, 2, 3, 4, 5]
         # jubeat festo adds in separation of normal and hard mode scores.
         # This adds a duplicate of each chart so that we show separated scores.
-        # previous versions also send the hard_mode variable so ideally we
-        # would save it for all games but sending back the right scores becomes
-        # harder. Will likely get to it though.
-        elif actual_version == VersionConstants.JUBEAT_FESTO or actual_version == VersionConstants.JUBEAT_FESTO + DBConstants.OMNIMIX_VERSION_BUMP:
-            self.charts = [0, 1, 2, 3, 4, 5]
+
         else:
             raise Exception("Unsupported Jubeat version, expected one of the following: saucer, saucer-fulfill, prop, omni-prop, qubell, omni-qubell, clan, omni-clan, festo, omni-festo!")
 
@@ -1575,8 +1573,8 @@ class ImportJubeat(ImportBase):
         self.finish_batch()
 
     def import_metadata(self, tsvfile: str) -> None:
-        # if self.version is not None:
-        #   raise Exception("Unsupported Jubeat version, expected one of the following: all")
+        if self.version is not None:
+            raise Exception("Unsupported Jubeat version, expected one of the following: all")
 
         with open(tsvfile, newline='') as tsvhandle:
             jubeatreader = csv.reader(tsvhandle, delimiter='\t', quotechar='"')  # type: ignore
