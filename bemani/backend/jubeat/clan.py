@@ -1120,20 +1120,20 @@ class JubeatClan(
             if points[chart] >= score.points:
                 continue
             # Replace data for this chart type
-            play_cnt[score.chart] = score.plays
-            clear_cnt[score.chart] = score.data.get_int('clear_count')
-            fc_cnt[score.chart] = score.data.get_int('full_combo_count')
-            ex_cnt[score.chart] = score.data.get_int('excellent_count')
-            points[score.chart] = score.points
+            play_cnt[chart] = score.plays
+            clear_cnt[chart] = score.data.get_int('clear_count')
+            fc_cnt[chart] = score.data.get_int('full_combo_count')
+            ex_cnt[chart] = score.data.get_int('excellent_count')
+            points[chart] = score.points
 
             # Format the clear flags
-            clear_flags[score.chart] = self.GAME_FLAG_BIT_PLAYED
+            clear_flags[chart] = self.GAME_FLAG_BIT_PLAYED
             if score.data.get_int('clear_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_CLEARED
+                clear_flags[chart] |= self.GAME_FLAG_BIT_CLEARED
             if score.data.get_int('full_combo_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_FULL_COMBO
+                clear_flags[chart] |= self.GAME_FLAG_BIT_FULL_COMBO
             if score.data.get_int('excellent_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_EXCELLENT
+                clear_flags[chart] |= self.GAME_FLAG_BIT_EXCELLENT
 
             # Save chart data back
             data.replace_int_array('play_cnt', 3, play_cnt)
@@ -1145,7 +1145,7 @@ class JubeatClan(
 
             # Update the ghost (untyped)
             ghost = data.get('ghost', [None, None, None])
-            ghost[score.chart] = score.data.get('ghost')
+            ghost[chart] = score.data.get('ghost')
             data['ghost'] = ghost
 
             # Save it back
