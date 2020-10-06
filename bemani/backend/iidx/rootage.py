@@ -134,25 +134,8 @@ class IIDXRootage(IIDXCourse, IIDXBase):
                     'tip': 'Return network-wide ranking instead of shop ranking on results screen.',
                     'category': 'game_config',
                     'setting': 'global_shop_ranking',
-                },
-                {
-                    'name': 'Events In Omnimix',
-                    'tip': 'Allow events to be enabled at all for Omnimix.',
-                    'category': 'game_config',
-                    'setting': 'omnimix_events_enabled',
-                },
-            ],
-            'ints': [
-                {
-                    'name': 'Event Phase',
-                    'tip': 'Event phase for all players.',
-                    'category': 'game_config',
-                    'setting': 'event_phase',
-                    'values': {
-                        0: 'No Event',
-                    }
-                },
-            ],
+                }
+            ]
         }
 
     def db_to_game_status(self, db_status: int) -> int:
@@ -915,45 +898,6 @@ class IIDXRootage(IIDXCourse, IIDXBase):
 
         escape_package_info = Node.void('escape_package_info')
         root.add_child(escape_package_info)
-
-        # See if we configured event overrides
-        if self.machine_joined_arcade():
-            game_config = self.get_game_config()
-            event_phase = game_config.get_int('event_phase')
-            omni_events = game_config.get_bool('omnimix_events_enabled')
-        else:
-            # If we aren't in an arcade, we turn off events
-            event_phase = 0
-            omni_events = False
-
-        if event_phase == 0 or (self.omnimix and (not omni_events)):
-            boss_phase = 0
-            event1 = 0
-            event2 = 0
-        elif event_phase in [1, 2, 3]:
-            boss_phase = 1
-            event1 = event_phase - 1
-            event2 = 0
-        elif event_phase == 4:
-            boss_phase = 2
-            event1 = 0
-            event2 = 2
-
-        boss = Node.void('boss')
-        root.add_child(boss)
-        boss.set_attribute('phase', str(boss_phase))
-
-        event1_phase = Node.void('event1_phase')
-        root.add_child(event1_phase)
-        event1_phase.set_attribute('phase', str(event1))
-
-        event2_phase = Node.void('event2_phase')
-        root.add_child(event2_phase)
-        event2_phase.set_attribute('phase', str(event2))
-
-        extra_boss_event = Node.void('extra_boss_event')
-        root.add_child(extra_boss_event)
-        extra_boss_event.set_attribute('phase', '1')
 
         vip_black_pass = Node.void('vip_pass_black')
         root.add_child(vip_black_pass)
