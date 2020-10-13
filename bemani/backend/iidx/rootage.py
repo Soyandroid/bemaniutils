@@ -1115,97 +1115,78 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         pcdata.set_attribute('s_tsujigiri_disp', str(profile.get_int('s_tsujigiri_disp')))
         pcdata.set_attribute('d_tsujigiri_disp', str(profile.get_int('d_tsujigiri_disp')))
 
-        # I have no idea what this does for now
-        weekly_achieve = Node.void('weekly_achieve')
-        root.add_child(weekly_achieve)
-        for i in range(0, 4):
-            weekly_achieve.set_attribute('weekly_achieve' + str(i), '3')
-
-        spdp_rival = Node.void('spdp_rival')
-        root.add_child(spdp_rival)
-        spdp_rival.set_attribute('flg', str(profile.get_int('spdp_rival_flag')))
-
-        bind_eaappli = Node.void('bind_eaappli')
-        root.add_child(bind_eaappli)
-
-        premium_unlocks = Node.void('ea_premium_course')
-        root.add_child(premium_unlocks)
-
-        qr_reward = Node.void('enable_qr_reward')
-        root.add_child(qr_reward)
-
         # KAC stuff
-        kac_entry_info = Node.void('kac_entry_info')
-        root.add_child(kac_entry_info)
-        kac_entry_info.add_child(Node.void('enable_kac_deller'))
-        kac_entry_info.add_child(Node.void('disp_kac_mark'))
-        kac_entry_info.add_child(Node.void('is_kac_evnet_entry'))
-        kac_secret_music = Node.void('kac_secret_music')
-        kac_entry_info.add_child(kac_secret_music)
+        # kac_entry_info = Node.void('kac_entry_info')
+        # root.add_child(kac_entry_info)
+        # kac_entry_info.add_child(Node.void('enable_kac_deller'))
+        # kac_entry_info.add_child(Node.void('disp_kac_mark'))
+        # kac_entry_info.add_child(Node.void('is_kac_evnet_entry'))
+        # kac_secret_music = Node.void('kac_secret_music')
+        # kac_entry_info.add_child(kac_secret_music)
 
-        legendarias = Node.void('leggendaria_open')
-        root.add_child(legendarias)
+        # legendarias = Node.void('leggendaria_open')
+        # root.add_child(legendarias)
 
         # Song unlock flags
-        secret_dict = profile.get_dict('secret')
-        secret = Node.void('secret')
-        root.add_child(secret)
-        secret.add_child(Node.s64_array('flg1', secret_dict.get_int_array('flg1', 3)))
-        secret.add_child(Node.s64_array('flg2', secret_dict.get_int_array('flg2', 3)))
-        secret.add_child(Node.s64_array('flg3', secret_dict.get_int_array('flg3', 3)))
+        # secret_dict = profile.get_dict('secret')
+        # secret = Node.void('secret')
+        # root.add_child(secret)
+        # secret.add_child(Node.s64_array('flg1', secret_dict.get_int_array('flg1', 3)))
+        # secret.add_child(Node.s64_array('flg2', secret_dict.get_int_array('flg2', 3)))
+        # secret.add_child(Node.s64_array('flg3', secret_dict.get_int_array('flg3', 3)))
 
         # Favorites
-        for folder in ['favorite1', 'favorite2', 'favorite3']:
-            favorite_dict = profile.get_dict(folder)
-            sp_mlist = b''
-            sp_clist = b''
-            singles_list = favorite_dict['single'] if 'single' in favorite_dict else []
-            for single in singles_list:
-                sp_mlist = sp_mlist + struct.pack('<L', single['id'])
-                sp_clist = sp_clist + struct.pack('B', single['chart'])
-            while len(sp_mlist) < (4 * self.FAVORITE_LIST_LENGTH):
-                sp_mlist = sp_mlist + b'\x00\x00\x00\x00'
-            while len(sp_clist) < self.FAVORITE_LIST_LENGTH:
-                sp_clist = sp_clist + b'\x00'
+        # for folder in ['favorite1', 'favorite2', 'favorite3']:
+        #     favorite_dict = profile.get_dict(folder)
+        #     sp_mlist = b''
+        #     sp_clist = b''
+        #     singles_list = favorite_dict['single'] if 'single' in favorite_dict else []
+        #     for single in singles_list:
+        #         sp_mlist = sp_mlist + struct.pack('<L', single['id'])
+        #         sp_clist = sp_clist + struct.pack('B', single['chart'])
+        #     while len(sp_mlist) < (4 * self.FAVORITE_LIST_LENGTH):
+        #         sp_mlist = sp_mlist + b'\x00\x00\x00\x00'
+        #     while len(sp_clist) < self.FAVORITE_LIST_LENGTH:
+        #         sp_clist = sp_clist + b'\x00'
 
-            dp_mlist = b''
-            dp_clist = b''
-            doubles_list = favorite_dict['double'] if 'double' in favorite_dict else []
-            for double in doubles_list:
-                dp_mlist = dp_mlist + struct.pack('<L', double['id'])
-                dp_clist = dp_clist + struct.pack('B', double['chart'])
-            while len(dp_mlist) < (4 * self.FAVORITE_LIST_LENGTH):
-                dp_mlist = dp_mlist + b'\x00\x00\x00\x00'
-            while len(dp_clist) < self.FAVORITE_LIST_LENGTH:
-                dp_clist = dp_clist + b'\x00'
+        #     dp_mlist = b''
+        #     dp_clist = b''
+        #     doubles_list = favorite_dict['double'] if 'double' in favorite_dict else []
+        #     for double in doubles_list:
+        #         dp_mlist = dp_mlist + struct.pack('<L', double['id'])
+        #         dp_clist = dp_clist + struct.pack('B', double['chart'])
+        #     while len(dp_mlist) < (4 * self.FAVORITE_LIST_LENGTH):
+        #         dp_mlist = dp_mlist + b'\x00\x00\x00\x00'
+        #     while len(dp_clist) < self.FAVORITE_LIST_LENGTH:
+        #         dp_clist = dp_clist + b'\x00'
 
-            if folder == 'favorite1':
-                favorite = Node.void('favorite')
-            elif folder == 'favorite2':
-                favorite = Node.void('extra_favorite')
-                favorite.set_attribute('folder_id', '0')
-            elif folder == 'favorite3':
-                favorite = Node.void('extra_favorite')
-                favorite.set_attribute('folder_id', '1')
-            root.add_child(favorite)
-            favorite.add_child(Node.binary('sp_mlist', sp_mlist))
-            favorite.add_child(Node.binary('sp_clist', sp_clist))
-            favorite.add_child(Node.binary('dp_mlist', dp_mlist))
-            favorite.add_child(Node.binary('dp_clist', dp_clist))
+        #     if folder == 'favorite1':
+        #         favorite = Node.void('favorite')
+        #     elif folder == 'favorite2':
+        #         favorite = Node.void('extra_favorite')
+        #         favorite.set_attribute('folder_id', '0')
+        #     elif folder == 'favorite3':
+        #         favorite = Node.void('extra_favorite')
+        #         favorite.set_attribute('folder_id', '1')
+        #     root.add_child(favorite)
+        #     favorite.add_child(Node.binary('sp_mlist', sp_mlist))
+        #     favorite.add_child(Node.binary('sp_clist', sp_clist))
+        #     favorite.add_child(Node.binary('dp_mlist', dp_mlist))
+        #     favorite.add_child(Node.binary('dp_clist', dp_clist))
 
         # Playlist stuff, not currently saved
-        playlist = Node.void('playlist')
-        root.add_child(playlist)
+        # playlist = Node.void('playlist')
+        # root.add_child(playlist)
 
         # Qpro secret data from step-up mode
-        qpro_secrete_dict = profile.get_dict('qpro_secret')
-        qpro_secret = Node.void('qpro_secret')
-        root.add_child(qpro_secret)
-        qpro_secret.add_child(Node.s64_array('head', qpro_secrete_dict.get_int_array('head', 5)))
-        qpro_secret.add_child(Node.s64_array('hair', qpro_secrete_dict.get_int_array('hair', 5)))
-        qpro_secret.add_child(Node.s64_array('face', qpro_secrete_dict.get_int_array('face', 5)))
-        qpro_secret.add_child(Node.s64_array('body', qpro_secrete_dict.get_int_array('body', 5)))
-        qpro_secret.add_child(Node.s64_array('hand', qpro_secrete_dict.get_int_array('hand', 5)))
+        # qpro_secrete_dict = profile.get_dict('qpro_secret')
+        # qpro_secret = Node.void('qpro_secret')
+        # root.add_child(qpro_secret)
+        # qpro_secret.add_child(Node.s64_array('head', qpro_secrete_dict.get_int_array('head', 5)))
+        # qpro_secret.add_child(Node.s64_array('hair', qpro_secrete_dict.get_int_array('hair', 5)))
+        # qpro_secret.add_child(Node.s64_array('face', qpro_secrete_dict.get_int_array('face', 5)))
+        # qpro_secret.add_child(Node.s64_array('body', qpro_secrete_dict.get_int_array('body', 5)))
+        # qpro_secret.add_child(Node.s64_array('hand', qpro_secrete_dict.get_int_array('hand', 5)))
 
         # DAN rankings
         grade = Node.void('grade')
@@ -1230,46 +1211,51 @@ class IIDXRootage(IIDXCourse, IIDXBase):
                 ]))
 
         # User settings
-        settings_dict = profile.get_dict('settings')
-        skin = Node.s16_array(
-            'skin',
-            [
-                settings_dict.get_int('frame'),
-                settings_dict.get_int('turntable'),
-                settings_dict.get_int('burst'),
-                settings_dict.get_int('bgm'),
-                settings_dict.get_int('flags'),
-                settings_dict.get_int('towel'),
-                settings_dict.get_int('judge_pos'),
-                settings_dict.get_int('voice'),
-                settings_dict.get_int('noteskin'),
-                settings_dict.get_int('full_combo'),
-                settings_dict.get_int('beam'),
-                settings_dict.get_int('judge'),
-                0,
-                settings_dict.get_int('disable_song_preview'),
-                settings_dict.get_int('pacemaker'),
-                settings_dict.get_int('effector_lock'),
-                settings_dict.get_int('effector_preset'),
-                0,
-                0,
-                1,
-            ],
-        )
-        root.add_child(skin)
+        # settings_dict = profile.get_dict('settings')
+        # skin = Node.s16_array(
+        #     'skin',
+        #     [
+        #         settings_dict.get_int('frame'),
+        #         settings_dict.get_int('turntable'),
+        #         settings_dict.get_int('burst'),
+        #         settings_dict.get_int('bgm'),
+        #         settings_dict.get_int('flags'),
+        #         settings_dict.get_int('towel'),
+        #         settings_dict.get_int('judge_pos'),
+        #         settings_dict.get_int('voice'),
+        #         settings_dict.get_int('noteskin'),
+        #         settings_dict.get_int('full_combo'),
+        #         settings_dict.get_int('beam'),
+        #         settings_dict.get_int('judge'),
+        #         0,
+        #         settings_dict.get_int('disable_song_preview'),
+        #         settings_dict.get_int('pacemaker'),
+        #         settings_dict.get_int('effector_lock'),
+        #         settings_dict.get_int('effector_preset'),
+        #         0,
+        #         0,
+        #         1,
+        #     ],
+        # )
+        # root.add_child(skin)
+
+        # skin_customize_flg = Node.void('skin_customize_flg')
+        # root.add_child(skin_customize_flg)
+        # skin_customize_flg.set_attribute('skin_bgm_flg', '1')
+        # skin_customize_flg.set_attribute('skin_frame_flg', '1')
 
         # Qpro data
-        qpro_dict = profile.get_dict('qpro')
-        root.add_child(Node.u32_array(
-            'qprodata',
-            [
-                qpro_dict.get_int('head'),
-                qpro_dict.get_int('hair'),
-                qpro_dict.get_int('face'),
-                qpro_dict.get_int('hand'),
-                qpro_dict.get_int('body'),
-            ],
-        ))
+        # qpro_dict = profile.get_dict('qpro')
+        # root.add_child(Node.u32_array(
+        #     'qprodata',
+        #     [
+        #         qpro_dict.get_int('head'),
+        #         qpro_dict.get_int('hair'),
+        #         qpro_dict.get_int('face'),
+        #         qpro_dict.get_int('hand'),
+        #         qpro_dict.get_int('body'),
+        #     ],
+        # ))
 
         # Rivals
         rlist = Node.void('rlist')
@@ -1326,149 +1312,209 @@ class IIDXRootage(IIDXCourse, IIDXBase):
             rival.add_child(challenge)
 
         # Expert  (removed in rootage)
-        ir_data = Node.void('ir_data')
-        root.add_child(ir_data)
+        # ir_data = Node.void('ir_data')
+        # root.add_child(ir_data)
 
-        secret_course_data = Node.void('secret_course_data')
-        root.add_child(secret_course_data)
+        # secret_course_data = Node.void('secret_course_data')
+        # root.add_child(secret_course_data)
 
-        classic_course_data = Node.void('classic_course_data')
-        root.add_child(classic_course_data)
+        # classic_course_data = Node.void('classic_course_data')
+        # root.add_child(classic_course_data)
 
-        follow = Node.void('follow_data')
-        root.add_child(follow)
+        # follow = Node.void('follow_data')
+        # root.add_child(follow)
 
-        dj_rank = Node.void('dj_rank')
-        root.add_child(dj_rank)
+        # DJ RANK
+        # for dj_rank in achievements:
+        #     if dj_rank.type != 'dj_rank':
+        #         continue
 
-        dj_ranking = Node.void('dj_rank_ranking')
-        root.add_child(dj_ranking)
+        #     dj_rank_node = Node.void('dj_rank')
+        #     root.add_child(dj_rank_node)
+        #     dj_rank_node.set_attribute('style', str(dj_rank.id))
+        #     dj_rank_node.add_child(Node.s32_array('rank', dj_rank.data.get_int_array('rank', 15)))
+        #     dj_rank_node.add_child(Node.s32_array('point', dj_rank.data.get_int_array('point', 15)))
 
-        season_rank = Node.void('season_dj_rank')
-        root.add_child(season_rank)
+        # dj_rank_ranking_node = Node.void('dj_rank_ranking')
+        # root.add_child(dj_rank_ranking_node)
+        # dj_rank_ranking_node.set_attribute('style', '0')
+        # for j in range(15):
+        #     detail = Node.void('detail')
+        #     dj_rank_ranking_node.add_child(detail)
+        #     detail.set_attribute('category', str(j))
+        #     detail.set_attribute('total_user', '0')
+        #     detail.set_attribute('rank', '0')
+        #     detail.set_attribute('platinum_point', '0')
+        #     detail.set_attribute('platinum_rank', '0')
+        #     detail.set_attribute('gold_point', '0')
+        #     detail.set_attribute('gold_rank', '0')
+        #     detail.set_attribute('silver_point', '0')
+        #     detail.set_attribute('silver_rank', '0')
+        #     detail.set_attribute('bronze_point', '0')
+        #     detail.set_attribute('bronze_rank', '0')
+        #     detail.set_attribute('white_point', '0')
+        #     detail.set_attribute('white_rank', '0')
 
-        sp_list = Node.void('sp_list')
-        root.add_child(sp_list)
+        # dj_rank_ranking_node = Node.void('dj_rank_ranking')
+        # root.add_child(dj_rank_ranking_node)
+        # dj_rank_ranking_node.set_attribute('style', '1')
+        # for j in range(15):
+        #     detail = Node.void('detail')
+        #     dj_rank_ranking_node.add_child(detail)
+        #     detail.set_attribute('category', str(j))
+        #     detail.set_attribute('total_user', '0')
+        #     detail.set_attribute('rank', '0')
+        #     detail.set_attribute('platinum_point', '0')
+        #     detail.set_attribute('platinum_rank', '0')
+        #     detail.set_attribute('gold_point', '0')
+        #     detail.set_attribute('gold_rank', '0')
+        #     detail.set_attribute('silver_point', '0')
+        #     detail.set_attribute('silver_rank', '0')
+        #     detail.set_attribute('bronze_point', '0')
+        #     detail.set_attribute('bronze_rank', '0')
+        #     detail.set_attribute('white_point', '0')
+        #     detail.set_attribute('white_rank', '0')
 
-        dp_list = Node.void('dp_list')
-        root.add_child(dp_list)
+        # arena_data = Node.void('arena_data')
+        # root.add_child(arena_data)
+        # arena_data.set_attribute('play_num', '0')
+        # arena_data.set_attribute('play_num_dp', '0')
+        # arena_data.set_attribute('play_num_sp', '0')
 
-        tonyutsu = Node.void('tonyutsu')
-        tonyutsu.set_attribute('platinum_pass', '0')
-        tonyutsu.set_attribute('black_pass', '0')
-        root.add_child(tonyutsu)
+        # sp_list = Node.void('sp_list')
+        # root.add_child(sp_list)
 
-        shitei = Node.void('shitei')
-        root.add_child(shitei)
+        # dp_list = Node.void('dp_list')
+        # root.add_child(dp_list)
 
-        bingo = Node.void('bingo_data')
-        root.add_child(bingo)
+        # tonyutsu = Node.void('tonyutsu')
+        # tonyutsu.set_attribute('platinum_pass', '0')
+        # tonyutsu.set_attribute('black_pass', '0')
+        # root.add_child(tonyutsu)
 
-        mass_data = Node.void('mass_data')
-        root.add_child(mass_data)
+        # shitei = Node.void('shitei')
+        # root.add_child(shitei)
 
-        extra_boss_event = Node.void('extra_boss_event')
-        root.add_child(extra_boss_event)
+        # bingo = Node.void('bingo_data')
+        # root.add_child(bingo)
 
-        visitor = Node.void('visitor')
-        visitor.set_attribute('anum', '0')
-        visitor.set_attribute('snum', '0')
-        visitor.set_attribute('pnum', '0')
-        visitor.set_attribute('vs_flg', '0')
-        root.add_child(visitor)
+        # mass_data = Node.void('mass_data')
+        # root.add_child(mass_data)
+
+        # extra_boss_event = Node.void('extra_boss_event')
+        # root.add_child(extra_boss_event)
+
+        # visitor = Node.void('visitor')
+        # visitor.set_attribute('anum', '0')
+        # visitor.set_attribute('snum', '0')
+        # visitor.set_attribute('pnum', '0')
+        # visitor.set_attribute('vs_flg', '0')
+        # root.add_child(visitor)
 
         # If the user joined a particular shop, let the game know.
-        if 'shop_location' in profile:
-            shop_id = profile.get_int('shop_location')
-            machine = self.get_machine_by_id(shop_id)
-            if machine is not None:
-                join_shop = Node.void('join_shop')
-                root.add_child(join_shop)
-                join_shop.set_attribute('joinflg', '1')
-                join_shop.set_attribute('join_cflg', '1')
-                join_shop.set_attribute('join_id', ID.format_machine_id(machine.id))
-                join_shop.set_attribute('join_name', machine.name)
+        # if 'shop_location' in profile:
+        #     shop_id = profile.get_int('shop_location')
+        #     machine = self.get_machine_by_id(shop_id)
+        #     if machine is not None:
+        #         join_shop = Node.void('join_shop')
+        #         root.add_child(join_shop)
+        #         join_shop.set_attribute('joinflg', '1')
+        #         join_shop.set_attribute('join_cflg', '1')
+        #         join_shop.set_attribute('join_id', ID.format_machine_id(machine.id))
+        #         join_shop.set_attribute('join_name', machine.name)
 
         # Step up mode
-        step_dict = profile.get_dict('step')
-        step = Node.void('step')
-        root.add_child(step)
-        step.set_attribute('enemy_damage', str(step_dict.get_int('enemy_damage')))
-        step.set_attribute('progress', str(step_dict.get_int('progress')))
-        step.set_attribute('enemy_defeat_flg', str(step_dict.get_int('enemy_defeat_flg')))
-        step.set_attribute('sp_level', str(step_dict.get_int('sp_level')))
-        step.set_attribute('dp_level', str(step_dict.get_int('dp_level')))
-        step.set_attribute('sp_mplay', str(step_dict.get_int('sp_mplay')))
-        step.set_attribute('dp_mplay', str(step_dict.get_int('dp_mplay')))
+        # step_dict = profile.get_dict('step')
+        # step = Node.void('step')
+        # root.add_child(step)
+        # step.set_attribute('enemy_damage', str(step_dict.get_int('enemy_damage')))
+        # step.set_attribute('progress', str(step_dict.get_int('progress')))
+        # step.add_child(Node.bool('is_track_ticket', step_dict.get_int('is_track_ticket')))
+        # step.set_attribute('sp_level', str(step_dict.get_int('sp_level')))
+        # step.set_attribute('dp_level', str(step_dict.get_int('dp_level')))
+        # step.set_attribute('sp_mission_point', str(step_dict.get_int('sp_mission_point')))
+        # step.set_attribute('dp_mission_point', str(step_dict.get_int('dp_mission_point')))
+        # step.set_attribute('sp_dj_mission_level', str(step_dict.get_int('sp_dj_mission_level@')))
+        # step.set_attribute('dp_dj_mission_level', str(step_dict.get_int('dp_dj_mission_level@')))
+        # step.set_attribute('sp_clear_mission_level', str(step_dict.get_int('sp_clear_mission_level')))
+        # step.set_attribute('dp_clear_mission_level', str(step_dict.get_int('dp_clear_mission_level')))
+        # step.set_attribute('sp_dj_mission_clear', str(step_dict.get_int('sp_dj_mission_clear')))
+        # step.set_attribute('dp_dj_mission_clear', str(step_dict.get_int('dp_dj_mission_clear')))
+        # step.set_attribute('sp_clear_mission_clear', str(step_dict.get_int('sp_clear_mission_clear')))
+        # step.set_attribute('dp_clear_mission_clear', str(step_dict.get_int('dp_clear_mission_clear')))
+        # step.set_attribute('sp_mplay', str(step_dict.get_int('sp_mplay')))
+        # step.set_attribute('dp_mplay', str(step_dict.get_int('dp_mplay')))
+        # step.set_attribute('tips_read_list', str(step_dict.get_int('tips_read_list')))
 
         # Daily recommendations
-        entry = self.data.local.game.get_time_sensitive_settings(self.game, self.version, 'dailies')
-        if entry is not None:
-            packinfo = Node.void('packinfo')
-            root.add_child(packinfo)
+        # entry = self.data.local.game.get_time_sensitive_settings(self.game, self.version, 'dailies')
+        # if entry is not None:
+        #     packinfo = Node.void('packinfo')
+        #     root.add_child(packinfo)
 
-            pack_id = int(entry['start_time'] / 86400)
-            packinfo.set_attribute('pack_id', str(pack_id))
-            packinfo.set_attribute('music_0', str(entry['music'][0]))
-            packinfo.set_attribute('music_1', str(entry['music'][1]))
-            packinfo.set_attribute('music_2', str(entry['music'][2]))
-        else:
-            # No dailies :(
-            pack_id = None
+        #     pack_id = int(entry['start_time'] / 86400)
+        #     packinfo.set_attribute('pack_id', str(pack_id))
+        #     packinfo.set_attribute('music_0', str(entry['music'][0]))
+        #     packinfo.set_attribute('music_1', str(entry['music'][1]))
+        #     packinfo.set_attribute('music_2', str(entry['music'][2]))
+        # else:
+        #     # No dailies :(
+        #     pack_id = None
 
         # Tran medals and shit
-        achievement_node = Node.void('achievements')
-        root.add_child(achievement_node)
+        # achievement_node = Node.void('achievements')
+        # root.add_child(achievement_node)
 
         # Dailies
-        if pack_id is None:
-            achievement_node.set_attribute('pack', '0')
-            achievement_node.set_attribute('pack_comp', '0')
-        else:
-            daily_played = self.data.local.user.get_achievement(self.game, self.version, userid, pack_id, 'daily')
-            if daily_played is None:
-                daily_played = ValidatedDict()
-            achievement_node.set_attribute('pack', str(daily_played.get_int('pack_flg')))
-            achievement_node.set_attribute('pack_comp', str(daily_played.get_int('pack_comp')))
+        # if pack_id is None:
+        #     achievement_node.set_attribute('pack', '0')
+        #     achievement_node.set_attribute('pack_comp', '0')
+        # else:
+        #     daily_played = self.data.local.user.get_achievement(self.game, self.version, userid, pack_id, 'daily')
+        #     if daily_played is None:
+        #         daily_played = ValidatedDict()
+        #     achievement_node.set_attribute('pack', str(daily_played.get_int('pack_flg')))
+        #     achievement_node.set_attribute('pack_comp', str(daily_played.get_int('pack_comp')))
 
         # Weeklies
-        achievement_node.set_attribute('last_weekly', str(profile.get_int('last_weekly')))
-        achievement_node.set_attribute('weekly_num', str(profile.get_int('weekly_num')))
+        # achievement_node.set_attribute('last_weekly', str(profile.get_int('last_weekly')))
+        # achievement_node.set_attribute('weekly_num', str(profile.get_int('weekly_num')))
 
         # Prefecture visit flag
-        achievement_node.set_attribute('visit_flg', str(profile.get_int('visit_flg')))
+        # achievement_node.set_attribute('visit_flg', str(profile.get_int('visit_flg')))
 
         # Number of rivals beaten
-        achievement_node.set_attribute('rival_crush', str(profile.get_int('rival_crush')))
+        # achievement_node.set_attribute('rival_crush', str(profile.get_int('rival_crush')))
 
         # Tran medals
-        achievement_node.add_child(Node.s64_array('trophy', profile.get_int_array('trophy', 10)))
+        # achievement_node.add_child(Node.s64_array('trophy', profile.get_int_array('trophy', 20)))
 
         # Track deller
-        deller = Node.void('deller')
-        root.add_child(deller)
-        deller.set_attribute('deller', str(profile.get_int('deller')))
-        deller.set_attribute('rate', '0')
+        # deller = Node.void('deller')
+        # root.add_child(deller)
+        # deller.set_attribute('deller', str(profile.get_int('deller')))
+        # deller.set_attribute('rate', '0')
 
         # Orb data
-        orb_data = Node.void('orb_data')
-        root.add_child(orb_data)
-        orb_data.set_attribute('rest_orb', str(profile.get_int('orbs')))
+        # orb_data = Node.void('orb_data')
+        # root.add_child(orb_data)
+        # orb_data.set_attribute('rest_orb', str(profile.get_int('orbs')))
+        # orb_data.set_attribute('present_orb', str(profile.get_int('present_orb')))
 
         # Expert points
-        expert_point = Node.void('expert_point')
-        root.add_child(expert_point)
-        for rank in achievements:
-            if rank.type == 'expert_point':
-                detail = Node.void('detail')
-                expert_point.add_child(detail)
-                detail.set_attribute('course_id', str(rank.id))
-                detail.set_attribute('n_point', str(rank.data.get_int('normal_points')))
-                detail.set_attribute('h_point', str(rank.data.get_int('hyper_points')))
-                detail.set_attribute('a_point', str(rank.data.get_int('another_points')))
+        # expert_point = Node.void('expert_point')
+        # root.add_child(expert_point)
+        # for rank in achievements:
+        #     if rank.type == 'expert_point':
+        #         detail = Node.void('detail')
+        #         expert_point.add_child(detail)
+        #         detail.set_attribute('course_id', str(rank.id))
+        #         detail.set_attribute('n_point', str(rank.data.get_int('normal_points')))
+        #         detail.set_attribute('h_point', str(rank.data.get_int('hyper_points')))
+        #         detail.set_attribute('a_point', str(rank.data.get_int('another_points')))
 
-        nostalgia = Node.void('nostalgia_open')
-        root.add_child(nostalgia)
+        # nostalgia = Node.void('nostalgia_open')
+        # root.add_child(nostalgia)
 
         return root
 
@@ -1525,6 +1571,18 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         newprofile.replace_int('d_exscore', int(request.attribute('d_exscore')))
         newprofile.replace_int('s_graph_score', int(request.attribute('s_graph_score')))
         newprofile.replace_int('d_graph_score', int(request.attribute('d_graph_score')))
+        newprofile.replace_int('s_auto_scratch', str(request.attribute('s_auto_scratch')))
+        newprofile.replace_int('d_auto_scratch', str(request.attribute('d_auto_scratch')))
+        newprofile.replace_int('s_guage_disp', str(request.attribute('s_guage_dis)p')))
+        newprofile.replace_int('d_guage_disp', str(request.attribute('d_guage_dis)p')))
+        newprofile.replace_int('s_lane_brignt', str(request.attribute('s_lane_brignt')))
+        newprofile.replace_int('d_lane_brignt', str(request.attribute('d_lane_brignt')))
+        newprofile.replace_int('s_camera_layout', str(request.attribute('s_camera_layout')))
+        newprofile.replace_int('d_camera_layout', str(request.attribute('d_camera_layout')))
+        newprofile.replace_int('s_ghost_score', str(request.attribute('s_ghost_score')))
+        newprofile.replace_int('d_ghost_score', str(request.attribute('d_ghost_score')))
+        newprofile.replace_int('s_tsujigiri_disp', str(request.attribute('s_tsujigiri_disp')))
+        newprofile.replace_int('d_tsujigiri_disp', str(request.attribute('d_tsujigiri_disp')))
 
         # Update judge window adjustments per-machine
         judge_dict = newprofile.get_dict('machine_judge_adjust')
@@ -1566,8 +1624,8 @@ class IIDXRootage(IIDXCourse, IIDXBase):
 
             trophies = achievements.child('trophy')
             if trophies is not None:
-                # We only load the first 10 in profile load.
-                newprofile.replace_int_array('trophy', 10, trophies.value[:10])
+                # We only load the first 20 in profile load.
+                newprofile.replace_int_array('trophy', 20, trophies.value[:20])
 
         # Deller saving
         deller = request.child('deller')
@@ -1655,17 +1713,49 @@ class IIDXRootage(IIDXCourse, IIDXBase):
                 },
             )
 
+        # DJ rank saving
+        for dj_rank in request.children:
+            if dj_rank.name != 'dj_rank':
+                continue
+
+            rankid = int(dj_rank.attribute('style'))
+            rank = dj_rank.child_value('rank')
+            point = dj_rank.child_value('point')
+
+            self.data.local.user.put_achievement(
+                self.game,
+                self.version,
+                userid,
+                rankid,
+                'dj_rank',
+                {
+                    'rank': rank,
+                    'point': point,
+                }
+            )
+
         # Step-up mode
         step = request.child('step')
         if step is not None:
             step_dict = newprofile.get_dict('step')
             step_dict.replace_int('enemy_damage', int(step.attribute('enemy_damage')))
             step_dict.replace_int('progress', int(step.attribute('progress')))
-            step_dict.replace_int('enemy_defeat_flg', int(step.attribute('enemy_defeat_flg')))
+            step_dict.replace_bool('is_track_ticket', bool(step.child_value('is_track_ticket')))
             step_dict.replace_int('sp_level', int(step.attribute('sp_level')))
             step_dict.replace_int('dp_level', int(step.attribute('dp_level')))
             step_dict.replace_int('sp_mplay', int(step.attribute('sp_mplay')))
             step_dict.replace_int('dp_mplay', int(step.attribute('dp_mplay')))
+            step_dict.replace_int('sp_mission_point', str(step_dict.get_int('sp_mission_point')))
+            step_dict.replace_int('dp_mission_point', str(step_dict.get_int('dp_mission_point')))
+            step_dict.replace_int('sp_dj_mission_level', str(step_dict.get_int('sp_dj_mission_level@')))
+            step_dict.replace_int('dp_dj_mission_level', str(step_dict.get_int('dp_dj_mission_level@')))
+            step_dict.replace_int('sp_clear_mission_level', str(step_dict.get_int('sp_clear_mission_level')))
+            step_dict.replace_int('dp_clear_mission_level', str(step_dict.get_int('dp_clear_mission_level')))
+            step_dict.replace_int('sp_dj_mission_clear', str(step_dict.get_int('sp_dj_mission_clear')))
+            step_dict.replace_int('dp_dj_mission_clear', str(step_dict.get_int('dp_dj_mission_clear')))
+            step_dict.replace_int('sp_clear_mission_clear', str(step_dict.get_int('sp_clear_mission_clear')))
+            step_dict.replace_int('dp_clear_mission_clear', str(step_dict.get_int('dp_clear_mission_clear')))
+            step_dict.replace_int('tips_read_list', str(step_dict.get_int('tips_read_list')))
             newprofile.replace_dict('step', step_dict)
 
         # QPro equip in step-up mode
@@ -1699,21 +1789,11 @@ class IIDXRootage(IIDXCourse, IIDXBase):
                 orbs = 0
             newprofile.replace_int('orbs', orbs)
 
-        # OMES Tracking
-        onemore_data = request.child('onemore_data')
-        if onemore_data is not None:
-            omes_dict = newprofile.get_dict('omes')
-            omes_dict.replace_int('defeat_0', int(onemore_data.attribute('defeat_0')))
-            omes_dict.replace_int('defeat_1', int(onemore_data.attribute('defeat_1')))
-            omes_dict.replace_int('defeat_2', int(onemore_data.attribute('defeat_2')))
-            omes_dict.replace_int('defeat_3', int(onemore_data.attribute('defeat_3')))
-            omes_dict.replace_int('defeat_4', int(onemore_data.attribute('defeat_4')))
-            omes_dict.replace_int('defeat_5', int(onemore_data.attribute('defeat_5')))
-            omes_dict.replace_int('defeat_6', int(onemore_data.attribute('defeat_6')))
-            omes_dict.replace_int('challenge_num_n', int(onemore_data.attribute('challenge_num_n')))
-            omes_dict.replace_int('challenge_num_h', int(onemore_data.attribute('challenge_num_h')))
-            omes_dict.replace_int('challenge_num_a', int(onemore_data.attribute('challenge_num_a')))
-            newprofile.replace_dict('omes', omes_dict)
+        # tonyutsu saving
+        tonyutsu = request.child('tonyutsu')
+        tonyutsu_dict = newprofile.get_dict('tonyutsu')
+        tonyutsu_dict.replace_int('platinum_pass', tonyutsu.attribute('platinum_pass'))
+        tonyutsu_dict.replace_int('black_pass', tonyutsu.attribute('black_pass'))
 
         # Keep track of play statistics across all mixes
         self.update_play_statistics(userid, play_stats)
