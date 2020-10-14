@@ -693,7 +693,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             greats = int(request.attribute('gnum'))
             miss_count = int(request.attribute('mnum'))
             ghost = request.child_value('ghost')
-            shopid = ID.parse_machine_id(request.attribute('shopconvid'))
+            shopid = ID.parse_machine_id(request.attribute('convid'))
 
             self.update_score(
                 userid,
@@ -849,6 +849,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
+    # Bare minimum response to say we handled the request
+    def handle_IIDX25music_beginnerplay_request(self, request: Node) -> Node:
+        return Node.void('IIDX25music')
+
     def handle_IIDX25grade_raised_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         cltype = int(request.attribute('gtype'))
@@ -912,288 +916,288 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         common_evnet.set_attribute('flg', '0')
 
         # Course definitions
-        # courses: List[Dict[str, Any]] = [
-        #     {
-        #         'name': 'NINJA',
-        #         'id': 1,
-        #         'songs': [
-        #             24068,
-        #             24011,
-        #             24031,
-        #             24041,
-        #         ],
-        #     },
-        #     {
-        #         'name': '24A12',
-        #         'id': 2,
-        #         'songs': [
-        #             24024,
-        #             24023,
-        #             24005,
-        #             24012,
-        #         ],
-        #     },
-        #     {
-        #         'name': '80\'S',
-        #         'id': 3,
-        #         'songs': [
-        #             20033,
-        #             15029,
-        #             24056,
-        #             20068,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'DJ TECHNORCH',
-        #         'id': 4,
-        #         'songs': [
-        #             21029,
-        #             22035,
-        #             22049,
-        #             21063,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'COLORS',
-        #         'id': 5,
-        #         'songs': [
-        #             11032,
-        #             15022,
-        #             15004,
-        #             22089,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'OHANA',
-        #         'id': 6,
-        #         'songs': [
-        #             16050,
-        #             13000,
-        #             22087,
-        #             10022,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'DPER',
-        #         'id': 7,
-        #         'songs': [
-        #             18004,
-        #             19063,
-        #             20047,
-        #             17059,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'DA',
-        #         'id': 8,
-        #         'songs': [
-        #             23058,
-        #             17021,
-        #             18025,
-        #             22006,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'SOF-LAN',
-        #         'id': 9,
-        #         'songs': [
-        #             23079,
-        #             15005,
-        #             7002,
-        #             15023,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'TEMPEST',
-        #         'id': 10,
-        #         'songs': [
-        #             19008,
-        #             20038,
-        #             16020,
-        #             23051,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'STAR LIGHT',
-        #         'id': 11,
-        #         'songs': [
-        #             23082,
-        #             24027,
-        #             20066,
-        #             23031,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'SCRATCH',
-        #         'id': 12,
-        #         'songs': [
-        #             11025,
-        #             16053,
-        #             16031,
-        #             22067,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'L.E.D.-G',
-        #         'id': 13,
-        #         'songs': [
-        #             15007,
-        #             24000,
-        #             22011,
-        #             17009,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'QQQ',
-        #         'id': 14,
-        #         'songs': [
-        #             18062,
-        #             18019,
-        #             12011,
-        #             16045,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'BMK 2017',
-        #         'id': 15,
-        #         'songs': [
-        #             24084,
-        #             24017,
-        #             24022,
-        #             24043,
-        #         ],
-        #     },
-        # ]
+        courses: List[Dict[str, Any]] = [
+            {
+                'name': 'NINJA',
+                'id': 1,
+                'songs': [
+                    24068,
+                    24011,
+                    24031,
+                    24041,
+                ],
+            },
+            {
+                'name': '24A12',
+                'id': 2,
+                'songs': [
+                    24024,
+                    24023,
+                    24005,
+                    24012,
+                ],
+            },
+            {
+                'name': '80\'S',
+                'id': 3,
+                'songs': [
+                    20033,
+                    15029,
+                    24056,
+                    20068,
+                ],
+            },
+            {
+                'name': 'DJ TECHNORCH',
+                'id': 4,
+                'songs': [
+                    21029,
+                    22035,
+                    22049,
+                    21063,
+                ],
+            },
+            {
+                'name': 'COLORS',
+                'id': 5,
+                'songs': [
+                    11032,
+                    15022,
+                    15004,
+                    22089,
+                ],
+            },
+            {
+                'name': 'OHANA',
+                'id': 6,
+                'songs': [
+                    16050,
+                    13000,
+                    22087,
+                    10022,
+                ],
+            },
+            {
+                'name': 'DPER',
+                'id': 7,
+                'songs': [
+                    18004,
+                    19063,
+                    20047,
+                    17059,
+                ],
+            },
+            {
+                'name': 'DA',
+                'id': 8,
+                'songs': [
+                    23058,
+                    17021,
+                    18025,
+                    22006,
+                ],
+            },
+            {
+                'name': 'SOF-LAN',
+                'id': 9,
+                'songs': [
+                    23079,
+                    15005,
+                    7002,
+                    15023,
+                ],
+            },
+            {
+                'name': 'TEMPEST',
+                'id': 10,
+                'songs': [
+                    19008,
+                    20038,
+                    16020,
+                    23051,
+                ],
+            },
+            {
+                'name': 'STAR LIGHT',
+                'id': 11,
+                'songs': [
+                    23082,
+                    24027,
+                    20066,
+                    23031,
+                ],
+            },
+            {
+                'name': 'SCRATCH',
+                'id': 12,
+                'songs': [
+                    11025,
+                    16053,
+                    16031,
+                    22067,
+                ],
+            },
+            {
+                'name': 'L.E.D.-G',
+                'id': 13,
+                'songs': [
+                    15007,
+                    24000,
+                    22011,
+                    17009,
+                ],
+            },
+            {
+                'name': 'QQQ',
+                'id': 14,
+                'songs': [
+                    18062,
+                    18019,
+                    12011,
+                    16045,
+                ],
+            },
+            {
+                'name': 'BMK 2017',
+                'id': 15,
+                'songs': [
+                    24084,
+                    24017,
+                    24022,
+                    24043,
+                ],
+            },
+        ]
 
         # Secret course definitions
-        # secret_courses: List[Dict[str, Any]] = [
-        #     {
-        #         'name': 'L.E.D.-K',
-        #         'id': 1,
-        #         'songs': [
-        #             13034,
-        #             21068,
-        #             17060,
-        #             24089,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'SOTA K',
-        #         'id': 2,
-        #         'songs': [
-        #             16010,
-        #             14038,
-        #             20016,
-        #             24090,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'POP',
-        #         'id': 3,
-        #         'songs': [
-        #             22042,
-        #             14056,
-        #             15003,
-        #             24091,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'REMO-CON',
-        #         'id': 4,
-        #         'songs': [
-        #             15030,
-        #             12031,
-        #             22078,
-        #             24092,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'NUMBER',
-        #         'id': 5,
-        #         'songs': [
-        #             1003,
-        #             17051,
-        #             17041,
-        #             24093,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'FANTASY',
-        #         'id': 6,
-        #         'songs': [
-        #             20102,
-        #             24013,
-        #             23092,
-        #             24094,
-        #         ],
-        #     },
-        #     {
-        #         'name': 'DRUM\'N\'BASS',
-        #         'id': 7,
-        #         'songs': [
-        #             6013,
-        #             22016,
-        #             20073,
-        #             24095,
-        #         ],
-        #     },
-        # ]
+        secret_courses: List[Dict[str, Any]] = [
+            {
+                'name': 'L.E.D.-K',
+                'id': 1,
+                'songs': [
+                    13034,
+                    21068,
+                    17060,
+                    24089,
+                ],
+            },
+            {
+                'name': 'SOTA K',
+                'id': 2,
+                'songs': [
+                    16010,
+                    14038,
+                    20016,
+                    24090,
+                ],
+            },
+            {
+                'name': 'POP',
+                'id': 3,
+                'songs': [
+                    22042,
+                    14056,
+                    15003,
+                    24091,
+                ],
+            },
+            {
+                'name': 'REMO-CON',
+                'id': 4,
+                'songs': [
+                    15030,
+                    12031,
+                    22078,
+                    24092,
+                ],
+            },
+            {
+                'name': 'NUMBER',
+                'id': 5,
+                'songs': [
+                    1003,
+                    17051,
+                    17041,
+                    24093,
+                ],
+            },
+            {
+                'name': 'FANTASY',
+                'id': 6,
+                'songs': [
+                    20102,
+                    24013,
+                    23092,
+                    24094,
+                ],
+            },
+            {
+                'name': 'DRUM\'N\'BASS',
+                'id': 7,
+                'songs': [
+                    6013,
+                    22016,
+                    20073,
+                    24095,
+                ],
+            },
+        ]
 
         # For some reason, omnimix crashes on course mode, so don't enable it
-        # if not self.omnimix:
-        #     internet_ranking = Node.void('internet_ranking')
-        #     root.add_child(internet_ranking)
+        if not self.omnimix:
+            internet_ranking = Node.void('internet_ranking')
+            root.add_child(internet_ranking)
 
-        #     used_ids: List[int] = []
-        #     for c in courses:
-        #         if c['id'] in used_ids:
-        #             raise Exception('Cannot have multiple courses with the same ID!')
-        #         elif c['id'] < 0 or c['id'] >= 20:
-        #             raise Exception('Course ID is out of bounds!')
-        #         else:
-        #             used_ids.append(c['id'])
+            used_ids: List[int] = []
+            for c in courses:
+                if c['id'] in used_ids:
+                    raise Exception('Cannot have multiple courses with the same ID!')
+                elif c['id'] < 0 or c['id'] >= 20:
+                    raise Exception('Course ID is out of bounds!')
+                else:
+                    used_ids.append(c['id'])
 
-        #         course = Node.void('course')
-        #         internet_ranking.add_child(course)
-        #         course.set_attribute('course_id', str(c['id']))
-        #         course.set_attribute('name', c['name'])
-        #         course.set_attribute('mid0', str(c['songs'][0]))
-        #         course.set_attribute('mid1', str(c['songs'][1]))
-        #         course.set_attribute('mid2', str(c['songs'][2]))
-        #         course.set_attribute('mid3', str(c['songs'][3]))
-        #         course.set_attribute('opflg', '1')
+                course = Node.void('course')
+                internet_ranking.add_child(course)
+                course.set_attribute('course_id', str(c['id']))
+                course.set_attribute('name', c['name'])
+                course.set_attribute('mid0', str(c['songs'][0]))
+                course.set_attribute('mid1', str(c['songs'][1]))
+                course.set_attribute('mid2', str(c['songs'][2]))
+                course.set_attribute('mid3', str(c['songs'][3]))
+                course.set_attribute('opflg', '1')
 
-        #     secret_ex_course = Node.void('secret_ex_course')
-        #     root.add_child(secret_ex_course)
+            secret_ex_course = Node.void('secret_ex_course')
+            root.add_child(secret_ex_course)
 
-        #     used_secret_ids: List[int] = []
-        #     for c in secret_courses:
-        #         if c['id'] in used_secret_ids:
-        #             raise Exception('Cannot have multiple secret courses with the same ID!')
-        #         elif c['id'] < 0 or c['id'] >= 20:
-        #             raise Exception('Secret course ID is out of bounds!')
-        #         else:
-        #             used_secret_ids.append(c['id'])
+            used_secret_ids: List[int] = []
+            for c in secret_courses:
+                if c['id'] in used_secret_ids:
+                    raise Exception('Cannot have multiple secret courses with the same ID!')
+                elif c['id'] < 0 or c['id'] >= 20:
+                    raise Exception('Secret course ID is out of bounds!')
+                else:
+                    used_secret_ids.append(c['id'])
 
-        #         course = Node.void('course')
-        #         secret_ex_course.add_child(course)
-        #         course.set_attribute('course_id', str(c['id']))
-        #         course.set_attribute('name', c['name'])
-        #         course.set_attribute('mid0', str(c['songs'][0]))
-        #         course.set_attribute('mid1', str(c['songs'][1]))
-        #         course.set_attribute('mid2', str(c['songs'][2]))
-        #         course.set_attribute('mid3', str(c['songs'][3]))
+                course = Node.void('course')
+                secret_ex_course.add_child(course)
+                course.set_attribute('course_id', str(c['id']))
+                course.set_attribute('name', c['name'])
+                course.set_attribute('mid0', str(c['songs'][0]))
+                course.set_attribute('mid1', str(c['songs'][1]))
+                course.set_attribute('mid2', str(c['songs'][2]))
+                course.set_attribute('mid3', str(c['songs'][3]))
 
-        #     expert = Node.void('expert')
-        #     root.add_child(expert)
-        #     expert.set_attribute('phase', '1')
+            expert = Node.void('expert')
+            root.add_child(expert)
+            expert.set_attribute('phase', '1')
 
-        #     expert_random_select = Node.void('expert_random_select')
-        #     root.add_child(expert_random_select)
-        #     expert_random_select.set_attribute('phase', '1')
+            expert_random_select = Node.void('expert_random_select')
+            root.add_child(expert_random_select)
+            expert_random_select.set_attribute('phase', '1')
 
-        #     expert_full = Node.void('expert_secret_full_open')
-        #     root.add_child(expert_full)
+            expert_full = Node.void('expert_secret_full_open')
+            root.add_child(expert_full)
 
         return root
 
@@ -1364,10 +1368,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         pcdata.set_attribute('d_exscore', str(profile.get_int('d_exscore')))
         pcdata.set_attribute('s_graph_score', str(profile.get_int('s_graph_score')))
         pcdata.set_attribute('d_graph_score', str(profile.get_int('d_graph_score')))
-        pcdata.set_attribute('s_auto_scratch', str(profile.get_int('s_auto_scratch')))
-        pcdata.set_attribute('d_auto_scratch', str(profile.get_int('d_auto_scratch')))
-        pcdata.set_attribute('s_guage_disp', str(profile.get_int('s_guage_dis)p')))
-        pcdata.set_attribute('d_guage_disp', str(profile.get_int('d_guage_dis)p')))
+        pcdata.set_attribute('s_auto_scrach', str(profile.get_int('s_auto_scrach')))
+        pcdata.set_attribute('d_auto_scrach', str(profile.get_int('d_auto_scrach')))
+        pcdata.set_attribute('s_gauge_disp', str(profile.get_int('s_gauge_disp')))
+        pcdata.set_attribute('d_gauge_disp', str(profile.get_int('d_gauge_disp')))
         pcdata.set_attribute('s_lane_brignt', str(profile.get_int('s_lane_brignt')))
         pcdata.set_attribute('d_lane_brignt', str(profile.get_int('d_lane_brignt')))
         pcdata.set_attribute('s_camera_layout', str(profile.get_int('s_camera_layout')))
@@ -1553,77 +1557,77 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             qprodata.set_attribute('hand', str(qpro.get_int('hand')))
 
         # Expert courses
-        # ir_data = Node.void('ir_data')
-        # root.add_child(ir_data)
-        # for course in achievements:
-        #     if course.type == self.COURSE_TYPE_INTERNET_RANKING:
-        #         courseid, coursechart = self.id_and_chart_from_courseid(course.id)
-        #         ir_data.add_child(Node.s32_array('e', [
-        #             courseid,  # course ID
-        #             coursechart,  # course chart
-        #             self.db_to_game_status(course.data.get_int('clear_status')),  # course clear status
-        #             course.data.get_int('pgnum'),  # flashing great count
-        #             course.data.get_int('gnum'),  # great count
-        #         ]))
+        ir_data = Node.void('ir_data')
+        root.add_child(ir_data)
+        for course in achievements:
+            if course.type == self.COURSE_TYPE_INTERNET_RANKING:
+                courseid, coursechart = self.id_and_chart_from_courseid(course.id)
+                ir_data.add_child(Node.s32_array('e', [
+                    courseid,  # course ID
+                    coursechart,  # course chart
+                    self.db_to_game_status(course.data.get_int('clear_status')),  # course clear status
+                    course.data.get_int('pgnum'),  # flashing great count
+                    course.data.get_int('gnum'),  # great count
+                ]))
 
-        # secret_course_data = Node.void('secret_course_data')
-        # root.add_child(secret_course_data)
-        # for course in achievements:
-        #     if course.type == self.COURSE_TYPE_SECRET:
-        #         courseid, coursechart = self.id_and_chart_from_courseid(course.id)
-        #         secret_course_data.add_child(Node.s32_array('e', [
-        #             courseid,  # course ID
-        #             coursechart,  # course chart
-        #             self.db_to_game_status(course.data.get_int('clear_status')),  # course clear status
-        #             course.data.get_int('pgnum'),  # flashing great count
-        #             course.data.get_int('gnum'),  # great count
-        #         ]))
+        secret_course_data = Node.void('secret_course_data')
+        root.add_child(secret_course_data)
+        for course in achievements:
+            if course.type == self.COURSE_TYPE_SECRET:
+                courseid, coursechart = self.id_and_chart_from_courseid(course.id)
+                secret_course_data.add_child(Node.s32_array('e', [
+                    courseid,  # course ID
+                    coursechart,  # course chart
+                    self.db_to_game_status(course.data.get_int('clear_status')),  # course clear status
+                    course.data.get_int('pgnum'),  # flashing great count
+                    course.data.get_int('gnum'),  # great count
+                ]))
 
-        # classic_course_data = Node.void('classic_course_data')
-        # root.add_child(classic_course_data)
-        # for course in achievements:
-        #     if course.type == self.COURSE_TYPE_CLASSIC:
-        #         courseid, playstyle = self.id_and_chart_from_courseid(course.id)
-        #         score_data = Node.void('score_data')
-        #         classic_course_data.add_child(score_data)
-        #         score_data.set_attribute('play_style', str(playstyle))
-        #         score_data.set_attribute('course_id', str(courseid))
-        #         score_data.set_attribute('score', str(course.data.get_int('pgnum') * 2 + course.data.get_int('gnum')))
-        #         score_data.set_attribute('pgnum', str(course.data.get_int('pgnum')))
-        #         score_data.set_attribute('gnum', str(course.data.get_int('gnum')))
-        #         score_data.set_attribute('cflg', str(self.db_to_game_status(course.data.get_int('clear_status'))))
+        classic_course_data = Node.void('classic_course_data')
+        root.add_child(classic_course_data)
+        for course in achievements:
+            if course.type == self.COURSE_TYPE_CLASSIC:
+                courseid, playstyle = self.id_and_chart_from_courseid(course.id)
+                score_data = Node.void('score_data')
+                classic_course_data.add_child(score_data)
+                score_data.set_attribute('play_style', str(playstyle))
+                score_data.set_attribute('course_id', str(courseid))
+                score_data.set_attribute('score', str(course.data.get_int('pgnum') * 2 + course.data.get_int('gnum')))
+                score_data.set_attribute('pgnum', str(course.data.get_int('pgnum')))
+                score_data.set_attribute('gnum', str(course.data.get_int('gnum')))
+                score_data.set_attribute('cflg', str(self.db_to_game_status(course.data.get_int('clear_status'))))
 
         # DJ RANK
-        # for dj_rank in achievements:
-        #     if dj_rank.type != 'dj_rank':
-        #         continue
+        for dj_rank in achievements:
+            if dj_rank.type != 'dj_rank':
+                continue
 
-        #     dj_rank_node = Node.void('dj_rank')
-        #     root.add_child(dj_rank_node)
-        #     dj_rank_node.set_attribute('style', str(dj_rank.id))
-        #     dj_rank_node.add_child(Node.s32_array('rank', dj_rank.data.get_int_array('rank', 13)))
-        #     dj_rank_node.add_child(Node.s32_array('point', dj_rank.data.get_int_array('point', 13)))
+            dj_rank_node = Node.void('dj_rank')
+            root.add_child(dj_rank_node)
+            dj_rank_node.set_attribute('style', str(dj_rank.id))
+            dj_rank_node.add_child(Node.s32_array('rank', dj_rank.data.get_int_array('rank', 13)))
+            dj_rank_node.add_child(Node.s32_array('point', dj_rank.data.get_int_array('point', 13)))
 
-        # for i in range(2):
-        #     for j in range(15):
-        #         dj_rank_ranking_node = Node.void('dj_rank_ranking')
-        #         root.add_child(dj_rank_ranking_node)
-        #         dj_rank_ranking_node.set_attribute('style', str(i))
-        #         detail = Node.void('detail')
-        #         dj_rank_ranking_node.add_child(detail)
-        #         detail.set_attribute('category', str(j))
-        #         detail.set_attribute('total_user', '0')
-        #         detail.set_attribute('rank', '0')
-        #         detail.set_attribute('platinum_point', '0')
-        #         detail.set_attribute('platinum_rank', '0')
-        #         detail.set_attribute('gold_point', '0')
-        #         detail.set_attribute('gold_rank', '0')
-        #         detail.set_attribute('silver_point', '0')
-        #         detail.set_attribute('silver_rank', '0')
-        #         detail.set_attribute('bronze_point', '0')
-        #         detail.set_attribute('bronze_rank', '0')
-        #         detail.set_attribute('white_point', '0')
-        #         detail.set_attribute('white_rank', '0')
+        for i in range(2):
+            for j in range(15):
+                dj_rank_ranking_node = Node.void('dj_rank_ranking')
+                root.add_child(dj_rank_ranking_node)
+                dj_rank_ranking_node.set_attribute('style', str(i))
+                detail = Node.void('detail')
+                dj_rank_ranking_node.add_child(detail)
+                detail.set_attribute('category', str(j))
+                detail.set_attribute('total_user', '0')
+                detail.set_attribute('rank', '0')
+                detail.set_attribute('platinum_point', '0')
+                detail.set_attribute('platinum_rank', '0')
+                detail.set_attribute('gold_point', '0')
+                detail.set_attribute('gold_rank', '0')
+                detail.set_attribute('silver_point', '0')
+                detail.set_attribute('silver_rank', '0')
+                detail.set_attribute('bronze_point', '0')
+                detail.set_attribute('bronze_rank', '0')
+                detail.set_attribute('white_point', '0')
+                detail.set_attribute('white_rank', '0')
 
         # arena_data = Node.void('arena_data')
         # root.add_child(arena_data)
@@ -1750,17 +1754,14 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         play_stats.replace_int('double_dj_points', int(request.attribute('d_achi')))
 
         # Profile settings
-        newprofile.replace_int('mode', int(request.attribute('mode')))
-        newprofile.replace_int('pmode', int(request.attribute('pmode')))
-        newprofile.replace_int('rtype', int(request.attribute('rtype')))
-        newprofile.replace_int('s_lift', int(request.attribute('s_lift')))
-        newprofile.replace_int('d_lift', int(request.attribute('d_lift')))
         newprofile.replace_int('sp_opt', int(request.attribute('sp_opt')))
         newprofile.replace_int('dp_opt', int(request.attribute('dp_opt')))
         newprofile.replace_int('dp_opt2', int(request.attribute('dp_opt2')))
         newprofile.replace_int('gpos', int(request.attribute('gpos')))
         newprofile.replace_int('s_sorttype', int(request.attribute('s_sorttype')))
         newprofile.replace_int('d_sorttype', int(request.attribute('d_sorttype')))
+        newprofile.replace_int('s_disp_judge', int(request.attribute('s_disp_judge')))
+        newprofile.replace_int('d_disp_judge', int(request.attribute('d_disp_judge')))
         newprofile.replace_int('s_pace', int(request.attribute('s_pace')))
         newprofile.replace_int('d_pace', int(request.attribute('d_pace')))
         newprofile.replace_int('s_gno', int(request.attribute('s_gno')))
@@ -1779,23 +1780,23 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         newprofile.replace_int('d_judge', int(request.attribute('d_judge')))
         newprofile.replace_float('s_hispeed', float(request.attribute('s_hispeed')))
         newprofile.replace_float('d_hispeed', float(request.attribute('d_hispeed')))
-        newprofile.replace_int('s_disp_judge', int(request.attribute('s_disp_judge')))
-        newprofile.replace_int('d_disp_judge', int(request.attribute('d_disp_judge')))
         newprofile.replace_int('s_opstyle', int(request.attribute('s_opstyle')))
         newprofile.replace_int('d_opstyle', int(request.attribute('d_opstyle')))
-        newprofile.replace_int('s_exscore', int(request.attribute('s_exscore')))
-        newprofile.replace_int('d_exscore', int(request.attribute('d_exscore')))
         newprofile.replace_int('s_graph_score', int(request.attribute('s_graph_score')))
         newprofile.replace_int('d_graph_score', int(request.attribute('d_graph_score')))
-        newprofile.replace_int('s_auto_scratch', str(request.attribute('s_auto_scratch')))
-        newprofile.replace_int('d_auto_scratch', str(request.attribute('d_auto_scratch')))
-        newprofile.replace_int('s_guage_disp', str(request.attribute('s_guage_dis)p')))
-        newprofile.replace_int('d_guage_disp', str(request.attribute('d_guage_dis)p')))
+        newprofile.replace_int('s_auto_scrach', str(request.attribute('s_auto_scrach')))
+        newprofile.replace_int('d_auto_scrach', str(request.attribute('d_auto_scrach')))
+        newprofile.replace_int('s_gauge_disp', str(request.attribute('s_gauge_disp')))
+        newprofile.replace_int('d_gauge_disp', str(request.attribute('d_gauge_disp')))
         newprofile.replace_int('s_lane_brignt', str(request.attribute('s_lane_brignt')))
         newprofile.replace_int('d_lane_brignt', str(request.attribute('d_lane_brignt')))
         newprofile.replace_int('s_camera_layout', str(request.attribute('s_camera_layout')))
         newprofile.replace_int('d_camera_layout', str(request.attribute('d_camera_layout')))
-
+        newprofile.replace_int('s_lift', int(request.attribute('s_lift')))
+        newprofile.replace_int('d_lift', int(request.attribute('d_lift')))
+        newprofile.replace_int('mode', int(request.attribute('mode')))
+        newprofile.replace_int('pmode', int(request.attribute('pmode')))
+        newprofile.replace_int('rtype', int(request.attribute('rtype')))
         # Update judge window adjustments per-machine
         judge_dict = newprofile.get_dict('machine_judge_adjust')
         machine_judge = judge_dict.get_dict(self.config['machine']['pcbid'])
