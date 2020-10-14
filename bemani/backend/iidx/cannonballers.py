@@ -1305,6 +1305,9 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return Node.void('IIDX25pc')
 
+    def handle_IIDX26pc_logout_request(self, request: Node) -> Node:
+        return Node.void('IIDX26pc')
+
     def handle_IIDX25gameSystem_systemInfo_request(self, request: Node) -> Node:
         return Node.void('IIDX25gameSystem')
 
