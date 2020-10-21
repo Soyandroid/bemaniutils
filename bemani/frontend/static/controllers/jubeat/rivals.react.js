@@ -165,7 +165,13 @@ var rivals_view = React.createClass({
                                 value={this.state.term}
                                 onChange={function(event) {
                                     var value = event.target.value.toUpperCase();
-                                    var intRegex = /^[ -&\\.\\*A-Z0-9\-]*$/;
+                                    var intRegex = new RegExp(
+                                        "^[" +
+                                        "0-9" +
+                                        "A-Z" +
+                                        "!?#$&*-. " +
+                                        "]*$"
+                                    );
                                     // Normally, names are <= 8 characters, but we allow Jubeat IDs here too
                                     if (value.length <= 9 && intRegex.test(value)) {
                                         this.setState({term: value});
