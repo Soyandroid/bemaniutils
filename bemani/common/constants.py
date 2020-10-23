@@ -58,6 +58,7 @@ class VersionConstants:
     IIDX_CANNON_BALLERS = 25
     IIDX_ROOTAGE = 26
     IIDX_HEROIC_VERSE = 27
+    IIDX_BISTROVER = 28
 
     JUBEAT = 1
     JUBEAT_RIPPLES = 2

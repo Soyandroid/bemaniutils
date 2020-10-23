@@ -1716,6 +1716,7 @@ class ImportIIDX(ImportBase):
                 '25': VersionConstants.IIDX_CANNON_BALLERS,
                 '26': VersionConstants.IIDX_ROOTAGE,
                 '27': VersionConstants.IIDX_HEROIC_VERSE,
+                '28': VersionConstants.IIDX_BISTROVER,
             }[version]
             self.charts = [0, 1, 2, 3, 4, 5, 6]
         elif version in ['omni-20', 'omni-21', 'omni-22', 'omni-23', 'omni-24', 'omni-25', 'omni-26', 'omni-27']:
@@ -1728,6 +1729,7 @@ class ImportIIDX(ImportBase):
                 'omni-25': VersionConstants.IIDX_CANNON_BALLERS,
                 'omni-26': VersionConstants.IIDX_ROOTAGE,
                 'omni-27': VersionConstants.IIDX_HEROIC_VERSE,
+                'omni-28': VersionConstants.IIDX_BISTROVER,
             }[version] + DBConstants.OMNIMIX_VERSION_BUMP
             self.charts = [0, 1, 2, 3, 4, 5, 6]
         elif version == 'all':
