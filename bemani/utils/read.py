@@ -1734,10 +1734,14 @@ class ImportIIDX(ImportBase):
             self.charts = [0, 1, 2, 3, 4, 5, 6]
         elif version == 'all':
             actual_version = None
-            self.charts = [0, 1, 2, 3, 4, 5, 6]
+            self.charts = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         else:
             raise Exception("Unsupported IIDX version, expected one of the following: 20, 21, 22, 23, 24, 25, 26, 27 omni-20, omni-21, omni-22, omni-23, omni-24, omni-25, omni-26, omni-27!")
-
+        if actual_version is not None:
+            if actual_version >= (VersionConstants.IIDX_HEROIC_VERSE + DBConstants.OMNIMIX_VERSION_BUMP) or \
+                    (actual_version >= VersionConstants.IIDX_HEROIC_VERSE and
+                        actual_version < DBConstants.OMNIMIX_VERSION_BUMP):
+                self.charts = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         super().__init__(config, GameConstants.IIDX, actual_version, no_combine, update)
 
     def __gather_sound_files(self, directory: str) -> Dict[int, str]:
@@ -1868,7 +1872,7 @@ class ImportIIDX(ImportBase):
         songs: List[Dict[str, Any]] = []
         for song in musicdb.songs:
             bpm = (0, 0)
-            notecounts = [0, 0, 0, 0, 0, 0]
+            notecounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
             if song.id in self.BANNED_CHARTS:
                 continue
@@ -1903,31 +1907,66 @@ class ImportIIDX(ImportBase):
                         print(f"Could not find chart information for song {song.id}!")
                 else:
                     print(f"No chart information because chart for song {song.id} is missing!")
-
-            songs.append({
-                'id': song.id,
-                'title': song.title,
-                'artist': song.artist,
-                'genre': song.genre,
-                'bpm_min': bpm[0],
-                'bpm_max': bpm[1],
-                'difficulty': {
-                    'spn': song.difficulties[0],
-                    'sph': song.difficulties[1],
-                    'spa': song.difficulties[2],
-                    'dpn': song.difficulties[3],
-                    'dph': song.difficulties[4],
-                    'dpa': song.difficulties[5],
-                },
-                'notecount': {
-                    'spn': notecounts[0],
-                    'sph': notecounts[1],
-                    'spa': notecounts[2],
-                    'dpn': notecounts[3],
-                    'dph': notecounts[4],
-                    'dpa': notecounts[5],
-                },
-            })
+            if self.version < VersionConstants.IIDX_HEROIC_VERSE or \
+                (self.version < (VersionConstants.IIDX_HEROIC_VERSE + DBConstants.OMNIMIX_VERSION_BUMP) and
+                    self.version > DBConstants.OMNIMIX_VERSION_BUMP):
+                songs.append({
+                    'id': song.id,
+                    'title': song.title,
+                    'artist': song.artist,
+                    'genre': song.genre,
+                    'bpm_min': bpm[0],
+                    'bpm_max': bpm[1],
+                    'difficulty': {
+                        'spn': song.difficulties[0],
+                        'sph': song.difficulties[1],
+                        'spa': song.difficulties[2],
+                        'dpn': song.difficulties[3],
+                        'dph': song.difficulties[4],
+                        'dpa': song.difficulties[5],
+                    },
+                    'notecount': {
+                        'spn': notecounts[0],
+                        'sph': notecounts[1],
+                        'spa': notecounts[2],
+                        'dpn': notecounts[3],
+                        'dph': notecounts[4],
+                        'dpa': notecounts[5],
+                    },
+                })
+            else:
+                songs.append({
+                    'id': song.id,
+                    'title': song.title,
+                    'artist': song.artist,
+                    'genre': song.genre,
+                    'bpm_min': bpm[0],
+                    'bpm_max': bpm[1],
+                    'difficulty': {
+                        'spn': song.difficulties[0],
+                        'sph': song.difficulties[1],
+                        'spa': song.difficulties[2],
+                        'dpn': song.difficulties[3],
+                        'dph': song.difficulties[4],
+                        'dpa': song.difficulties[5],
+                        'spb': song.difficulties[6],
+                        'spl': song.difficulties[7],
+                        'dpb': song.difficulties[8],
+                        'dpl': song.difficulties[9],
+                    },
+                    'notecount': {
+                        'spn': notecounts[0],
+                        'sph': notecounts[1],
+                        'spa': notecounts[2],
+                        'dpn': notecounts[3],
+                        'dph': notecounts[4],
+                        'dpa': notecounts[5],
+                        'spb': notecounts[6],
+                        'spl': notecounts[7],
+                        'dpb': notecounts[8],
+                        'dpl': notecounts[9],
+                    },
+                })
         return songs
 
     def lookup(self, server: str, token: str) -> List[Dict[str, Any]]:
@@ -1992,27 +2031,43 @@ class ImportIIDX(ImportBase):
             raise Exception('Can\'t import IIDX database for \'all\' version!')
 
         # Import each song into our DB
-        chart_map = {
-            0: 'spn',
-            1: 'sph',
-            2: 'spa',
-            3: 'dpn',
-            4: 'dph',
-            5: 'dpa',
-        }
+        if self.version < VersionConstants.IIDX_HEROIC_VERSE or \
+            (self.version < (VersionConstants.IIDX_HEROIC_VERSE + DBConstants.OMNIMIX_VERSION_BUMP) and
+                self.version > DBConstants.OMNIMIX_VERSION_BUMP):
+            chart_map = {
+                0: 'spn',
+                1: 'sph',
+                2: 'spa',
+                3: 'dpn',
+                4: 'dph',
+                5: 'dpa',
+            }
+        else:
+            chart_map = {
+                0: 'spn',
+                1: 'sph',
+                2: 'spa',
+                3: 'dpn',
+                4: 'dph',
+                5: 'dpa',
+                6: 'spb',
+                7: 'spl',
+                8: 'dpb',
+                9: 'dpl',
+            }
         for song in songs:
             self.start_batch()
             for chart in self.charts:
-                if chart == 6:
-                    # Beginner chart
-                    songdata: Dict[str, Any] = {}
-                else:
-                    songdata = {
-                        'difficulty': song['difficulty'][chart_map[chart]],
-                        'bpm_min': song['bpm_min'],
-                        'bpm_max': song['bpm_max'],
-                        'notecount': song['notecount'][chart_map[chart]],
-                    }
+                # if chart == 6:
+                #     # Beginner chart
+                #     songdata: Dict[str, Any] = {}
+                # else:
+                songdata = {
+                    'difficulty': song['difficulty'][chart_map[chart]],
+                    'bpm_min': song['bpm_min'],
+                    'bpm_max': song['bpm_max'],
+                    'notecount': song['notecount'][chart_map[chart]],
+                }
                 # First, try to find in the DB from another version
                 old_id = self.__revivals(song['id'], self.__charts(song['id'], chart))
                 if self.no_combine or old_id is None:

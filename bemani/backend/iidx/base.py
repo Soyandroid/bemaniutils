@@ -38,9 +38,25 @@ class IIDXBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     CHART_TYPE_N14 = 3
     CHART_TYPE_H14 = 4
     CHART_TYPE_A14 = 5
-    # Beginner charts only save status
+    # Beginner charts only save status(not anymore lol)
     CHART_TYPE_B7 = 6
-
+    # HV and above include all the difficulties in one songid now
+    CHART_TYPE_L7 = 7
+    CHART_TYPE_B14 = 8
+    CHART_TYPE_L14 = 9
+    # Used for dealing with mismatch of chart ids from HV and onwards
+    chart_map = {
+        0: CHART_TYPE_B7,
+        1: CHART_TYPE_N7,
+        2: CHART_TYPE_H7,
+        3: CHART_TYPE_A7,
+        4: CHART_TYPE_L7,
+        5: CHART_TYPE_B14,
+        6: CHART_TYPE_N14,
+        7: CHART_TYPE_H14,
+        8: CHART_TYPE_A14,
+        9: CHART_TYPE_L14,
+    }
     DAN_RANK_7_KYU = DBConstants.IIDX_DAN_RANK_7_KYU
     DAN_RANK_6_KYU = DBConstants.IIDX_DAN_RANK_6_KYU
     DAN_RANK_5_KYU = DBConstants.IIDX_DAN_RANK_5_KYU
