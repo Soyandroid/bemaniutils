@@ -1840,6 +1840,42 @@ class ImportIIDX(ImportBase):
             if old_id is not None:
                 return old_id
 
+        # HV and above remove song ids for leggendaria charts and move them 
+        if chart is 7 or 9:
+            legg_map = {
+                24041: 24100, 24011: 24101,
+                23054: 23100, 23031: 23101,
+                22008: 22101, 22013: 22102,
+                22024: 22103, 22027: 22104,
+                22031: 22105, 22089: 22106,
+                22006: 22107, 21012: 21100,
+                21059: 21101, 21069: 21102,
+                21073: 21103, 21052: 21104,
+                21048: 21105, 21050: 21106,
+                21029: 21107, 20100: 20103,
+                20039: 20104, 20068: 20105,
+                20024: 20106, 20019: 20107,
+                19063: 19100, 18025: 18100,
+                18011: 18103, 17060: 17101,
+                17028: 17102, 16050: 16101,
+                16045: 16102, 16031: 16103,
+                16015: 16104, 16105: 16105,
+                15023: 15101, 15007: 15102,
+                15061: 15103, 15004: 15104,
+                15045: 15105, 14009: 14100,
+                14046: 14101, 14022: 14102,
+                13010: 13100, 13038: 13101,
+                12002: 12100, 12016: 12101,
+                11032: 11100, 11012: 11101,
+                5014: 5100, 4005: 4100,
+                4001: 4101, 1017: 1100,
+            }
+            old_legg_id = legg_map.get(songid)
+            old_chart = 2 if chart == 7 else 5
+            if old_legg_id is not None:
+                old_id = self.get_music_id_for_song(old_legg_id, old_chart)
+                if old_id is not None:
+                    return old_id
         # Failed, so create a new one
         return None
 
@@ -2031,30 +2067,18 @@ class ImportIIDX(ImportBase):
             raise Exception('Can\'t import IIDX database for \'all\' version!')
 
         # Import each song into our DB
-        if self.version < VersionConstants.IIDX_HEROIC_VERSE or \
-            (self.version < (VersionConstants.IIDX_HEROIC_VERSE + DBConstants.OMNIMIX_VERSION_BUMP) and
-                self.version > DBConstants.OMNIMIX_VERSION_BUMP):
-            chart_map = {
-                0: 'spn',
-                1: 'sph',
-                2: 'spa',
-                3: 'dpn',
-                4: 'dph',
-                5: 'dpa',
-            }
-        else:
-            chart_map = {
-                0: 'spn',
-                1: 'sph',
-                2: 'spa',
-                3: 'dpn',
-                4: 'dph',
-                5: 'dpa',
-                6: 'spb',
-                7: 'spl',
-                8: 'dpb',
-                9: 'dpl',
-            }
+        chart_map = {
+            0: 'spn',
+            1: 'sph',
+            2: 'spa',
+            3: 'dpn',
+            4: 'dph',
+            5: 'dpa',
+            6: 'spb',
+            7: 'spl',
+            8: 'dpb',
+            9: 'dpl',
+        }
         for song in songs:
             self.start_batch()
             for chart in self.charts:
