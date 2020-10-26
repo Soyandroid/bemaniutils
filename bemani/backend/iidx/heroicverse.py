@@ -335,7 +335,7 @@ class IIDXHeroicVerse(IIDXCourse, IIDXBase):
 
         return [scorestruct[s] for s in scorestruct]
 
-    def handle_iidxshop_getname_request(self, request: Node) -> Node:
+    def handle_IIDX27shop_getname_request(self, request: Node) -> Node:
         machine = self.data.local.machine.get_machine(self.config['machine']['pcbid'])
         if machine is not None:
             machine_name = machine.name
