@@ -1169,6 +1169,7 @@ class IIDXHeroicVerse(IIDXCourse, IIDXBase):
         secret.add_child(Node.s64_array('flg1', secret_dict.get_int_array('flg1', 3)))
         secret.add_child(Node.s64_array('flg2', secret_dict.get_int_array('flg2', 3)))
         secret.add_child(Node.s64_array('flg3', secret_dict.get_int_array('flg3', 3)))
+        secret.add_child(Node.s64_array('flg4', secret_dict.get_int_array('flg4', 3)))
 
         # Favorites
         for folder in ['favorite1', 'favorite2', 'favorite3']:
@@ -1647,6 +1648,7 @@ class IIDXHeroicVerse(IIDXCourse, IIDXBase):
             secret_dict.replace_int_array('flg1', 3, secret.child_value('flg1'))
             secret_dict.replace_int_array('flg2', 3, secret.child_value('flg2'))
             secret_dict.replace_int_array('flg3', 3, secret.child_value('flg3'))
+            secret_dict.replace_int_array('flg4', 3, secret.child_value('flg4'))
             newprofile.replace_dict('secret', secret_dict)
 
         # Basic achievements
