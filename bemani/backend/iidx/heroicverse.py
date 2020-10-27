@@ -1113,6 +1113,8 @@ class IIDXHeroicVerse(IIDXCourse, IIDXBase):
         pcdata.set_attribute('d_pace', str(profile.get_int('d_pace')))
         pcdata.set_attribute('s_gno', str(profile.get_int('s_gno')))
         pcdata.set_attribute('d_gno', str(profile.get_int('d_gno')))
+        pcdata.set_attribute('s_sub_gno', str(profile.get_int('s_sub_gno')))
+        pcdata.set_attribute('d_sub_gno', str(profile.get_int('d_sub_gno')))
         pcdata.set_attribute('s_gtype', str(profile.get_int('s_gtype')))
         pcdata.set_attribute('d_gtype', str(profile.get_int('d_gtype')))
         pcdata.set_attribute('s_sdlen', str(profile.get_int('s_sdlen')))
@@ -1373,7 +1375,7 @@ class IIDXHeroicVerse(IIDXCourse, IIDXBase):
 
         # notes radar saving
         for notes_radar in achievements:
-            if notes_radar.name != 'notes_radar':
+            if notes_radar.type != 'notes_radar':
                 continue
 
             notes_radar_node = Node.void('notes_radar')
@@ -1868,8 +1870,7 @@ class IIDXHeroicVerse(IIDXCourse, IIDXBase):
         # language select saving
         language = request.child('language_setting')
         if language is not None:
-            language_dict = newprofile.get_dict('language')
-            language_dict.replace_int('language', language.attribute('language'))
+            newprofile.replace_int('language', int(language.attribute('language')))
 
         # Keep track of play statistics across all mixes
         self.update_play_statistics(userid, play_stats)
