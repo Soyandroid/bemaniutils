@@ -200,7 +200,7 @@ class CardCipher:
 
     @staticmethod
     def __type_from_cardid(cardid: str) -> int:
-        if cardid[:2].upper() == 'E004':
+        if cardid[:4].upper() == 'E004':
             return 1
         else:
             return 2
