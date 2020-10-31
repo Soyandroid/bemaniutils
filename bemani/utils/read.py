@@ -1750,11 +1750,16 @@ class ImportIIDX(ImportBase):
             for filename in filenames:
                 songid, extension = os.path.splitext(filename)
                 if extension == '.1' or extension == '.ifs':
-                    try:
-                        files[int(songid)] = os.path.join(directory, os.path.join(dirpath, filename))
-                    except ValueError:
-                        # Invalid file
-                        pass
+                    if filename != '12030-p0.ifs':
+                        if '-p0' in songid:
+                            songid = songid.replace('-p0', '')
+                        if songid + '-p0' + extension in filenames:
+                            filename = songid + '-p0' + extension
+                        try:
+                            files[int(songid)] = os.path.join(directory, os.path.join(dirpath, filename))
+                        except ValueError:
+                            # Invalid file
+                            pass
 
             for dirname in dirnames:
                 files.update(self.__gather_sound_files(os.path.join(directory, dirname)))
@@ -1793,6 +1798,18 @@ class ImportIIDX(ImportBase):
             16212: 21066,
             22096: 23030,
             22097: 23051,
+            21214: 11101,
+            21221: 14101,
+            21225: 15104,
+            21226: 15102,
+            21231: 15101,
+            21237: 15103,
+            21240: 16105,
+            21242: 16104,
+            21253: 16103,
+            21258: 16102,
+            21262: 16101,
+            21220: 14100,
         }
         # Some charts were changed, and others kept the same on these
         if chart in [0, 1, 2]:
@@ -1829,6 +1846,18 @@ class ImportIIDX(ImportBase):
             21066: 16212,
             23030: 22096,
             23051: 22097,
+            11101: 21214,
+            14101: 21221,
+            15104: 21225,
+            15102: 21226,
+            15101: 21231,
+            15103: 21237,
+            16105: 21240,
+            16104: 21242,
+            16103: 21253,
+            16102: 21258,
+            16101: 21262,
+            14100: 21220,
         }
         # Some charts were changed, and others kept the same on tehse
         if chart in [0, 1, 2]:
@@ -1840,38 +1869,73 @@ class ImportIIDX(ImportBase):
             if old_id is not None:
                 return old_id
 
-        # HV and above remove song ids for leggendaria charts and move them 
-        if chart is 7 or 9:
-            legg_map = {
-                24041: 24100, 24011: 24101,
-                23054: 23100, 23031: 23101,
-                22008: 22101, 22013: 22102,
-                22024: 22103, 22027: 22104,
-                22031: 22105, 22089: 22106,
-                22006: 22107, 21012: 21100,
-                21059: 21101, 21069: 21102,
-                21073: 21103, 21052: 21104,
-                21048: 21105, 21050: 21106,
-                21029: 21107, 20100: 20103,
-                20039: 20104, 20068: 20105,
-                20024: 20106, 20019: 20107,
-                19063: 19100, 18025: 18100,
-                18011: 18103, 17060: 17101,
-                17028: 17102, 16050: 16101,
-                16045: 16102, 16031: 16103,
-                16015: 16104, 16105: 16105,
-                15023: 15101, 15007: 15102,
-                15061: 15103, 15004: 15104,
-                15045: 15105, 14009: 14100,
-                14046: 14101, 14022: 14102,
-                13010: 13100, 13038: 13101,
-                12002: 12100, 12016: 12101,
-                11032: 11100, 11012: 11101,
-                5014: 5100, 4005: 4100,
-                4001: 4101, 1017: 1100,
-            }
+        legg_map = {
+            1017: 1100, 4005: 4100,
+            4001: 4101, 5014: 5100,
+            11032: 11100, 11012: 11101,
+            12002: 12100, 12016: 12101,
+            13010: 13100, 13038: 13101,
+            14009: 14100, 14046: 14101,
+            14022: 14102, 15023: 15101,
+            15007: 15102, 15061: 15103,
+            15004: 15104, 15045: 15105,
+            16050: 16101, 16045: 16102,
+            16031: 16103, 16015: 16104,
+            16002: 16105, 17060: 17101,
+            17028: 17102, 18025: 18100,
+            18011: 18103, 19063: 19100,
+            20100: 20103, 20039: 20104,
+            20068: 20105, 20024: 20106,
+            20019: 20107, 21012: 21100,
+            21059: 21101, 21069: 21102,
+            21073: 21103, 21052: 21104,
+            21048: 21105, 21050: 21106,
+            21029: 21107, 21089: 21108,
+            1005: 21204, 4020: 21205,
+            5007: 21206, 6013: 21207,
+            7038: 21208, 8023: 21209,
+            8024: 21210, 9001: 21211,
+            9051: 21212, 9033: 21213,
+            11028: 21215, 12010: 21216,
+            12052: 21217, 12053: 21218,
+            12054: 21219, 23054: 23100,
+            14053: 21222, 15000: 21223,
+            15001: 21224, 23031: 23101,
+            15014: 21227, 24041: 24100,
+            15015: 21228, 15016: 21229,
+            15020: 21230, 23070: 23102,
+            15025: 21232, 15026: 21233,
+            15032: 21234, 15041: 21235,
+            15054: 21236, 24011: 24101,
+            16000: 21238, 16001: 21239,
+            16011: 21241, 16016: 21243,
+            16017: 21244, 16018: 21245,
+            16020: 21246, 16021: 21247,
+            16022: 21248, 16024: 21249,
+            16025: 21250, 16028: 21251,
+            16030: 21252, 14012: 21264,
+            16034: 21254, 16038: 21255,
+            16040: 21256, 16042: 21257,
+            16047: 21259, 16049: 21260,
+            15005: 21261, 15008: 21263,
+            22008: 22101, 22013: 22102,
+            22024: 22103, 22027: 22104,
+            22031: 22105, 22089: 22106,
+            22006: 22107,
+        }
+        # HV and above remove song ids for leggendaria charts and move them
+        if chart == 7 or chart == 9:
             old_legg_id = legg_map.get(songid)
             old_chart = 2 if chart == 7 else 5
+            if old_legg_id is not None:
+                old_id = self.get_music_id_for_song(old_legg_id, old_chart)
+                if old_id is not None:
+                    return old_id
+
+        if chart == 2 or chart == 5:
+            source_to_legg = {value: key for (key, value) in legg_map.items()}
+            old_legg_id = source_to_legg.get(songid)
+            old_chart = 7 if chart == 2 else 9
             if old_legg_id is not None:
                 old_id = self.get_music_id_for_song(old_legg_id, old_chart)
                 if old_id is not None:
@@ -2020,6 +2084,10 @@ class ImportIIDX(ImportBase):
             3: 'dpn',
             4: 'dph',
             5: 'dpa',
+            6: 'spb',
+            7: 'spl',
+            8: 'dpb',
+            9: 'dpl',
         }
 
         # Format it the way we expect
@@ -2045,6 +2113,10 @@ class ImportIIDX(ImportBase):
                         'dpn': 0,
                         'dph': 0,
                         'dpa': 0,
+                        'spb': 0,
+                        'spl': 0,
+                        'dpb': 0,
+                        'dpl': 0,
                     },
                     'notecount': {
                         'spn': 0,
@@ -2053,6 +2125,10 @@ class ImportIIDX(ImportBase):
                         'dpn': 0,
                         'dph': 0,
                         'dpa': 0,
+                        'spb': 0,
+                        'spl': 0,
+                        'dpb': 0,
+                        'dpl': 0,
                     },
                 }
             if song.chart in chart_map:
@@ -2082,16 +2158,18 @@ class ImportIIDX(ImportBase):
         for song in songs:
             self.start_batch()
             for chart in self.charts:
-                # if chart == 6:
-                #     # Beginner chart
-                #     songdata: Dict[str, Any] = {}
-                # else:
-                songdata = {
-                    'difficulty': song['difficulty'][chart_map[chart]],
-                    'bpm_min': song['bpm_min'],
-                    'bpm_max': song['bpm_max'],
-                    'notecount': song['notecount'][chart_map[chart]],
-                }
+                if chart == 6 and (self.version < VersionConstants.IIDX_HEROIC_VERSE or
+                                   (self.version < (VersionConstants.IIDX_HEROIC_VERSE + DBConstants.OMNIMIX_VERSION_BUMP) and
+                                    self.version > DBConstants.OMNIMIX_VERSION_BUMP)):
+                    # Beginner chart
+                    songdata: Dict[str, Any] = {}
+                else:
+                    songdata = {
+                        'difficulty': song['difficulty'][chart_map[chart]],
+                        'bpm_min': song['bpm_min'],
+                        'bpm_max': song['bpm_max'],
+                        'notecount': song['notecount'][chart_map[chart]],
+                    }
                 # First, try to find in the DB from another version
                 old_id = self.__revivals(song['id'], self.__charts(song['id'], chart))
                 if self.no_combine or old_id is None:
