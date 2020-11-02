@@ -421,14 +421,14 @@ def navigation() -> Dict[str, Any]:
                 },
             ])
         jubeat_entries.extend([
-            # {
-            #     'label': 'Global Scores',
-            #     'uri': url_for('jubeat_pages.viewnetworkscores'),
-            # },
-            # {
-            #     'label': 'Global Records',
-            #     'uri': url_for('jubeat_pages.viewnetworkrecords'),
-            # },
+            {
+                'label': 'Global Scores',
+                'uri': url_for('jubeat_pages.viewnetworkscores'),
+            },
+            {
+                'label': 'Global Records',
+                'uri': url_for('jubeat_pages.viewnetworkrecords'),
+            },
             {
                 'label': 'All Players',
                 'uri': url_for('jubeat_pages.viewplayers'),
