@@ -1305,8 +1305,8 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return Node.void('IIDX25pc')
 
-    def handle_IIDX26pc_logout_request(self, request: Node) -> Node:
-        return Node.void('IIDX26pc')
+    def handle_IIDX25pc_logout_request(self, request: Node) -> Node:
+        return Node.void('IIDX25pc')
 
     def handle_IIDX25gameSystem_systemInfo_request(self, request: Node) -> Node:
         return Node.void('IIDX25gameSystem')
@@ -1660,6 +1660,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.add_child(step)
         step.set_attribute('enemy_damage', str(step_dict.get_int('enemy_damage')))
         step.set_attribute('progress', str(step_dict.get_int('progress')))
+        step.set_attribute('point', str(step_dict.get_int('point')))
         step.set_attribute('enemy_defeat_flg', str(step_dict.get_int('enemy_defeat_flg')))
         step.set_attribute('sp_level', str(step_dict.get_int('sp_level')))
         step.set_attribute('dp_level', str(step_dict.get_int('dp_level')))
@@ -1735,10 +1736,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         nostalgia = Node.void('nostalgia_open')
         root.add_child(nostalgia)
 
-        # root.add_child(Node.void('bind_eaappli'))
-        # pay_per_use = Node.void('pay_per_use')
-        # root.add_child(pay_per_use)
-        # pay_per_use.set_attribute('item_num', '99')
+        root.add_child(Node.void('bind_eaappli'))
+        pay_per_use = Node.void('pay_per_use')
+        root.add_child(pay_per_use)
+        pay_per_use.set_attribute('item_num', '99')
         return root
 
     def unformat_profile(self, userid: UserID, request: Node, oldprofile: ValidatedDict) -> ValidatedDict:
@@ -1956,6 +1957,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             step_dict = newprofile.get_dict('step')
             step_dict.replace_int('enemy_damage', int(step.attribute('enemy_damage')))
             step_dict.replace_int('progress', int(step.attribute('progress')))
+            step_dict.replace_int('point', int(step.attribute('point')))
             step_dict.replace_int('enemy_defeat_flg', int(step.attribute('enemy_defeat_flg')))
             step_dict.replace_int('sp_level', int(step.attribute('sp_level')))
             step_dict.replace_int('dp_level', int(step.attribute('dp_level')))

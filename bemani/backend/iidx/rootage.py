@@ -1523,6 +1523,11 @@ class IIDXRootage(IIDXCourse, IIDXBase):
         nostalgia = Node.void('nostalgia_open')
         root.add_child(nostalgia)
 
+        root.add_child(Node.void('bind_eaappli'))
+        pay_per_use = Node.void('pay_per_use')
+        root.add_child(pay_per_use)
+        pay_per_use.set_attribute('item_num', '99')
+
         return root
 
     def unformat_profile(self, userid: UserID, request: Node, oldprofile: ValidatedDict) -> ValidatedDict:
