@@ -41,7 +41,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
 
     def __init__(self, data: Data, config: Dict[str, Any], model: Model) -> None:
         super().__init__(data, config, model)
-        if model.rev == 'X':
+        if model.rev == 'X' or model.rev == 'Y':
             self.omnimix = True
         else:
             self.omnimix = False
