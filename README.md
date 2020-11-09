@@ -1,5 +1,3 @@
-This is a fork of DragonMinded's bemaniutils: https://github.com/DragonMinded/bemaniutils
-
 # Introduction
 
 A collection of programs for working with various games in the BEMANI series. This
