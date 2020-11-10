@@ -1589,6 +1589,35 @@ class ImportJubeat(ImportBase):
 
         return reassembled_songs, emblems
 
+    def __revivals(self, songid: int, chart: int) -> Optional[int]:
+        old_id = self.get_music_id_for_song(songid, chart)
+        if old_id is not None:
+            return old_id
+
+        # In qubell and clan omnimix, PPAP and Bonjour the world are placed 
+        # at this arbitrary songid since they weren't assigned one originally
+        # In jubeat festo, these songs were given proper songids so we need to account for this
+        legacy_to_modern_map = {
+            71000001: 70000124,
+            71000002: 70000154,
+        }
+
+        legacy_songid = legacy_to_modern_map.get(songid)
+        if legacy_songid is not None:
+            old_id = self.get_music_id_for_song(legacy_songid, chart)
+            if old_id is not None:
+                return old_id
+        modern_to_legacy_map = {
+            70000124: 71000001,
+            70000154: 71000002,
+        }
+
+        modern_songid = modern_to_legacy_map.get(songid)
+        if modern_songid is not None:
+            old_id = self.get_music_id_for_song(modern_songid, chart)
+            if old_id is not None:
+                return old_id
+
     def import_music_db(self, songs: List[Dict[str, Any]]) -> None:
         if self.version is None:
             raise Exception('Can\'t import Jubeat database for \'all\' version!')
@@ -1610,7 +1639,7 @@ class ImportJubeat(ImportBase):
             for chart in self.charts:
                 if(chart <= 2):
                     # First, try to find in the DB from another version
-                    old_id = self.get_music_id_for_song(songid, chart)
+                    old_id = old_id = self.__revivals(songid, chart)
                     if self.no_combine or old_id is None:
                         # Insert original
                         print(f"New entry for {songid} chart {chart}")
