@@ -1594,7 +1594,7 @@ class ImportJubeat(ImportBase):
         if old_id is not None:
             return old_id
 
-        # In qubell and clan omnimix, PPAP and Bonjour the world are placed 
+        # In qubell and clan omnimix, PPAP and Bonjour the world are placed
         # at this arbitrary songid since they weren't assigned one originally
         # In jubeat festo, these songs were given proper songids so we need to account for this
         legacy_to_modern_map = {
@@ -1617,6 +1617,8 @@ class ImportJubeat(ImportBase):
             old_id = self.get_music_id_for_song(modern_songid, chart)
             if old_id is not None:
                 return old_id
+        # Failed, so create a new one
+        return None
 
     def import_music_db(self, songs: List[Dict[str, Any]]) -> None:
         if self.version is None:

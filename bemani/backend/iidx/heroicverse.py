@@ -1477,7 +1477,7 @@ class IIDXHeroicVerse(IIDXCourse, IIDXBase):
         root.add_child(step)
         step.set_attribute('enemy_damage', str(step_dict.get_int('enemy_damage')))
         step.set_attribute('progress', str(step_dict.get_int('progress')))
-        step.add_child(Node.bool('is_track_ticket', step_dict.get_int('is_track_ticket')))
+        step.add_child(Node.bool('is_track_ticket', step_dict.get_bool('is_track_ticket')))
         step.set_attribute('sp_level', str(step_dict.get_int('sp_level')))
         step.set_attribute('dp_level', str(step_dict.get_int('dp_level')))
         step.set_attribute('sp_mission_point', str(step_dict.get_int('sp_mission_point')))
