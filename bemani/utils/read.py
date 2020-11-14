@@ -3403,7 +3403,7 @@ class ImportReflecBeat(ImportBase):
         # We always have 4 charts, even if we're importing from Colette and below,
         # so that we guarantee a stable song ID. We'll be in trouble if Reflec
         # ever adds a fifth chart.
-        if version in ['1', '2', '3', '4', '5', '6']:
+        if version in ['1', '2', '3', '4', '5', '6', '7']:
             actual_version = {
                 '1': VersionConstants.REFLEC_BEAT,
                 '2': VersionConstants.REFLEC_BEAT_LIMELIGHT,
@@ -3411,10 +3411,11 @@ class ImportReflecBeat(ImportBase):
                 '4': VersionConstants.REFLEC_BEAT_GROOVIN,
                 '5': VersionConstants.REFLEC_BEAT_VOLZZA,
                 '6': VersionConstants.REFLEC_BEAT_VOLZZA_2,
+                '7': VersionConstants.REFLEC_BEAT_REFLESIA,
             }[version]
             self.charts = [0, 1, 2, 3]
         else:
-            raise Exception("Unsupported ReflecBeat version, expected one of the following: 1, 2, 3, 4, 5, 6")
+            raise Exception("Unsupported ReflecBeat version, expected one of the following: 1, 2, 3, 4, 5, 6, 7")
 
         super().__init__(config, GameConstants.REFLEC_BEAT, actual_version, no_combine, update)
 
@@ -3509,6 +3510,20 @@ class ImportReflecBeat(ImportBase):
             chart_offset = 0x1E4
             chart_length = 0x20
             difficulties_offset = 0x1CC
+        elif self.version == VersionConstants.REFLEC_BEAT_REFLESIA:
+            # Based on MBR:J:A:A:2019031300
+            offset = 0x1B3398
+            stride = 556
+            max_songs = 945
+            max_difficulties = 4
+
+            song_offset = 0x38
+            song_length = 0x80
+            artist_offset = 0xB8
+            artist_length = 0x80
+            chart_offset = 0x1E5
+            chart_length = 0x20
+            difficulties_offset = 0x1CC
         else:
             raise Exception(f'Unsupported ReflecBeat version {self.version}')
 
@@ -3526,7 +3541,7 @@ class ImportReflecBeat(ImportBase):
             return inb[:end].decode('shift_jisx0213')
 
         def convert_version(songid: int, folder: int) -> int:
-            if self.version == VersionConstants.REFLEC_BEAT_VOLZZA_2:
+            if self.version >= VersionConstants.REFLEC_BEAT_VOLZZA_2:
                 # Reflec Volzza 2 appears from network and DLL perspective to be identical
                 # to Volzza 1, including what version the game thinks it is for songs. So,
                 # hard code the new song IDs so we can show the difference on the frontend.
@@ -3535,7 +3550,9 @@ class ImportReflecBeat(ImportBase):
                         return 6
                     if songid >= 788:
                         return 6
-
+                # Reflesia is actually rb6 but we are treating it as rb7 so reflect that here
+                if folder == 6:
+                    return 7
             return folder
 
         songs = []
