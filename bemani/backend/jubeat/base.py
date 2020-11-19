@@ -172,7 +172,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         combo: int,
         ghost: Optional[List[int]]=None,
         stats: Optional[Dict[str, int]]=None,
-        music_rate: int=0,
+        music_rate: int=None,
         hard_mode: bool=False,
     ) -> None:
         """
@@ -191,7 +191,12 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         ]:
             raise Exception(f"Invalid medal value {medal}")
         if hard_mode:
-            chart += 3
+            hard_mode_map = {
+                self.CHART_TYPE_BASIC: self.CHART_TYPE_HARD_BASIC,
+                self.CHART_TYPE_ADVANCED: self.CHART_TYPE_HARD_ADVANCED,
+                self.CHART_TYPE_EXTREME: self.CHART_TYPE_HARD_EXTREME,
+            }
+            chart = hard_mode_map.get(chart)
         oldscore = self.data.local.music.get_score(
             self.game,
             self.music_version,
@@ -242,7 +247,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             # Update the ghost regardless, but don't bother with it in history
             scoredata.replace_int_array('ghost', len(ghost), ghost)
 
-        if music_rate != 0:
+        if music_rate is not None:
             if oldscore is not None:
                 if music_rate > oldscore.data.get_int('music_rate'):
                     scoredata.replace_int('music_rate', music_rate)
