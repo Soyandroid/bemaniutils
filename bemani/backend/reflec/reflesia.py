@@ -546,7 +546,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
             return profile
         return Node.void('player')
 
-    def handle_player_rb6_player_read_score_old_5_request(self, request: Node) -> Node:
+    def handle_player_rb6_player_read_score_old_6_request(self, request: Node) -> Node:
         root = Node.void('player')
         pdata = Node.void('pdata')
         root.add_child(pdata)
@@ -555,7 +555,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
         pdata.add_child(record)
         return root
 
-    def handle_player_rb6_player_read_score_5_request(self, request: Node) -> Node:
+    def handle_player_rb6_player_read_score_6_request(self, request: Node) -> Node:
         refid = request.child_value('rid')
         userid = self.data.remote.user.from_refid(self.game, self.version, refid)
         if userid is None:
@@ -593,7 +593,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
 
         return root
 
-    def handle_player_rb6_player_read_rival_score_5_request(self, request: Node) -> Node:
+    def handle_player_rb6_player_read_rival_score_6_request(self, request: Node) -> Node:
         extid = request.child_value('uid')
         songid = request.child_value('music_id')
         chart = request.child_value('note_grade')
@@ -617,7 +617,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
             player_select_score.add_child(Node.s16('m_iconID', profile.get_dict('config').get_int('icon_id')))
         return root
 
-    def handle_player_rb6_player_read_rival_ranking_data_5_request(self, request: Node) -> Node:
+    def handle_player_rb6_player_read_rival_ranking_data_6_request(self, request: Node) -> Node:
         extid = request.child_value('uid')
         userid = self.data.remote.user.from_extid(self.game, self.version, extid)
 
@@ -668,7 +668,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
 
         return root
 
-    def handle_player_rb6_player_read_rank_5_request(self, request: Node) -> Node:
+    def handle_player_rb6_player_read_rank_6_request(self, request: Node) -> Node:
         # This gives us a 6-integer array mapping to user scores for the following:
         # [total score, basic chart score, medium chart score, hard chart score,
         # special chart score]. It also returns the previous rank, but this is
@@ -788,7 +788,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
 
         return root
 
-    def handle_player_rb6_player_write_5_request(self, request: Node) -> Node:
+    def handle_player_rb6_player_write_6_request(self, request: Node) -> Node:
         refid = request.child_value('pdata/account/rid')
         profile = self.put_profile_by_refid(refid, request)
         root = Node.void('player')
