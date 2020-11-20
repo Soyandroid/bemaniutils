@@ -188,7 +188,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
 
     def handle_info_rb6_info_read_request(self, request: Node) -> Node:
         root = Node.void('info')
-        self._add_event_info(root)
+        self.__add_event_info(root)
 
         return root
 
@@ -280,7 +280,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
                     data.add_child(Node.s32('rank', i + 1))
                     data.add_child(Node.s16('music_id', songid))
                     data.add_child(Node.s8('note_grade', score.chart))
-                    data.add_child(Node.s8('clear_type', self._db_to_game_clear_type(score.data.get_int('clear_type'))))
+                    data.add_child(Node.s8('clear_type', self.__db_to_game_clear_type(score.data.get_int('clear_type'))))
                     data.add_child(Node.s32('user_id', profile.get_int('extid')))
                     data.add_child(Node.s16('icon_id', profile.get_dict('config').get_int('icon_id')))
                     data.add_child(Node.s32('score', score.points))
@@ -490,7 +490,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
         # Session stuff, and resend global defaults
         root.add_child(Node.s32('plyid', play_id))
         root.add_child(Node.u64('start_time', Time.now() * 1000))
-        self._add_event_info(root)
+        self.__add_event_info(root)
 
         return root
 
@@ -576,13 +576,13 @@ class ReflecBeatReflesia(ReflecBeatBase):
             rec.add_child(Node.s16('mid', score.id))
             rec.add_child(Node.s8('ntgrd', score.chart))
             rec.add_child(Node.s32('pc', score.plays))
-            rec.add_child(Node.s8('ct', self._db_to_game_clear_type(score.data.get_int('clear_type'))))
+            rec.add_child(Node.s8('ct', self.__db_to_game_clear_type(score.data.get_int('clear_type'))))
             rec.add_child(Node.s16('ar', score.data.get_int('achievement_rate')))
             rec.add_child(Node.s16('scr', score.points))
             rec.add_child(Node.s16('ms', score.data.get_int('miss_count')))
             rec.add_child(Node.s16(
                 'param',
-                self._db_to_game_combo_type(score.data.get_int('combo_type')) + score.data.get_int('param'),
+                self.__db_to_game_combo_type(score.data.get_int('combo_type')) + score.data.get_int('param'),
             ))
             rec.add_child(Node.s32('bscrt', score.timestamp))
             rec.add_child(Node.s32('bart', score.data.get_int('best_achievement_rate_time')))
@@ -1043,7 +1043,7 @@ class ReflecBeatReflesia(ReflecBeatBase):
             itemnode.add_child(Node.s32_array('data', param.data.get_int_array('data', 256)))
 
         # Shop score for players
-        self._add_shop_score(pdata)
+        self.__add_shop_score(pdata)
 
         # My List data
         mylist = Node.void('mylist')
@@ -1343,8 +1343,8 @@ class ReflecBeatReflesia(ReflecBeatBase):
                 combo_type = param & 0x3
                 param = param ^ combo_type
 
-                clear_type = self._game_to_db_clear_type(clear_type)
-                combo_type = self._game_to_db_combo_type(combo_type, miss_count)
+                clear_type = self.__game_to_db_clear_type(clear_type)
+                combo_type = self.__game_to_db_combo_type(combo_type, miss_count)
                 self.update_score(
                     userid,
                     songid,
