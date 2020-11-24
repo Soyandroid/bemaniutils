@@ -1124,41 +1124,45 @@ class JubeatFesto(
             playdata.add_child(musicdata)
             musicdata.set_attribute('music_id', scoreid)
 
-            normal = Node.void('normal')
-            musicdata.add_child(normal)
-            normal.add_child(Node.s32_array('play_cnt', scoredata.get_int_array('play_cnt', 3)))
-            normal.add_child(Node.s32_array('clear_cnt', scoredata.get_int_array('clear_cnt', 3)))
-            normal.add_child(Node.s32_array('fc_cnt', scoredata.get_int_array('fc_cnt', 3)))
-            normal.add_child(Node.s32_array('ex_cnt', scoredata.get_int_array('ex_cnt', 3)))
-            normal.add_child(Node.s32_array('score', scoredata.get_int_array('points', 3)))
-            normal.add_child(Node.s8_array('clear', scoredata.get_int_array('clear_flags', 3)))
-            normal.add_child(Node.s32_array('music_rate', scoredata.get_int_array('music_rate', 3)))
+            # Since in the worst case, we could be wasting a lot of data by always sending both a normal and hard mode block
+            # we need to check if there's even a score array worth sending. This should help with performance for larger score databases. 
+            if scoredata.get_int_array('points', 3) != [0, 0, 0]:
+                normal = Node.void('normal')
+                musicdata.add_child(normal)
+                normal.add_child(Node.s32_array('play_cnt', scoredata.get_int_array('play_cnt', 3)))
+                normal.add_child(Node.s32_array('clear_cnt', scoredata.get_int_array('clear_cnt', 3)))
+                normal.add_child(Node.s32_array('fc_cnt', scoredata.get_int_array('fc_cnt', 3)))
+                normal.add_child(Node.s32_array('ex_cnt', scoredata.get_int_array('ex_cnt', 3)))
+                normal.add_child(Node.s32_array('score', scoredata.get_int_array('points', 3)))
+                normal.add_child(Node.s8_array('clear', scoredata.get_int_array('clear_flags', 3)))
+                normal.add_child(Node.s32_array('music_rate', scoredata.get_int_array('music_rate', 3)))
 
-            for i, ghost in enumerate(scoredata.get('ghost', [None, None, None])):
-                if ghost is None:
-                    continue
+                for i, ghost in enumerate(scoredata.get('ghost', [None, None, None])):
+                    if ghost is None:
+                        continue
 
-                bar = Node.u8_array('bar', ghost)
-                normal.add_child(bar)
-                bar.set_attribute('seq', str(i))
+                    bar = Node.u8_array('bar', ghost)
+                    normal.add_child(bar)
+                    bar.set_attribute('seq', str(i))
 
-            hard = Node.void('hard')
-            musicdata.add_child(hard)
-            hard.add_child(Node.s32_array('play_cnt', scoredata.get_int_array('hard_play_cnt', 3)))
-            hard.add_child(Node.s32_array('clear_cnt', scoredata.get_int_array('hard_clear_cnt', 3)))
-            hard.add_child(Node.s32_array('fc_cnt', scoredata.get_int_array('hard_fc_cnt', 3)))
-            hard.add_child(Node.s32_array('ex_cnt', scoredata.get_int_array('hard_ex_cnt', 3)))
-            hard.add_child(Node.s32_array('score', scoredata.get_int_array('hard_points', 3)))
-            hard.add_child(Node.s8_array('clear', scoredata.get_int_array('hard_clear_flags', 3)))
-            hard.add_child(Node.s32_array('music_rate', scoredata.get_int_array('hard_music_rate', 3)))
+            if scoredata.get_int_array('hard_points', 3) != [0, 0, 0]:
+                hard = Node.void('hard')
+                musicdata.add_child(hard)
+                hard.add_child(Node.s32_array('play_cnt', scoredata.get_int_array('hard_play_cnt', 3)))
+                hard.add_child(Node.s32_array('clear_cnt', scoredata.get_int_array('hard_clear_cnt', 3)))
+                hard.add_child(Node.s32_array('fc_cnt', scoredata.get_int_array('hard_fc_cnt', 3)))
+                hard.add_child(Node.s32_array('ex_cnt', scoredata.get_int_array('hard_ex_cnt', 3)))
+                hard.add_child(Node.s32_array('score', scoredata.get_int_array('hard_points', 3)))
+                hard.add_child(Node.s8_array('clear', scoredata.get_int_array('hard_clear_flags', 3)))
+                hard.add_child(Node.s32_array('music_rate', scoredata.get_int_array('hard_music_rate', 3)))
 
-            for i, ghost in enumerate(scoredata.get('hard_ghost', [None, None, None])):
-                if ghost is None:
-                    continue
+                for i, ghost in enumerate(scoredata.get('hard_ghost', [None, None, None])):
+                    if ghost is None:
+                        continue
 
-                bar = Node.u8_array('bar', ghost)
-                hard.add_child(bar)
-                bar.set_attribute('seq', str(i))
+                    bar = Node.u8_array('bar', ghost)
+                    hard.add_child(bar)
+                    bar.set_attribute('seq', str(i))
 
         return root
 
