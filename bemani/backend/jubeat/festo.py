@@ -1125,7 +1125,7 @@ class JubeatFesto(
             musicdata.set_attribute('music_id', scoreid)
 
             # Since in the worst case, we could be wasting a lot of data by always sending both a normal and hard mode block
-            # we need to check if there's even a score array worth sending. This should help with performance for larger score databases. 
+            # we need to check if there's even a score array worth sending. This should help with performance for larger score databases.
             if scoredata.get_int_array('points', 3) != [0, 0, 0]:
                 normal = Node.void('normal')
                 musicdata.add_child(normal)

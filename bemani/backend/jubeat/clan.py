@@ -1105,7 +1105,15 @@ class JubeatClan(
 
         music = ValidatedDict()
         for score in scores:
-            chart = score.chart if score.chart < 3 else score.chart - 3
+            if score.chart in [self.CHART_TYPE_HARD_BASIC, self.CHART_TYPE_HARD_ADVANCED, self.CHART_TYPE_HARD_EXTREME]:
+                hard_mode_map = {
+                    self.CHART_TYPE_HARD_BASIC: self.CHART_TYPE_BASIC,
+                    self.CHART_TYPE_HARD_ADVANCED: self.CHART_TYPE_ADVANCED,
+                    self.CHART_TYPE_HARD_EXTREME: self.CHART_TYPE_EXTREME,
+                }
+                chart = hard_mode_map.get(score.chart)
+            else:
+                chart = score.chart
             data = music.get_dict(str(score.id))
             play_cnt = data.get_int_array('play_cnt', 3)
             clear_cnt = data.get_int_array('clear_cnt', 3)
@@ -1117,6 +1125,8 @@ class JubeatClan(
             # This means that we already assigned a value and it was greater than current
             # This is possible because we iterate through both hard mode and normal mode scores
             # and treat them equally.
+            # TODO: generalize score merging code into a library since this does not account for
+            # having a full combo in hard mode but not in normal.
             if points[chart] >= score.points:
                 continue
             # Replace data for this chart type
