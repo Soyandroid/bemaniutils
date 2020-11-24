@@ -6,7 +6,7 @@ import os.path
 import struct
 import sys
 import textwrap
-from PIL import Image  # type: ignore
+from PIL import Image, ImageDraw  # type: ignore
 from typing import Any, Dict, List, Optional, Tuple
 
 from bemani.format.dxt import DXTBuffer
@@ -41,6 +41,7 @@ class Texture:
         header_flags3: int,
         fmtflags: int,
         rawdata: bytes,
+        compressed: Optional[bytes],
         imgdata: Any,
     ) -> None:
         self.name = name
@@ -52,6 +53,7 @@ class Texture:
         self.header_flags3 = header_flags3
         self.fmtflags = fmtflags
         self.raw = rawdata
+        self.compressed = compressed
         self.img = imgdata
 
 
@@ -408,6 +410,7 @@ class AFPFile:
                             # I assume they're like the above, so lets put in some asertions.
                             if deflated_size != (texture_length - 8):
                                 raise Exception("We got an incorrect length for raw texture!")
+                            lz_data = None
                             raw_data = self.data[(texture_offset + 8):(texture_offset + 8 + deflated_size)]
                             self.add_coverage(texture_offset, deflated_size + 8)
 
@@ -458,8 +461,12 @@ class AFPFile:
                         if self.endian == ">" and magic != b"TXDT":
                             raise Exception("Unexpected texture format!")
 
+                        # Since the AFP file format can be found in both big and little endian, its
+                        # possible that some of these loaders might need byteswapping on some platforms.
+                        # This has been tested on files intended for X86 (little endian).
+
                         if fmt == 0x0B:
-                            # 16-bit 565 color RGB format.
+                            # 16-bit 565 color RGB format. Game references D3D9 texture format 23 (R5G6B5).
                             newdata = []
                             for i in range(width * height):
                                 pixel = struct.unpack(
@@ -476,20 +483,44 @@ class AFPFile:
                                 'RGB', (width, height), b''.join(newdata), 'raw', 'RGB',
                             )
                         elif fmt == 0x0E:
-                            # RGB image, no alpha.
+                            # RGB image, no alpha. Game references D3D9 texture format 22 (R8G8B8).
                             img = Image.frombytes(
                                 'RGB', (width, height), raw_data[64:], 'raw', 'RGB',
                             )
-                        # 0x10 = Seems to be some sort of RGB with color swapping.
-                        elif fmt == 0x15:
-                            # RGBA format.
-                            # TODO: The colors are wrong on this, need to investigate
-                            # further.
+                        elif fmt == 0x10:
+                            # Seems to be some sort of RGB with color swapping. Game references D3D9 texture
+                            # format 21 (A8R8B8G8) but does manual byteswapping.
+                            # TODO: Not sure this is correct, need to find sample files.
                             img = Image.frombytes(
-                                'RGBA', (width, height), raw_data[64:], 'raw', 'BGRA',
+                                'RGB', (width, height), raw_data[64:], 'raw', 'BGR',
+                            )
+                        elif fmt == 0x13:
+                            # Some 16-bit texture format. Game references D3D9 texture format 25 (A1R5G5B5).
+                            newdata = []
+                            for i in range(width * height):
+                                pixel = struct.unpack(
+                                    f"{self.endian}H",
+                                    raw_data[(64 + (i * 2)):(66 + (i * 2))],
+                                )[0]
+                                alpha = 255 if ((pixel >> 15) & 0x1) != 0 else 0
+                                red = ((pixel >> 0) & 0x1F) << 3
+                                green = ((pixel >> 5) & 0x1F) << 3
+                                blue = ((pixel >> 10) & 0x1F) << 3
+                                newdata.append(
+                                    struct.pack("<BBBB", blue, green, red, alpha)
+                                )
+                            img = Image.frombytes(
+                                'RGBA', (width, height), b''.join(newdata), 'raw', 'RGBA',
+                            )
+                        elif fmt == 0x15:
+                            # RGBA format. Game references D3D9 texture format 21 (A8R8G8B8).
+                            # Looks like unlike 0x20 below, the game does some endianness swapping.
+                            # TODO: Not sure this is correct, need to find sample files.
+                            img = Image.frombytes(
+                                'RGBA', (width, height), raw_data[64:], 'raw', 'ARGB',
                             )
                         elif fmt == 0x16:
-                            # DXT1 format.
+                            # DXT1 format. Game references D3D9 DXT1 texture format.
                             dxt = DXTBuffer(width, height)
                             img = Image.frombuffer(
                                 'RGBA',
@@ -501,7 +532,7 @@ class AFPFile:
                                 1,
                             )
                         elif fmt == 0x1A:
-                            # DXT5 format.
+                            # DXT5 format. Game references D3D9 DXT5 texture format.
                             dxt = DXTBuffer(width, height)
                             img = Image.frombuffer(
                                 'RGBA',
@@ -512,9 +543,13 @@ class AFPFile:
                                 0,
                                 1,
                             )
-                        # 0x1E = I have no idea what format this is.
+                        elif fmt == 0x1E:
+                            # I have no idea what format this is. The game does some byte
+                            # swapping but doesn't actually call any texture create calls.
+                            # This might be leftover from another game.
+                            pass
                         elif fmt == 0x1F:
-                            # 16-bit 4-4-4-4 RGBA format.
+                            # 16-bit 4-4-4-4 RGBA format. Game references D3D9 texture format 26 (A4R4G4B4).
                             newdata = []
                             for i in range(width * height):
                                 pixel = struct.unpack(
@@ -532,7 +567,7 @@ class AFPFile:
                                 'RGBA', (width, height), b''.join(newdata), 'raw', 'RGBA',
                             )
                         elif fmt == 0x20:
-                            # RGBA format.
+                            # RGBA format. Game references D3D9 surface format 21 (A8R8G8B8).
                             img = Image.frombytes(
                                 'RGBA', (width, height), raw_data[64:], 'raw', 'BGRA',
                             )
@@ -551,6 +586,7 @@ class AFPFile:
                                 header_flags3,
                                 fmtflags & 0xFFFFFF00,
                                 raw_data[64:],
+                                lz_data,
                                 img,
                             )
                         )
@@ -1136,9 +1172,13 @@ class AFPFile:
                 if self.legacy_lz:
                     raise Exception("We don't support legacy lz mode!")
                 elif self.modern_lz:
-                    # We need to compress the raw texture.
-                    lz77 = Lz77()
-                    compressed_texture = lz77.compress(raw_texture)
+                    if texture.compressed:
+                        # We didn't change this texture, use the original compression.
+                        compressed_texture = texture.compressed
+                    else:
+                        # We need to compress the raw texture.
+                        lz77 = Lz77()
+                        compressed_texture = lz77.compress(raw_texture)
 
                     # Make room for the texture, remember where we put it.
                     textures = AFPFile.pad(textures, AFPFile.align(len(textures)))
@@ -1473,6 +1513,9 @@ class AFPFile:
                             pixel[3],
                         ) for pixel in img.getdata()
                     )
+
+                    # Make sure we don't use the old compressed data.
+                    texture.compressed = None
                 else:
                     raise Exception(f"Unsupported format {hex(texture.fmt)} for texture {name}")
 
@@ -1519,6 +1562,12 @@ def main() -> int:
         "--write-mappings",
         action="store_true",
         help="Write mapping files to disk",
+    )
+    extract_parser.add_argument(
+        "-g",
+        "--generate-mapping-overlays",
+        action="store_true",
+        help="Generate overlay images showing mappings",
     )
 
     update_parser = subparsers.add_parser('update', help='Update relevant textures in a file from a directory')
@@ -1619,6 +1668,49 @@ def main() -> int:
                     with open(filename, "w") as sfp:
                         sfp.write(str(afpfile.fontdata))
 
+        if args.generate_mapping_overlays:
+            overlays: Dict[str, Any] = {}
+
+            for i, name in enumerate(afpfile.regionmap.entries):
+                if i < 0 or i >= len(afpfile.texture_to_region):
+                    raise Exception(f"Out of bounds region {i}")
+                region = afpfile.texture_to_region[i]
+                texturename = afpfile.texturemap.entries[region.textureno]
+
+                if texturename not in overlays:
+                    for texture in afpfile.textures:
+                        if texture.name == texturename:
+                            overlays[texturename] = Image.new(
+                                'RGBA',
+                                (texture.width, texture.height),
+                                (0, 0, 0, 0),
+                            )
+                            break
+                    else:
+                        raise Exception(f"Couldn't find texture {texturename}")
+
+                draw = ImageDraw.Draw(overlays[texturename])
+                draw.rectangle(
+                    ((region.left // 2, region.top // 2), (region.right // 2, region.bottom // 2)),
+                    fill=(0, 0, 0, 0),
+                    outline=(255, 0, 0, 255),
+                    width=1,
+                )
+                draw.text(
+                    (region.left // 2, region.top // 2),
+                    name,
+                    fill=(255, 0, 255, 255),
+                )
+
+            for name, img in overlays.items():
+                filename = os.path.join(args.dir, name) + "_overlay.png"
+                if args.pretend:
+                    print(f"Would write {filename} overlay...")
+                else:
+                    print(f"Writing {filename} overlay...")
+                    with open(filename, "wb") as bfp:
+                        img.save(bfp, format='PNG')
+
     if args.action == "update":
         # First, parse the file out
         with open(args.file, "rb") as bfp:
@@ -1640,8 +1732,9 @@ def main() -> int:
             afpfile.unparse()
         else:
             print(f"Writing {args.file}...")
-            with open(args.file + ".tmp", "wb") as bfp:
-                bfp.write(afpfile.unparse())
+            data = afpfile.unparse()
+            with open(args.file, "wb") as bfp:
+                bfp.write(data)
 
     return 0
 
