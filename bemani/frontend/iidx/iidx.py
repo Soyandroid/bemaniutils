@@ -134,6 +134,15 @@ class IIDXFrontend(FrontendBase):
             'effector_preset': settings_dict.get_int('effector_preset'),
         }
 
+    def format_qpro(self, qpro_dict: ValidatedDict) -> Dict[str, Any]:
+        return {
+            'body': qpro_dict.get_int('body'),
+            'face': qpro_dict.get_int('face'),
+            'hair': qpro_dict.get_int('hair'),
+            'hand': qpro_dict.get_int('hand'),
+            'head': qpro_dict.get_int('head'),
+        }
+
     def format_profile(self, profile: ValidatedDict, playstats: ValidatedDict) -> Dict[str, Any]:
         formatted_profile = super().format_profile(profile, playstats)
         formatted_profile.update({
@@ -149,6 +158,7 @@ class IIDXFrontend(FrontendBase):
             'ddan': self.format_dan_rank(profile.get_int('dgrade', -1)),
             'srank': profile.get_int('sgrade', -1),
             'drank': profile.get_int('dgrade', -1),
+            'qpro': self.format_qpro(profile.get_dict('qpro')),
         })
         if 'shop_location' in profile:
             shop_id = profile.get_int('shop_location')

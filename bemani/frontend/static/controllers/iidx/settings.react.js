@@ -41,6 +41,13 @@ var theme_option_names = {
     'pacemaker': 'Pacemaker Skin',
     'effector_preset': 'Effector Preset',
 };
+var valid_qpro_options = [
+    'body',
+    'face',
+    'hair',
+    'hand',
+    'head',
+];
 
 var settings_view = React.createClass({
 
@@ -53,10 +60,13 @@ var settings_view = React.createClass({
             version: version,
             menu_changed: {},
             theme_changed: {},
+            qpro_changed: {},
             menu_saving: {},
             theme_saving: {},
+            qpro_saving: {},
             menu_saved: {},
             theme_saved: {},
+            qpro_saved: {},
             new_name: window.player[version].name,
             editing_name: false,
             new_prefecture: window.player[version].prefecture,
@@ -75,6 +85,21 @@ var settings_view = React.createClass({
             this.focus_element.focus();
             this.already_focused = this.focus_element;
         }
+    },
+
+    setQproChanged: function(val) {
+        this.state.qpro_changed[this.state.version] = val;
+        return this.state.qpro_changed
+    },
+
+    setQproSaving: function(val) {
+        this.state.qpro_saving[this.state.version] = val;
+        return this.state.qpro_saving;
+    },
+
+    setQproSaved: function(val) {
+        this.state.qpro_saved[this.state.version] = val;
+        return this.state.qpro_saved;
     },
 
     setMenuChanged: function(val) {
@@ -105,6 +130,27 @@ var settings_view = React.createClass({
     setThemeSaved: function(val) {
         this.state.theme_saved[this.state.version] = val;
         return this.state.theme_saved;
+    },
+
+    saveQproOptions: function(event) {
+        this.setState({qpro_saving: this.setQproSaving(true), qpro_saved: this.setQproSaved(false)});
+        AJAX.post(
+            Link.get('updateqpro'),
+            {
+                version: this.state.version,
+                qpro: this.state.player[this.state.version].qpro,
+            },
+            function(response) {
+                var player = this.state.player
+                player[response.version].qpro = response.qpro;
+                this.setState({
+                    player: player,
+                    qpro_saving: this.setQproSaving(false),
+                    qpro_saved: this.setQproSaved(true),
+                    qpro_changed: this.setQproChanged(false),
+                })
+            }.bind(this)
+        )
     },
 
     saveMenuOptions: function(event) {
@@ -319,6 +365,65 @@ var settings_view = React.createClass({
         );
     },
 
+    renderQpro: function(player) {
+        return (
+            <div className="section">
+                <h3>QPro</h3>
+                {
+                    valid_qpro_options.map(function(qpro_option) {
+                        var player = this.state.player[this.state.version]
+                        return (
+                            <div>
+                                <b>{qpro_option}</b>
+                                <br/>
+                                <input
+                                    type="text"
+                                    className="inline"
+                                    maxlength="3"
+                                    size="3"
+                                    value={player.qpro[qpro_option]}
+                                    onChange={function(event) {
+                                        var player = this.state.player;
+                                        var value = event.target.value
+                                        var numberRegex = /^[0-9]*$/;
+                                        if (value.length <= 3 && numberRegex.test(value)) {
+                                            player[this.state.version].qpro[qpro_option] = Number(value)
+                                            this.setState({
+                                                player: player,
+                                                qpro_changed: this.setQproChanged(true),
+                                            })
+                                        }
+                                    }.bind(this)}
+                                    name={qpro_option}
+                                />
+                                <br/>
+                            </div>
+                        )
+                    }.bind(this))
+                }
+                <br/>
+                <div>
+                    <input
+                        type="submit"
+                        value="save"
+                        disabled={!this.state.qpro_changed[this.state.version]}
+                        onClick={function(event) {
+                            this.saveQproOptions(event);
+                        }.bind(this)}
+                    />
+                    { this.state.qpro_saving[this.state.version] ?
+                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                        null
+                    }
+                    { this.state.qpro_saved[this.state.version] ?
+                        <span>&#x2713;</span> :
+                        null
+                    }
+                </div>
+            </div>
+        )
+    },
+
     render: function() {
         if (this.state.player[this.state.version]) {
             var player = this.state.player[this.state.version];
@@ -351,6 +456,7 @@ var settings_view = React.createClass({
                         {this.renderPrefecture(player)}
                         {this.renderHomeArcade(player)}
                     </div>
+                    {this.renderQpro(player)}
                     <div className="section">
                         <h3>Theme</h3>
                         {Object.keys(IIDXOptions[this.state.version]).map(function(theme_option) {

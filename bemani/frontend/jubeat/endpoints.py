@@ -309,9 +309,47 @@ def viewsettings() -> Response:
         },
         {
             'updatename': url_for('jubeat_pages.updatename'),
+            'updateemblem': url_for('jubeat_pages.updateemblem'),
         },
     )
 
+@jubeat_pages.route('/options/emblem/update', methods=['POST'])
+@jsonify
+@loginrequired
+def updateemblem() -> Dict[str, Any]:
+    frontend = JubeatFrontend(g.data, g.config, g.cache)
+    version = int(request.get_json()['version'])
+    emblem = request.get_json()['emblem']
+    user = g.data.local.user.get_user(g.userID)
+    if user is None:
+        raise Exception('Unable to find user to update!')
+
+    # Grab profile and update emblem
+    profile = g.data.local.user.get_profile(GameConstants.JUBEAT, version, user.id)
+    if profile is None:
+        raise Exception('Unable to find profile to update!')
+
+    # Making emblem arr for update
+    emblem_arr = [
+        emblem['main'],
+        emblem['background'],
+        emblem['ornament'],
+        emblem['effect'],
+        emblem['speech_bubble'],
+    ]
+
+    # Grab last dict from profile for updating emblem
+    last_dict = profile.get_dict('last')
+    last_dict.replace_int_array('emblem', 5, emblem_arr)
+
+    # Replace last dict that replaced int arr
+    profile.replace_dict('last', last_dict)
+    g.data.local.user.put_profile(GameConstants.JUBEAT, version, user.id, profile)
+
+    return {
+        'version': version,
+        'emblem': frontend.format_emblem(emblem_arr),
+    }
 
 @jubeat_pages.route('/options/name/update', methods=['POST'])
 @jsonify
