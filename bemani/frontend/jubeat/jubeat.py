@@ -73,9 +73,19 @@ class JubeatFrontend(FrontendBase):
         formatted_attempt['music_rate'] = attempt.data.get_int('music_rate', 0) / 10
         return formatted_attempt
 
+    def format_emblem(self, emblem: list) -> Dict[str, Any]:
+        return {
+            'main': emblem[0],
+            'background': emblem[1],
+            'ornament': emblem[2],
+            'effect': emblem[3],
+            'speech_bubble': emblem[4],
+        }
+
     def format_profile(self, profile: ValidatedDict, playstats: ValidatedDict) -> Dict[str, Any]:
         formatted_profile = super().format_profile(profile, playstats)
         formatted_profile['plays'] = playstats.get_int('total_plays')
+        formatted_profile['emblem'] = self.format_emblem(profile.get_dict('last').get_int_array('emblem', 5))
         return formatted_profile
 
     def format_song(self, song: Song) -> Dict[str, Any]:

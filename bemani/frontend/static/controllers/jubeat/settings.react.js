@@ -3,6 +3,22 @@
 var valid_versions = Object.keys(window.versions);
 var pagenav = new History(valid_versions);
 
+var valid_emblem_options = [
+    'main',
+    'background',
+    'ornament',
+    'effect',
+    'speech_bubble',
+]
+
+var emblem_option_names = {
+    'main': 'Main',
+    'background': 'Background',
+    'ornament': 'Ornament',
+    'effect': 'Effect',
+    'speech_bubble': 'Speech Bubble',
+}
+
 var settings_view = React.createClass({
 
     getInitialState: function(props) {
@@ -14,6 +30,9 @@ var settings_view = React.createClass({
             version: version,
             new_name: window.player[version].name,
             editing_name: false,
+            emblem_changed: {},
+            emblem_saving: {},
+            emblem_saved: {},
         };
     },
 
@@ -28,6 +47,42 @@ var settings_view = React.createClass({
             this.focus_element.focus();
             this.already_focused = this.focus_element;
         }
+    },
+
+    setEmblemChanged: function(val) {
+        this.state.emblem_changed[this.state.version] = val;
+        return this.state.emblem_changed
+    },
+
+    setEmblemSaving: function(val) {
+        this.state.emblem_saving[this.state.version] = val;
+        return this.state.emblem_saving
+    },
+
+    setEmblemSaved: function(val) {
+        this.state.emblem_saved[this.state.version] = val;
+        return this.state.emblem_saved
+    },
+
+    saveEmblem: function(event) {
+        this.setState({ emblem_saving: this.setEmblemSaving(true), emblem_saved: this.setEmblemSaved(false) })
+        AJAX.post(
+            Link.get('updateemblem'),
+            {
+                version: this.state.version,
+                emblem: this.state.player[this.state.version].emblem,
+            },
+            function(response) {
+                var player = this.state.player
+                player[response.version].emblem = response.emblem
+                this.setState({
+                    player: player,
+                    emblem_saving: this.setEmblemSaving(false),
+                    emblem_saved: this.setEmblemSaved(true),
+                    emblem_changed: this.setEmblemChanged(false),
+                })
+            }.bind(this)
+        )
     },
 
     saveName: function(event) {
@@ -99,6 +154,65 @@ var settings_view = React.createClass({
         );
     },
 
+    renderEmblem: function(player) {
+        return (
+            <div className="section">
+                <h3>Emblem</h3>
+                {
+                    valid_emblem_options.map(function(emblem_option) {
+                        var player = this.state.player[this.state.version]
+                        return(
+                            <div>
+                                <b>{emblem_option_names[emblem_option]}</b>
+                                <br/>
+                                <input
+                                    type="text"
+                                    className="inline"
+                                    maxlength="3"
+                                    size="3"
+                                    value={player.emblem[emblem_option]}
+                                    onChange={function(event) {
+                                        var player = this.state.player;
+                                        var value = event.target.value
+                                        var numberRegex = /^[0-9]*$/;
+                                        if (value.length <= 3 && numberRegex.test(value)) {
+                                            player[this.state.version].emblem[emblem_option] = Number(value)
+                                            this.setState({
+                                                player: player,
+                                                emblem_changed: this.setEmblemChanged(true),
+                                            })
+                                        }
+                                    }.bind(this)}
+                                    name={emblem_option}
+                                />
+                                <br/>
+                            </div>
+                        )
+                    }.bind(this))
+                }
+                <br/>
+                <div>
+                <input
+                    type="submit"
+                    value="save"
+                    disabled={!this.state.emblem_changed[this.state.version]}
+                    onClick={function(event) {
+                        this.saveEmblem(event);
+                    }.bind(this)}
+                />
+                { this.state.emblem_saving[this.state.version] ?
+                    <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                    null
+                }
+                { this.state.emblem_saved[this.state.version] ?
+                    <span>&#x2713;</span> :
+                    null
+                }
+                </div>
+            </div>
+        )
+    },
+
     render: function() {
         if (this.state.player[this.state.version]) {
             var player = this.state.player[this.state.version];
@@ -127,6 +241,7 @@ var settings_view = React.createClass({
                         <h3>User Profile</h3>
                         {this.renderName(player)}
                     </div>
+                    {this.renderEmblem(player)}
                 </div>
             );
         } else {
