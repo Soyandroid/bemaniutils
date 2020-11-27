@@ -980,103 +980,6 @@ class ImportPopn(ImportBase):
                     True,  # Always a battle normal chart
                     mask & 0x4000000 > 0,  # Battle hyper chart bit
                 )
-        # elif self.version == VersionConstants.POPN_MUSIC_PEACE:
-        #     # Based on M39:J:A:A:2019042300
-
-        #     # Normal offset for music DB, size
-        #     offset = 0x2B3840
-        #     step = 172
-        #     length = 1780
-
-        #     # Offset and step of file DB
-        #     file_offset = 0x2A48F8
-        #     file_step = 32
-
-        #     # Standard lookups
-        #     genre_offset = 0
-        #     title_offset = 1
-        #     artist_offset = 2
-        #     comment_offset = 3
-        #     english_title_offset = 4
-        #     english_artist_offset = 5
-        #     extended_genre_offset = -1
-        #     charts_offset = 8
-        #     folder_offset = 9
-
-        #     # Offsets for normal chart difficulties
-        #     easy_offset = 12
-        #     normal_offset = 13
-        #     hyper_offset = 14
-        #     ex_offset = 15
-
-        #     # Offsets for battle chart difficulties
-        #     battle_normal_offset = 16
-        #     battle_hyper_offset = 17
-
-        #     # Offsets into which offset to seek to for file lookups
-        #     easy_file_offset = 18
-        #     normal_file_offset = 19
-        #     hyper_file_offset = 20
-        #     ex_file_offset = 21
-        #     battle_normal_file_offset = 22
-        #     battle_hyper_file_offset = 23
-
-        #     packedfmt = (
-        #         '<'
-        #         'I'  # Genre
-        #         'I'  # Title
-        #         'I'  # Artist
-        #         'I'  # Comment
-        #         'I'  # English Title
-        #         'I'  # English Artist
-        #         'H'  # ??
-        #         'H'  # ??
-        #         'I'  # Available charts mask
-        #         'I'  # Folder
-        #         'I'  # Event unlocks?
-        #         'I'  # Event unlocks?
-        #         'B'  # Easy difficulty
-        #         'B'  # Normal difficulty
-        #         'B'  # Hyper difficulty
-        #         'B'  # EX difficulty
-        #         'B'  # Battle normal difficulty
-        #         'B'  # Battle hyper difficulty
-        #         'xx'  # Unknown pointer
-        #         'H'  # Easy chart pointer
-        #         'H'  # Normal chart pointer
-        #         'H'  # Hyper chart pointer
-        #         'H'  # EX chart pointer
-        #         'H'  # Battle normal pointer
-        #         'H'  # Battle hyper pointer
-        #         'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-        #     )
-
-        #     # Offsets into file DB for finding file and folder.
-        #     file_folder_offset = 0
-        #     file_name_offset = 1
-
-        #     filefmt = (
-        #         '<'
-        #         'I'  # Folder
-        #         'I'  # Filename
-        #         'I'
-        #         'I'
-        #         'I'
-        #         'I'
-        #         'I'
-        #         'I'
-        #     )
-
-        #     # Decoding function for chart masks
-        #     def available_charts(mask: int) -> Tuple[bool, bool, bool, bool, bool, bool]:
-        #         return (
-        #             mask & 0x0080000 > 0,  # Easy chart bit
-        #             True,  # Always a normal chart
-        #             mask & 0x1000000 > 0,  # Hyper chart bit
-        #             mask & 0x2000000 > 0,  # Ex chart bit
-        #             True,  # Always a battle normal chart
-        #             mask & 0x4000000 > 0,  # Battle hyper chart bit
-        #         )
         elif self.version == VersionConstants.POPN_MUSIC_PEACE:
             # Based on M39:J:A:A:2019062500
 
@@ -1088,6 +991,17 @@ class ImportPopn(ImportBase):
             # Offset and step of file DB
             file_offset = 0x2A9AF8
             file_step = 32
+
+            # Based on M39:J:A:A:2019042300 (commented out since this is most common datecode)
+
+            # Normal offset for music DB, size
+            # offset = 0x2B3840
+            # step = 172
+            # length = 1780
+
+            # # Offset and step of file DB
+            # file_offset = 0x2A48F8
+            # file_step = 32
 
             # Standard lookups
             genre_offset = 0
@@ -1781,8 +1695,8 @@ class ImportIIDX(ImportBase):
             for filename in filenames:
                 songid, extension = os.path.splitext(filename)
                 if extension == '.1' or extension == '.ifs':
-                    if filename != '12030-p0.ifs':
-                        if '-p0' in songid:
+                    if filename != '12030-p0.ifs':  # for some reason POODLE SPL/DPL is stored in 12030.ifs so this file should not be read. 
+                        if '-p0' in songid:         # prefer -p0 since that one extends the chart to include the SPL/DPL charts
                             songid = songid.replace('-p0', '')
                         if songid + '-p0' + extension in filenames:
                             filename = songid + '-p0' + extension
@@ -1999,106 +1913,179 @@ class ImportIIDX(ImportBase):
         finally:
             bh.close()
 
-        musicdb = IIDXMusicDB(binarydata)
+        import_qpros = True # by default, try to import qpros
+        try:
+            pe = pefile.PE(data=binarydata, fast_load=True)
+        except:
+            import_qpros = False    # if it failed then we're reading a music db file, not the executable
+
+        def virtual_to_physical(offset: int) -> int:
+            for section in pe.sections:
+                start = section.VirtualAddress + pe.OPTIONAL_HEADER.ImageBase
+                end = start + section.SizeOfRawData
+
+                if offset >= start and offset < end:
+                    return (offset - start) + section.PointerToRawData
+            raise Exception(f'Couldn\'t find raw offset for virtual offset 0x{offset:08x}')
+
         songs: List[Dict[str, Any]] = []
-        for song in musicdb.songs:
-            bpm = (0, 0)
-            notecounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        if not import_qpros:
+            musicdb = IIDXMusicDB(binarydata)
+            for song in musicdb.songs:
+                bpm = (0, 0)
+                notecounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-            if song.id in self.BANNED_CHARTS:
-                continue
+                if song.id in self.BANNED_CHARTS:
+                    continue
 
-            if sound_files is not None:
-                if song.id in sound_files:
-                    # Look up chart info!
-                    filename = sound_files[song.id]
-                    _, extension = os.path.splitext(filename)
-                    data = None
+                if sound_files is not None:
+                    if song.id in sound_files:
+                        # Look up chart info!
+                        filename = sound_files[song.id]
+                        _, extension = os.path.splitext(filename)
+                        data = None
 
-                    if extension == '.1':
-                        fp = open(filename, 'rb')
-                        data = fp.read()
-                        fp.close()
+                        if extension == '.1':
+                            fp = open(filename, 'rb')
+                            data = fp.read()
+                            fp.close()
+                        else:
+                            fp = open(filename, 'rb')
+                            ifsdata = fp.read()
+                            fp.close()
+                            ifs = IFS(ifsdata)
+                            for fn in ifs.filenames:
+                                _, extension = os.path.splitext(fn)
+                                if extension == '.1':
+                                    data = ifs.read_file(fn)
+
+                        if data is not None:
+                            iidxchart = IIDXChart(data)
+                            bpm_min, bpm_max = iidxchart.bpm
+                            bpm = (bpm_min, bpm_max)
+                            notecounts = iidxchart.notecounts
+                        else:
+                            print(f"Could not find chart information for song {song.id}!")
                     else:
-                        fp = open(filename, 'rb')
-                        ifsdata = fp.read()
-                        fp.close()
-                        ifs = IFS(ifsdata)
-                        for fn in ifs.filenames:
-                            _, extension = os.path.splitext(fn)
-                            if extension == '.1':
-                                data = ifs.read_file(fn)
-
-                    if data is not None:
-                        iidxchart = IIDXChart(data)
-                        bpm_min, bpm_max = iidxchart.bpm
-                        bpm = (bpm_min, bpm_max)
-                        notecounts = iidxchart.notecounts
-                    else:
-                        print(f"Could not find chart information for song {song.id}!")
+                        print(f"No chart information because chart for song {song.id} is missing!")
+                if self.version < VersionConstants.IIDX_HEROIC_VERSE or \
+                    (self.version < (VersionConstants.IIDX_HEROIC_VERSE + DBConstants.OMNIMIX_VERSION_BUMP) and
+                        self.version > DBConstants.OMNIMIX_VERSION_BUMP):
+                    songs.append({
+                        'id': song.id,
+                        'title': song.title,
+                        'artist': song.artist,
+                        'genre': song.genre,
+                        'bpm_min': bpm[0],
+                        'bpm_max': bpm[1],
+                        'difficulty': {
+                            'spn': song.difficulties[0],
+                            'sph': song.difficulties[1],
+                            'spa': song.difficulties[2],
+                            'dpn': song.difficulties[3],
+                            'dph': song.difficulties[4],
+                            'dpa': song.difficulties[5],
+                        },
+                        'notecount': {
+                            'spn': notecounts[0],
+                            'sph': notecounts[1],
+                            'spa': notecounts[2],
+                            'dpn': notecounts[3],
+                            'dph': notecounts[4],
+                            'dpa': notecounts[5],
+                        },
+                    })
                 else:
-                    print(f"No chart information because chart for song {song.id} is missing!")
-            if self.version < VersionConstants.IIDX_HEROIC_VERSE or \
-                (self.version < (VersionConstants.IIDX_HEROIC_VERSE + DBConstants.OMNIMIX_VERSION_BUMP) and
-                    self.version > DBConstants.OMNIMIX_VERSION_BUMP):
-                songs.append({
-                    'id': song.id,
-                    'title': song.title,
-                    'artist': song.artist,
-                    'genre': song.genre,
-                    'bpm_min': bpm[0],
-                    'bpm_max': bpm[1],
-                    'difficulty': {
-                        'spn': song.difficulties[0],
-                        'sph': song.difficulties[1],
-                        'spa': song.difficulties[2],
-                        'dpn': song.difficulties[3],
-                        'dph': song.difficulties[4],
-                        'dpa': song.difficulties[5],
-                    },
-                    'notecount': {
-                        'spn': notecounts[0],
-                        'sph': notecounts[1],
-                        'spa': notecounts[2],
-                        'dpn': notecounts[3],
-                        'dph': notecounts[4],
-                        'dpa': notecounts[5],
-                    },
-                })
-            else:
-                songs.append({
-                    'id': song.id,
-                    'title': song.title,
-                    'artist': song.artist,
-                    'genre': song.genre,
-                    'bpm_min': bpm[0],
-                    'bpm_max': bpm[1],
-                    'difficulty': {
-                        'spn': song.difficulties[0],
-                        'sph': song.difficulties[1],
-                        'spa': song.difficulties[2],
-                        'dpn': song.difficulties[3],
-                        'dph': song.difficulties[4],
-                        'dpa': song.difficulties[5],
-                        'spb': song.difficulties[6],
-                        'spl': song.difficulties[7],
-                        'dpb': song.difficulties[8],
-                        'dpl': song.difficulties[9],
-                    },
-                    'notecount': {
-                        'spn': notecounts[0],
-                        'sph': notecounts[1],
-                        'spa': notecounts[2],
-                        'dpn': notecounts[3],
-                        'dph': notecounts[4],
-                        'dpa': notecounts[5],
-                        'spb': notecounts[6],
-                        'spl': notecounts[7],
-                        'dpb': notecounts[8],
-                        'dpl': notecounts[9],
-                    },
-                })
-        return songs
+                    songs.append({
+                        'id': song.id,
+                        'title': song.title,
+                        'artist': song.artist,
+                        'genre': song.genre,
+                        'bpm_min': bpm[0],
+                        'bpm_max': bpm[1],
+                        'difficulty': {
+                            'spn': song.difficulties[0],
+                            'sph': song.difficulties[1],
+                            'spa': song.difficulties[2],
+                            'dpn': song.difficulties[3],
+                            'dph': song.difficulties[4],
+                            'dpa': song.difficulties[5],
+                            'spb': song.difficulties[6],
+                            'spl': song.difficulties[7],
+                            'dpb': song.difficulties[8],
+                            'dpl': song.difficulties[9],
+                        },
+                        'notecount': {
+                            'spn': notecounts[0],
+                            'sph': notecounts[1],
+                            'spa': notecounts[2],
+                            'dpn': notecounts[3],
+                            'dph': notecounts[4],
+                            'dpa': notecounts[5],
+                            'spb': notecounts[6],
+                            'spl': notecounts[7],
+                            'dpb': notecounts[8],
+                            'dpl': notecounts[9],
+                        },
+                    })
+        qpros: List[Dict[str, Any]] = []
+        if self.version == VersionConstants.IIDX_HEROIC_VERSE:
+            stride = 16                
+            qp_head_offset = 0x82E6B0  # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 290         # the qpro id numbers, it's best to store them as separate types in the catalog as well. 
+            qp_hair_offset = 0x82F8D0
+            qp_hair_length = 290
+            qp_face_offset = 0x82AFB0
+            qp_face_length = 215
+            qp_hand_offset = 0x82BD20
+            qp_hand_length = 321
+            qp_body_offset = 0x82D130
+            qp_body_length = 344
+            filename_offset = 0
+            qpro_id_offset = 1
+            packedfmt = (
+                'L' # filename
+                'L' # string containing id and name of the part
+            )
+
+        def read_string(offset: int) -> str:
+            # First, translate load offset in memory to disk offset
+            offset = virtual_to_physical(offset)
+
+            # Now, grab bytes until we're null-terminated
+            bytestring = []
+            while binarydata[offset] != 0:
+                bytestring.append(binarydata[offset])
+                offset = offset + 1
+
+            # Its shift-jis encoded, so decode it now
+            return bytes(bytestring).decode('shift_jisx0213')
+
+        def read_qpro_db(offset: int, length: int, type: str) -> None:
+            for qpro_id in range(length):
+                chunkoffset = offset + (stride * qpro_id)
+                chunkdata = binarydata[chunkoffset:(chunkoffset + stride)]
+                unpacked = struct.unpack(packedfmt, chunkdata)
+                id_string = read_string(unpacked[qpro_id_offset])
+                filename = read_string(unpacked[filename_offset]).replace('qp_', '')
+                remove = ['_head.ifs', '_hair.ifs', '_face.ifs', '_hand.ifs', '_body.ifs']
+                for s in remove:
+                    filename = filename.replace(s, '')
+                qproinfo = {
+                    'identifier': filename,
+                    'id': int(id_string[0:3]),  # id string is always 3 characters and then a ':'
+                    'name': id_string[4:],
+                    'type': type,
+                }
+                qpros.append(qproinfo)
+        
+        read_qpro_db(qp_head_offset, qp_head_length, 'head')
+        read_qpro_db(qp_hair_offset, qp_hair_length, 'hair')
+        read_qpro_db(qp_face_offset, qp_face_length, 'face')
+        read_qpro_db(qp_hand_offset, qp_hand_length, 'hand')
+        read_qpro_db(qp_body_offset, qp_body_length, 'body')
+
+        return songs, qpros
 
     def lookup(self, server: str, token: str) -> List[Dict[str, Any]]:
         if self.version is None:
@@ -2213,6 +2200,29 @@ class ImportIIDX(ImportBase):
                     next_id = old_id
                 self.insert_music_id_for_song(next_id, song['id'], chart, song['title'], song['artist'], song['genre'], songdata)
             self.finish_batch()
+
+    def import_qpros(self, qpros: List[Dict[str, Any]]) -> None:
+        if self.version is None:
+            raise Exception('Can\'t import IIDX database for \'all\' version!')
+
+        self.start_batch()
+        for i, qpro in enumerate(qpros):
+            # Make importing faster but still do it in chunks
+            if (i % 16) == 15:
+                self.finish_batch()
+                self.start_batch()
+
+            print(f"New catalog entry for {qpro['id']}")
+            self.insert_catalog_entry(
+                f"qp_{qpro['type']}",
+                qpro['id'],
+                {
+                    'name': qpro['name'],
+                    'identifier': qpro['identifier'],
+                },
+            )
+
+        self.finish_batch()
 
     def import_metadata(self, tsvfile: str) -> None:
         if self.version is not None:
@@ -3931,15 +3941,16 @@ if __name__ == "__main__":
         else:
             # Normal case, doing a music DB import.
             if args.bin is not None:
-                songs = iidx.scrape(args.bin, args.assets)
+                songs, qpros = iidx.scrape(args.bin, args.assets)
             elif args.server and args.token:
-                songs = iidx.lookup(args.server, args.token)
+                songs, qpros = iidx.lookup(args.server, args.token)
             else:
                 raise Exception(
                     'No music_data.bin or TSV provided and no remote server specified! Please ' +
                     'provide either a --bin, --tsv or a --server and --token option!'
                 )
             iidx.import_music_db(songs)
+            iidx.import_qpros(qpros)
         iidx.close()
 
     elif args.series == GameConstants.DDR:
