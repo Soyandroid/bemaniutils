@@ -168,14 +168,14 @@ var settings_view = React.createClass({
                                 <input
                                     type="text"
                                     className="inline"
-                                    maxlength="3"
-                                    size="3"
+                                    maxlength="4"
+                                    size="4"
                                     value={player.emblem[emblem_option]}
                                     onChange={function(event) {
                                         var player = this.state.player;
                                         var value = event.target.value
                                         var numberRegex = /^[0-9]*$/;
-                                        if (value.length <= 3 && numberRegex.test(value)) {
+                                        if (value.length <= 4 && numberRegex.test(value)) {
                                             player[this.state.version].emblem[emblem_option] = Number(value)
                                             this.setState({
                                                 player: player,
