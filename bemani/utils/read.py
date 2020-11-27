@@ -2154,7 +2154,18 @@ class ImportIIDX(ImportBase):
                 lut[song.id]['notecount'][chart_map[song.chart]] = song.data.get_int('notecount')
 
         # Return the reassembled data
-        return [val for _, val in lut.items()]
+        qpros: List[Dict[str, Any]] = []
+        game = self.remote_game(server, token)
+        for item in game.get_items(self.game, self.version):
+            if item.type in ['qp_body', 'qp_face', 'qp_hair', 'qp_hand', 'qp_head']:
+                qpros.append({
+                    'identifier': item.data.get_str('identifier'),
+                    'id': item.id,
+                    'name': item.data.get_str('name'),
+                    'type': item.type[3:]
+                })
+
+        return [val for _, val in lut.items()], qpros
 
     def import_music_db(self, songs: List[Dict[str, Any]]) -> None:
         if self.version is None:
