@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 import argparse
 import io
+import json
 import os
 import os.path
 import struct
@@ -15,18 +16,34 @@ from bemani.protocol.lz77 import Lz77
 from bemani.protocol.node import Node
 
 
+def _hex(data: int) -> str:
+    hexval = hex(data)[2:]
+    if len(hexval) == 1:
+        return "0" + hexval
+    return hexval
+
+
 class PMAN:
     def __init__(
         self,
         entries: List[str] = [],
+        ordering: List[int] = [],
         flags1: int = 0,
         flags2: int = 0,
         flags3: int = 0,
     ) -> None:
         self.entries = entries
+        self.ordering = ordering
         self.flags1 = flags1
         self.flags2 = flags2
         self.flags3 = flags3
+
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'flags': [self.flags1, self.flags2, self.flags3],
+            'entries': self.entries,
+            'ordering': self.ordering,
+        }
 
 
 class Texture:
@@ -56,6 +73,18 @@ class Texture:
         self.compressed = compressed
         self.img = imgdata
 
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'width': self.width,
+            'height': self.height,
+            'fmt': self.fmt,
+            'header_flags': [self.header_flags1, self.header_flags2, self.header_flags3],
+            'fmt_flags': self.fmtflags,
+            'raw': "".join(_hex(x) for x in self.raw),
+            'compressed': "".join(_hex(x) for x in self.compressed) if self.compressed is not None else None,
+        }
+
 
 class TextureRegion:
     def __init__(self, textureno: int, left: int, top: int, right: int, bottom: int) -> None:
@@ -64,6 +93,15 @@ class TextureRegion:
         self.top = top
         self.right = right
         self.bottom = bottom
+
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'texture': self.textureno,
+            'left': self.left,
+            'top': self.top,
+            'right': self.right,
+            'bottom': self.bottom,
+        }
 
 
 class Animation:
@@ -77,6 +115,13 @@ class Animation:
         self.data = data
         self.header = header
 
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'data': "".join(_hex(x) for x in self.data),
+            'header': "".join(_hex(x) for x in self.header),
+        }
+
 
 class Shape:
     def __init__(
@@ -86,6 +131,12 @@ class Shape:
     ) -> None:
         self.name = name
         self.data = data
+
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'data': "".join(_hex(x) for x in self.data),
+        }
 
 
 class Unknown1:
@@ -99,6 +150,12 @@ class Unknown1:
         if len(data) != 12:
             raise Exception("Unexpected length for Unknown1 structure!")
 
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'data': "".join(_hex(x) for x in self.data),
+        }
+
 
 class Unknown2:
     def __init__(
@@ -108,6 +165,11 @@ class Unknown2:
         self.data = data
         if len(data) != 4:
             raise Exception("Unexpected length for Unknown2 structure!")
+
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'data': "".join(_hex(x) for x in self.data),
+        }
 
 
 class AFPFile:
@@ -191,6 +253,29 @@ class AFPFile:
                 raise Exception(f"Already covered {hex(offset)}!")
             self.coverage[i] = True
 
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'endian': self.endian,
+            'features': self.features,
+            'file_flags': "".join(_hex(x) for x in self.file_flags),
+            'obfuscated': self.text_obfuscated,
+            'legacy_lz': self.legacy_lz,
+            'modern_lz': self.modern_lz,
+            'textures': [tex.as_dict() for tex in self.textures],
+            'texturemap': self.texturemap.as_dict(),
+            'textureregion': [reg.as_dict() for reg in self.texture_to_region],
+            'regionmap': self.regionmap.as_dict(),
+            'animations': [anim.as_dict() for anim in self.animations],
+            'animationmap': self.animmap.as_dict(),
+            'fontdata': str(self.fontdata) if self.fontdata is not None else None,
+            'shapes': [shape.as_dict() for shape in self.shapes],
+            'shapemap': self.shapemap.as_dict(),
+            'unknown1': [unk.as_dict() for unk in self.unknown1],
+            'unknown1map': self.unk_pman1.as_dict(),
+            'unknown2': [unk.as_dict() for unk in self.unknown2],
+            'unknown2map': self.unk_pman2.as_dict(),
+        }
+
     def print_coverage(self) -> None:
         # First offset that is not coverd in a run.
         start = None
@@ -254,14 +339,25 @@ class AFPFile:
             offset += 1
         return out
 
-    def descramble_pman(self, offset: int) -> PMAN:
+    def descramble_pman(self, offset: int, verbose: bool) -> PMAN:
+        # Suppress debug text unless asked
+        if verbose:
+            vprint = print
+            add_coverage = self.add_coverage
+        else:
+            def vprint(*args: Any, **kwargs: Any) -> None:  # type: ignore
+                pass
+
+            def add_coverage(*args: Any, **kwargs: Any) -> None:  # type: ignore
+                pass
+
         # Unclear what the first three unknowns are, but the fourth
         # looks like it could possibly be two int16s indicating unknown?
         magic, expect_zero, flags1, flags2, numentries, flags3, data_offset = struct.unpack(
             f"{self.endian}4sIIIIII",
             self.data[offset:(offset + 28)],
         )
-        self.add_coverage(offset, 28)
+        add_coverage(offset, 28)
 
         # I have never seen the first unknown be anything other than zero,
         # so lets lock that down.
@@ -274,6 +370,7 @@ class AFPFile:
             raise Exception("Invalid magic value in PMAN structure!")
 
         names: List[Optional[str]] = [None] * numentries
+        ordering: List[Optional[int]] = [None] * numentries
         if numentries > 0:
             # Jump to the offset, parse it out
             for i in range(numentries):
@@ -282,15 +379,17 @@ class AFPFile:
                     f"{self.endian}III",
                     self.data[file_offset:(file_offset + 12)],
                 )
-                self.add_coverage(file_offset, 12)
+                add_coverage(file_offset, 12)
 
                 if nameoffset == 0:
                     raise Exception("Expected name offset in PMAN data!")
 
                 bytedata = self.get_until_null(nameoffset)
-                self.add_coverage(nameoffset, len(bytedata) + 1, unique=False)
+                add_coverage(nameoffset, len(bytedata) + 1, unique=False)
                 name = AFPFile.descramble_text(bytedata, self.text_obfuscated)
                 names[entry_no] = name
+                ordering[entry_no] = i
+                vprint(f"    {entry_no}: {name}, offset: {hex(nameoffset)}")
 
                 if name_crc != AFPFile.crc32(name.encode('ascii')):
                     raise Exception(f"Name CRC failed for {name}")
@@ -299,8 +398,13 @@ class AFPFile:
             if name is None:
                 raise Exception(f"Didn't get mapping for entry {i + 1}")
 
+        for i, o in enumerate(ordering):
+            if o is None:
+                raise Exception(f"Didn't get ordering for entry {i + 1}")
+
         return PMAN(
             entries=names,
+            ordering=ordering,
             flags1=flags1,
             flags2=flags2,
             flags3=flags3,
@@ -313,8 +417,12 @@ class AFPFile:
         # Suppress debug text unless asked
         if verbose:
             vprint = print
+            add_coverage = self.add_coverage
         else:
             def vprint(*args: Any, **kwargs: Any) -> None:  # type: ignore
+                pass
+
+            def add_coverage(*args: Any, **kwargs: Any) -> None:  # type: ignore
                 pass
 
         # First, check the signature
@@ -324,29 +432,29 @@ class AFPFile:
             self.endian = ">"
         else:
             raise Exception("Invalid graphic file format!")
-        self.add_coverage(0, 4)
+        add_coverage(0, 4)
 
         # Not sure what words 2 and 3 are, they seem to be some sort of
         # version or date?
         self.file_flags = self.data[4:12]
-        self.add_coverage(4, 8)
+        add_coverage(4, 8)
 
         # Now, grab the file length, verify that we have the right amount
         # of data.
         length = struct.unpack(f"{self.endian}I", self.data[12:16])[0]
-        self.add_coverage(12, 4)
+        add_coverage(12, 4)
         if length != len(self.data):
             raise Exception(f"Invalid graphic file length, expecting {length} bytes!")
 
         # I think that offset 16-20 are the file data offset, but I'm not sure?
         header_length = struct.unpack(f"{self.endian}I", self.data[16:20])[0]
-        self.add_coverage(16, 4)
+        add_coverage(16, 4)
 
         # Now, the meat of the file format. Bytes 20-24 are a bitfield for
         # what parts of the header exist in the file. We need to understand
         # each bit so we know how to skip past each section.
         feature_mask = struct.unpack(f"{self.endian}I", self.data[20:24])[0]
-        self.add_coverage(20, 4)
+        add_coverage(20, 4)
         header_offset = 24
 
         # Lots of magic happens if this bit is set.
@@ -358,10 +466,11 @@ class AFPFile:
         if feature_mask & 0x01:
             # List of textures that exist in the file, with pointers to their data.
             length, offset = struct.unpack(f"{self.endian}II", self.data[header_offset:(header_offset + 8)])
-            self.add_coverage(header_offset, 8)
+            add_coverage(header_offset, 8)
             header_offset += 8
 
-            texturenames = []
+            vprint(f"Bit 0x000001 - textures; count: {length}, offset: {hex(offset)}")
+
             for x in range(length):
                 interesting_offset = offset + (x * 12)
                 if interesting_offset != 0:
@@ -369,16 +478,15 @@ class AFPFile:
                         f"{self.endian}III",
                         self.data[interesting_offset:(interesting_offset + 12)],
                     )
-                    self.add_coverage(interesting_offset, 12)
+                    add_coverage(interesting_offset, 12)
 
                     if name_offset != 0:
                         # Let's decode this until the first null.
                         bytedata = self.get_until_null(name_offset)
-                        self.add_coverage(name_offset, len(bytedata) + 1, unique=False)
+                        add_coverage(name_offset, len(bytedata) + 1, unique=False)
                         name = AFPFile.descramble_text(bytedata, self.text_obfuscated)
-                        texturenames.append(name)
 
-                    if texture_offset != 0:
+                    if name_offset != 0 and texture_offset != 0:
                         if self.legacy_lz:
                             raise Exception("We don't support legacy lz mode!")
                         elif self.modern_lz:
@@ -387,15 +495,16 @@ class AFPFile:
                                 ">II",
                                 self.data[texture_offset:(texture_offset + 8)],
                             )
-                            self.add_coverage(texture_offset, 8)
+                            add_coverage(texture_offset, 8)
                             if deflated_size != (texture_length - 8):
                                 raise Exception("We got an incorrect length for lz texture!")
+                            vprint(f"    {name}, length: {texture_length}, offset: {hex(texture_offset)}, deflated_size: {deflated_size}, inflated_size: {inflated_size}")
                             inflated_size = (inflated_size + 3) & (~3)
 
                             # Get the data offset.
                             lz_data_offset = texture_offset + 8
                             lz_data = self.data[lz_data_offset:(lz_data_offset + deflated_size)]
-                            self.add_coverage(lz_data_offset, deflated_size)
+                            add_coverage(lz_data_offset, deflated_size)
 
                             # This takes forever, so skip it if we're pretending.
                             lz77 = Lz77()
@@ -410,9 +519,12 @@ class AFPFile:
                             # I assume they're like the above, so lets put in some asertions.
                             if deflated_size != (texture_length - 8):
                                 raise Exception("We got an incorrect length for raw texture!")
+                            vprint(f"    {name}, length: {texture_length}, offset: {hex(texture_offset)}, deflated_size: {deflated_size}, inflated_size: {inflated_size}")
+
+                            # Just grab the raw data.
                             lz_data = None
                             raw_data = self.data[(texture_offset + 8):(texture_offset + 8 + deflated_size)]
-                            self.add_coverage(texture_offset, deflated_size + 8)
+                            add_coverage(texture_offset, deflated_size + 8)
 
                         (
                             magic,
@@ -590,10 +702,6 @@ class AFPFile:
                                 img,
                             )
                         )
-
-            vprint(f"Bit 0x000001 - textures; count: {length}, offset: {hex(offset)}")
-            for name in texturenames:
-                vprint(f"    {name}")
         else:
             vprint("Bit 0x000001 - textures; NOT PRESENT")
 
@@ -602,15 +710,13 @@ class AFPFile:
             # Seems to be a structure that duplicates texture names? I am pretty
             # sure this is used to map texture names to file indexes used elsewhere.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             vprint(f"Bit 0x000002 - texturemapping; offset: {hex(offset)}")
 
             if offset != 0:
-                self.texturemap = self.descramble_pman(offset)
-                for i, name in enumerate(self.texturemap.entries):
-                    vprint(f"    {i}: {name}")
+                self.texturemap = self.descramble_pman(offset, verbose)
         else:
             vprint("Bit 0x000002 - texturemapping; NOT PRESENT")
 
@@ -626,8 +732,10 @@ class AFPFile:
             # This is 10 bytes per entry. Seems to need both 0x2 (texture index)
             # and 0x10 (region index).
             length, offset = struct.unpack(f"{self.endian}II", self.data[header_offset:(header_offset + 8)])
-            self.add_coverage(header_offset, 8)
+            add_coverage(header_offset, 8)
             header_offset += 8
+
+            vprint(f"Bit 0x000008 - regions; count: {length}, offset: {hex(offset)}")
 
             if offset != 0 and length > 0:
                 for i in range(length):
@@ -636,17 +744,16 @@ class AFPFile:
                         f"{self.endian}HHHHH",
                         self.data[descriptor_offset:(descriptor_offset + 10)],
                     )
-                    self.add_coverage(descriptor_offset, 10)
+                    add_coverage(descriptor_offset, 10)
 
                     if texture_no < 0 or texture_no >= len(self.texturemap.entries):
                         raise Exception(f"Out of bounds texture {texture_no}")
+                    vprint(f"    length: 10, offset: {hex(offset + (10 * i))}")
 
                     # TODO: The offsets here seem to be off by a power of 2, there
                     # might be more flags in the above texture format that specify
                     # device scaling and such?
                     self.texture_to_region.append(TextureRegion(texture_no, left, top, right, bottom))
-
-            vprint(f"Bit 0x000008 - regions; count: {length}, offset: {hex(offset)}")
         else:
             vprint("Bit 0x000008 - regions; NOT PRESENT")
 
@@ -654,15 +761,13 @@ class AFPFile:
             # Names of the graphics regions, so we can look into the texture_to_region
             # mapping above.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             vprint(f"Bit 0x000010 - regionmapping; offset: {hex(offset)}")
 
             if offset != 0:
-                self.regionmap = self.descramble_pman(offset)
-                for i, name in enumerate(self.regionmap.entries):
-                    vprint(f"    {i}: {name}")
+                self.regionmap = self.descramble_pman(offset, verbose)
         else:
             vprint("Bit 0x000010 - regionmapping; NOT PRESENT")
 
@@ -675,15 +780,16 @@ class AFPFile:
             # Two unknown bytes, first is a length or a count. Secound is
             # an optional offset to grab another set of bytes from.
             length, offset = struct.unpack(f"{self.endian}II", self.data[header_offset:(header_offset + 8)])
-            self.add_coverage(header_offset, 8)
+            add_coverage(header_offset, 8)
             header_offset += 8
 
-            unknames = []
+            vprint(f"Bit 0x000040 - unknown; count: {length}, offset: {hex(offset)}")
+
             if offset != 0 and length > 0:
                 for i in range(length):
                     unk_offset = offset + (i * 16)
                     name_offset = struct.unpack(f"{self.endian}I", self.data[unk_offset:(unk_offset + 4)])[0]
-                    self.add_coverage(unk_offset, 4)
+                    add_coverage(unk_offset, 4)
 
                     # The game does some very bizarre bit-shifting. Its clear tha the first value
                     # points at a name structure, but its not in the correct endianness. This replicates
@@ -692,9 +798,9 @@ class AFPFile:
                     if name_offset != 0:
                         # Let's decode this until the first null.
                         bytedata = self.get_until_null(name_offset)
-                        self.add_coverage(name_offset, len(bytedata) + 1, unique=False)
+                        add_coverage(name_offset, len(bytedata) + 1, unique=False)
                         name = AFPFile.descramble_text(bytedata, self.text_obfuscated)
-                        unknames.append(name)
+                        vprint(f"    {name}")
 
                     self.unknown1.append(
                         Unknown1(
@@ -702,11 +808,7 @@ class AFPFile:
                             data=self.data[(unk_offset + 4):(unk_offset + 16)],
                         )
                     )
-                    self.add_coverage(unk_offset + 4, 12)
-
-            vprint(f"Bit 0x000040 - unknown; count: {length}, offset: {hex(offset)}")
-            for name in unknames:
-                vprint(f"    {name}")
+                    add_coverage(unk_offset + 4, 12)
         else:
             vprint("Bit 0x000040 - unknown; NOT PRESENT")
 
@@ -714,16 +816,14 @@ class AFPFile:
             # One unknown byte, treated as an offset. This is clearly the mapping for the parsed
             # structures from 0x40, but I don't know what those are.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             vprint(f"Bit 0x000080 - unknownmapping; offset: {hex(offset)}")
 
             # TODO: I have no idea what this is for.
             if offset != 0:
-                self.unk_pman1 = self.descramble_pman(offset)
-                for i, name in enumerate(self.unk_pman1.entries):
-                    vprint(f"    {i}: {name}")
+                self.unk_pman1 = self.descramble_pman(offset, verbose)
         else:
             vprint("Bit 0x000080 - unknownmapping; NOT PRESENT")
 
@@ -731,8 +831,10 @@ class AFPFile:
             # Two unknown bytes, first is a length or a count. Secound is
             # an optional offset to grab another set of bytes from.
             length, offset = struct.unpack(f"{self.endian}II", self.data[header_offset:(header_offset + 8)])
-            self.add_coverage(header_offset, 8)
+            add_coverage(header_offset, 8)
             header_offset += 8
+
+            vprint(f"Bit 0x000100 - unknown; count: {length}, offset: {hex(offset)}")
 
             if offset != 0 and length > 0:
                 for i in range(length):
@@ -740,9 +842,7 @@ class AFPFile:
                     self.unknown2.append(
                         Unknown2(self.data[unk_offset:(unk_offset + 4)])
                     )
-                    self.add_coverage(unk_offset, 4)
-
-            vprint(f"Bit 0x000100 - unknown; count: {length}, offset: {hex(offset)}")
+                    add_coverage(unk_offset, 4)
         else:
             vprint("Bit 0x000100 - unknown; NOT PRESENT")
 
@@ -750,16 +850,14 @@ class AFPFile:
             # One unknown byte, treated as an offset. Almost positive its a string mapping
             # for the above 0x100 structure. That's how this file format appears to work.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             vprint(f"Bit 0x000200 - unknownmapping; offset: {hex(offset)}")
 
             # TODO: I have no idea what this is for.
             if offset != 0:
-                self.unk_pman2 = self.descramble_pman(offset)
-                for i, name in enumerate(self.unk_pman2.entries):
-                    vprint(f"    {i}: {name}")
+                self.unk_pman2 = self.descramble_pman(offset, verbose)
         else:
             vprint("Bit 0x000200 - unknownmapping; NOT PRESENT")
 
@@ -768,7 +866,7 @@ class AFPFile:
             # it seems to be empty data in files that I've looked at, it doesn't go to any
             # structure or mapping.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             vprint(f"Bit 0x000400 - unknown; offset: {hex(offset)}")
@@ -778,12 +876,11 @@ class AFPFile:
         if feature_mask & 0x800:
             # This is the names of the animations as far as I can tell.
             length, offset = struct.unpack(f"{self.endian}II", self.data[header_offset:(header_offset + 8)])
-            self.add_coverage(header_offset, 8)
+            add_coverage(header_offset, 8)
             header_offset += 8
 
             vprint(f"Bit 0x000800 - animations; count: {length}, offset: {hex(offset)}")
 
-            animnames = []
             for x in range(length):
                 interesting_offset = offset + (x * 12)
                 if interesting_offset != 0:
@@ -791,13 +888,13 @@ class AFPFile:
                         f"{self.endian}III",
                         self.data[interesting_offset:(interesting_offset + 12)],
                     )
-                    self.add_coverage(interesting_offset, 12)
+                    add_coverage(interesting_offset, 12)
                     if name_offset != 0:
                         # Let's decode this until the first null.
                         bytedata = self.get_until_null(name_offset)
-                        self.add_coverage(name_offset, len(bytedata) + 1, unique=False)
+                        add_coverage(name_offset, len(bytedata) + 1, unique=False)
                         name = AFPFile.descramble_text(bytedata, self.text_obfuscated)
-                        animnames.append(name)
+                        vprint(f"    {name}, length: {anim_length}, offset: {hex(anim_offset)}")
 
                     if anim_offset != 0:
                         self.animations.append(
@@ -806,25 +903,20 @@ class AFPFile:
                                 self.data[anim_offset:(anim_offset + anim_length)]
                             )
                         )
-                        self.add_coverage(anim_offset, anim_length)
-
-            for name in animnames:
-                vprint(f"    {name}")
+                        add_coverage(anim_offset, anim_length)
         else:
             vprint("Bit 0x000800 - animations; NOT PRESENT")
 
         if feature_mask & 0x1000:
             # Seems to be a secondary structure mirroring the above.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             vprint(f"Bit 0x001000 - animationmapping; offset: {hex(offset)}")
 
             if offset != 0:
-                self.animmap = self.descramble_pman(offset)
-                for i, name in enumerate(self.animmap.entries):
-                    vprint(f"    {i}: {name}")
+                self.animmap = self.descramble_pman(offset, verbose)
         else:
             vprint("Bit 0x001000 - animationmapping; NOT PRESENT")
 
@@ -833,14 +925,12 @@ class AFPFile:
             # with animations specified below. The names in these sections tend to
             # have the word "shape" in them.
             length, offset = struct.unpack(f"{self.endian}II", self.data[header_offset:(header_offset + 8)])
-            self.add_coverage(header_offset, 8)
+            add_coverage(header_offset, 8)
             header_offset += 8
 
             vprint(f"Bit 0x002000 - shapes; count: {length}, offset: {hex(offset)}")
 
             # TODO: We do a LOT of extra stuff with this one, if count > 0...
-
-            shapenames = []
             for x in range(length):
                 shape_base_offset = offset + (x * 12)
                 if shape_base_offset != 0:
@@ -848,7 +938,7 @@ class AFPFile:
                         f"{self.endian}III",
                         self.data[shape_base_offset:(shape_base_offset + 12)],
                     )
-                    self.add_coverage(shape_base_offset, 12)
+                    add_coverage(shape_base_offset, 12)
 
                     # TODO: At the shape offset is a "D2EG" structure of some sort.
                     # I have no idea what these do. I would have to look into it
@@ -857,36 +947,31 @@ class AFPFile:
                     if name_offset != 0:
                         # Let's decode this until the first null.
                         bytedata = self.get_until_null(name_offset)
-                        self.add_coverage(name_offset, len(bytedata) + 1, unique=False)
+                        add_coverage(name_offset, len(bytedata) + 1, unique=False)
                         name = AFPFile.descramble_text(bytedata, self.text_obfuscated)
-                        shapenames.append(name)
+                        vprint(f"    {name}, length: {shape_length}, offset: {hex(shape_offset)}")
 
                     if shape_offset != 0:
-                        self.add_coverage(shape_offset, shape_length)
+                        add_coverage(shape_offset, shape_length)
                         self.shapes.append(
                             Shape(
                                 name,
                                 self.data[shape_offset:(shape_offset + shape_length)],
                             )
                         )
-
-            for name in shapenames:
-                vprint(f"    {name}")
         else:
             vprint("Bit 0x002000 - shapes; NOT PRESENT")
 
         if feature_mask & 0x4000:
             # Seems to be a secondary section mirroring the names from above.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             vprint(f"Bit 0x004000 - shapesmapping; offset: {hex(offset)}")
 
             if offset != 0:
-                self.shapemap = self.descramble_pman(offset)
-                for i, name in enumerate(self.shapemap.entries):
-                    vprint(f"    {i}: {name}")
+                self.shapemap = self.descramble_pman(offset, verbose)
         else:
             vprint("Bit 0x004000 - shapesmapping; NOT PRESENT")
 
@@ -894,27 +979,29 @@ class AFPFile:
             # One unknown byte, treated as an offset. I have no idea what this is because
             # the games I've looked at don't include this bit.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
+
+            vprint(f"Bit 0x008000 - unknown; offset: {hex(offset)}")
 
             # Since I've never seen this, I'm going to assume that it showing up is
             # bad and make things read only.
             self.read_only = True
-
-            vprint(f"Bit 0x008000 - unknown; offset: {hex(offset)}")
         else:
             vprint("Bit 0x008000 - unknown; NOT PRESENT")
 
         if feature_mask & 0x10000:
             # Included font package, BINXRPC encoded.
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             # I am not sure what the unknown byte is for. It always appears as
             # all zeros in all files I've looked at.
             expect_zero, length, binxrpc_offset = struct.unpack(f"{self.endian}III", self.data[offset:(offset + 12)])
-            self.add_coverage(offset, 12)
+            add_coverage(offset, 12)
+
+            vprint(f"Bit 0x010000 - fontinfo; offset: {hex(offset)}, binxrpc offset: {hex(binxrpc_offset)}")
 
             if expect_zero != 0:
                 # If we find non-zero versions of this, then that means updating the file is
@@ -923,11 +1010,9 @@ class AFPFile:
 
             if binxrpc_offset != 0:
                 self.fontdata = self.benc.decode(self.data[binxrpc_offset:(binxrpc_offset + length)])
-                self.add_coverage(binxrpc_offset, length)
+                add_coverage(binxrpc_offset, length)
             else:
                 self.fontdata = None
-
-            vprint(f"Bit 0x010000 - fontinfo; offset: {hex(offset)}, binxrpc offset: {hex(binxrpc_offset)}")
         else:
             vprint("Bit 0x010000 - fontinfo; NOT PRESENT")
 
@@ -935,7 +1020,7 @@ class AFPFile:
             # I am beginning to suspect that this is animation/level data. I have
             # no idea what "afp" is. Games refer to these as "afp streams".
             offset = struct.unpack(f"{self.endian}I", self.data[header_offset:(header_offset + 4)])[0]
-            self.add_coverage(header_offset, 4)
+            add_coverage(header_offset, 4)
             header_offset += 4
 
             vprint(f"Bit 0x020000 - animationheaders; offset: {hex(offset)}")
@@ -951,7 +1036,8 @@ class AFPFile:
                         f"{self.endian}III",
                         self.data[structure_offset:(structure_offset + 12)]
                     )
-                    self.add_coverage(structure_offset, 12)
+                    vprint(f"    length: {afp_header_length}, offset: {hex(afp_header)}")
+                    add_coverage(structure_offset, 12)
 
                     if expect_zero != 0:
                         # If we find non-zero versions of this, then that means updating the file is
@@ -959,7 +1045,7 @@ class AFPFile:
                         raise Exception("Expected a zero in font package header!")
 
                     self.animations[i].header = self.data[afp_header:(afp_header + afp_header_length)]
-                    self.add_coverage(afp_header, afp_header_length)
+                    add_coverage(afp_header, afp_header_length)
         else:
             vprint("Bit 0x020000 - animationheaders; NOT PRESENT")
 
@@ -1027,6 +1113,7 @@ class AFPFile:
         )
 
         # Now, lay down the individual entries
+        datas: List[bytes] = [b""] * len(pman.entries)
         for entry_no, name in enumerate(pman.entries):
             name_crc = AFPFile.crc32(name.encode('ascii'))
 
@@ -1039,12 +1126,16 @@ class AFPFile:
                 string_offset += len(name) + 1
 
             # Write out the chunk itself.
-            data += struct.pack(
+            datas[pman.ordering[entry_no]] = struct.pack(
                 f"{self.endian}III",
                 name_crc,
                 entry_no,
                 string_offsets[name],
             )
+
+        # Write it out in the correct order. Some files are hardcoded in various
+        # games so we MUST preserve the order of PMAN entries.
+        data += b"".join(datas)
 
         # Now, put down the strings that were new in this pman structure.
         return self.write_strings(data, pending_strings)
@@ -1129,6 +1220,7 @@ class AFPFile:
         body = AFPFile.pad(body, 24 + header_length)
 
         # Start laying down various file pieces.
+        texture_to_update_offset: Dict[str, Tuple[int, bytes]] = {}
         if self.features & 0x01:
             # List of textures that exist in the file, with pointers to their data.
             offset = AFPFile.align(len(body))
@@ -1137,10 +1229,8 @@ class AFPFile:
             # First, lay down pointers and length, regardless of number of entries.
             bitchunks[0] = struct.pack(f"{self.endian}II", len(self.textures), offset)
 
-            # Now, calculate where we can put texturedata.
-            tex_offset = AFPFile.align(len(body) + (len(self.textures) * 12))
-            textures: bytes = b""
-            name_to_offset: Dict[str, Tuple[int, int]] = {}
+            # Now, calculate how long each texture is and formulate the data itself.
+            name_to_length: Dict[str, int] = {}
 
             # Now, possibly compress and lay down textures.
             for texture in self.textures:
@@ -1180,33 +1270,33 @@ class AFPFile:
                         lz77 = Lz77()
                         compressed_texture = lz77.compress(raw_texture)
 
-                    # Make room for the texture, remember where we put it.
-                    textures = AFPFile.pad(textures, AFPFile.align(len(textures)))
-                    name_to_offset[texture.name] = (len(textures), len(compressed_texture) + 8)
-
-                    # Place down the mini-header and the texture itself.
-                    textures += struct.pack(
-                        ">II",
-                        len(raw_texture),
-                        len(compressed_texture),
-                    ) + compressed_texture
+                    # Construct the mini-header and the texture itself.
+                    name_to_length[texture.name] = len(compressed_texture) + 8
+                    texture_to_update_offset[texture.name] = (
+                        0xDEADBEEF,
+                        struct.pack(
+                            ">II",
+                            len(raw_texture),
+                            len(compressed_texture),
+                        ) + compressed_texture,
+                    )
                 else:
                     # We just need to place the raw texture down.
-                    textures = AFPFile.pad(textures, AFPFile.align(len(textures)))
-                    name_to_offset[texture.name] = (len(textures), len(raw_texture) + 8)
-
-                    textures += struct.pack(
-                        ">II",
-                        len(raw_texture),
-                        len(raw_texture),
-                    ) + raw_texture
+                    name_to_length[texture.name] = len(raw_texture) + 8
+                    texture_to_update_offset[texture.name] = (
+                        0xDEADBEEF,
+                        struct.pack(
+                            ">II",
+                            len(raw_texture),
+                            len(raw_texture),
+                        ) + raw_texture,
+                    )
 
             # Now, make sure the texture block is padded to 4 bytes, so we can figure out
             # where strings go.
-            textures = AFPFile.pad(textures, AFPFile.align(len(textures)))
-            string_offset = AFPFile.align(len(body) + (len(self.textures) * 12) + len(textures))
+            string_offset = AFPFile.align(len(body) + (len(self.textures) * 12))
 
-            # Now, write out textures and strings.
+            # Now, write out texture pointers and strings.
             for texture in self.textures:
                 if texture.name not in string_offsets:
                     # We haven't written this string out yet, so put it on our pending list.
@@ -1216,16 +1306,20 @@ class AFPFile:
                     # Room for the null byte!
                     string_offset += len(texture.name) + 1
 
-                # Write out the chunk itself.
+                # Write out the chunk itself, remember where we need to fix up later.
+                texture_to_update_offset[texture.name] = (
+                    len(body) + 8,
+                    texture_to_update_offset[texture.name][1],
+                )
                 body += struct.pack(
                     f"{self.endian}III",
                     string_offsets[texture.name],
-                    name_to_offset[texture.name][1],  # Structure length
-                    tex_offset + name_to_offset[texture.name][0],  # Structure offset
+                    name_to_length[texture.name],  # Structure length
+                    0xDEADBEEF,  # Structure offset (we will fix this later)
                 )
 
             # Now, put down the texture chunk itself and then strings that were new in this chunk.
-            body = self.write_strings(body + textures, pending_strings)
+            body = self.write_strings(body, pending_strings)
             pending_strings = {}
 
         if self.features & 0x08:
@@ -1287,15 +1381,6 @@ class AFPFile:
             for entry2 in self.unknown2:
                 # Write out the chunk itself.
                 body += entry2.data
-
-        if self.features & 0x400:
-            # I haven't seen any files with any meaningful information for this, but
-            # it gets included anyway since games seem to parse it.
-            offset = AFPFile.align(len(body))
-            body = AFPFile.pad(body, offset)
-
-            # Point to current data location (seems to be what original files do too).
-            bitchunks[10] = struct.pack(f"{self.endian}I", offset)
 
         if self.features & 0x800:
             # This is the names and locations of the animations as far as I can tell.
@@ -1366,11 +1451,6 @@ class AFPFile:
             # Now, lay out the data itself and finally string names.
             body = self.write_strings(body + shapedata, pending_strings)
             pending_strings = {}
-
-        if self.features & 0x8000:
-            # Unknown, never seen bit. We shouldn't be here, we set ourselves
-            # to read-only.
-            raise Exception("This should not be possible!")
 
         if self.features & 0x02:
             # Mapping between texture index and the name of the texture.
@@ -1445,6 +1525,20 @@ class AFPFile:
             )
             body += fontbytes
 
+        if self.features & 0x400:
+            # I haven't seen any files with any meaningful information for this, but
+            # it gets included anyway since games seem to parse it.
+            offset = AFPFile.align(len(body))
+            body = AFPFile.pad(body, offset)
+
+            # Point to current data location (seems to be what original files do too).
+            bitchunks[10] = struct.pack(f"{self.endian}I", offset)
+
+        if self.features & 0x8000:
+            # Unknown, never seen bit. We shouldn't be here, we set ourselves
+            # to read-only.
+            raise Exception("This should not be possible!")
+
         if self.features & 0x20000:
             # Animation header information.
             offset = AFPFile.align(len(body))
@@ -1469,6 +1563,19 @@ class AFPFile:
 
             # Now, lay out the header itself
             body += animheader
+
+        if self.features & 0x01:
+            # Now, go back and add texture data to the end of the file, fixing up the
+            # pointer to said data we wrote down earlier.
+            for texture in self.textures:
+                # Grab the offset we need to fix, our current offset and place
+                # the texture data itself down.
+                fix_offset, texture_data = texture_to_update_offset[texture.name]
+                offset = AFPFile.align(len(body))
+                body = AFPFile.pad(body, offset) + texture_data
+
+                # Now, update the patch location to make sure we point at the texture data.
+                body = body[:fix_offset] + struct.pack(f"{self.endian}I", offset) + body[(fix_offset + 4):]
 
         # Bit 0x40000 is for lz options.
 
@@ -1593,6 +1700,14 @@ def main() -> int:
         action="store_true",
         help="Display verbuse debugging output",
     )
+
+    print_parser = subparsers.add_parser('print', help='Print the file contents as a JSON dictionary')
+    print_parser.add_argument(
+        "file",
+        metavar="FILE",
+        help="The file to print",
+    )
+
     args = parser.parse_args()
 
     if args.action == "extract":
@@ -1735,6 +1850,14 @@ def main() -> int:
             data = afpfile.unparse()
             with open(args.file, "wb") as bfp:
                 bfp.write(data)
+
+    if args.action == "print":
+        # First, parse the file out
+        with open(args.file, "rb") as bfp:
+            afpfile = AFPFile(bfp.read(), verbose=False)
+
+        # Now, print it
+        print(json.dumps(afpfile.as_dict(), sort_keys=True, indent=4))
 
     return 0
 
