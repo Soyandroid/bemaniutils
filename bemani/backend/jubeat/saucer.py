@@ -134,6 +134,9 @@ class JubeatSaucer(
         data = request.child('data')
         player = data.child('player')
         extid = player.child_value('jid')
+        mdata_ver = player.child_value('mdata_ver')  # Game requests mdata 3 times per profile for some reason
+        if mdata_ver != 1:
+            return Node.void('gametop')
         root = self.get_scores_by_extid(extid)
         if root is None:
             root = Node.void('gametop')
