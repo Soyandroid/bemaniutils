@@ -378,6 +378,7 @@ def updateflags() -> Dict[str, Any]:
         'version': version,
     }
 
+
 @iidx_pages.route('/options/qpro/update', methods=['POST'])
 @jsonify
 @loginrequired
@@ -407,6 +408,7 @@ def updateqpro() -> Dict[str, Any]:
         'qpro': frontend.format_qpro(qpro_dict),
         'version': version,
     }
+
 
 @iidx_pages.route('/options/settings/update', methods=['POST'])
 @jsonify

@@ -1695,7 +1695,7 @@ class ImportIIDX(ImportBase):
             for filename in filenames:
                 songid, extension = os.path.splitext(filename)
                 if extension == '.1' or extension == '.ifs':
-                    if filename != '12030-p0.ifs':  # for some reason POODLE SPL/DPL is stored in 12030.ifs so this file should not be read. 
+                    if filename != '12030-p0.ifs':  # for some reason POODLE SPL/DPL is stored in 12030.ifs so this file should not be read.
                         if '-p0' in songid:         # prefer -p0 since that one extends the chart to include the SPL/DPL charts
                             songid = songid.replace('-p0', '')
                         if songid + '-p0' + extension in filenames:
@@ -1898,7 +1898,7 @@ class ImportIIDX(ImportBase):
                 return 1
         return chart
 
-    def scrape(self, binfile: str, assets_dir: Optional[str]) -> List[Dict[str, Any]]:
+    def scrape(self, binfile: str, assets_dir: Optional[str]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         if self.version is None:
             raise Exception('Can\'t import IIDX database for \'all\' version!')
 
@@ -1913,11 +1913,11 @@ class ImportIIDX(ImportBase):
         finally:
             bh.close()
 
-        import_qpros = True # by default, try to import qpros
+        import_qpros = True  # by default, try to import qpros
         try:
             pe = pefile.PE(data=binarydata, fast_load=True)
-        except:
-            import_qpros = False    # if it failed then we're reading a music db file, not the executable
+        except BaseException:
+            import_qpros = False  # if it failed then we're reading a music db file, not the executable
 
         def virtual_to_physical(offset: int) -> int:
             for section in pe.sections:
@@ -2030,9 +2030,9 @@ class ImportIIDX(ImportBase):
                     })
         qpros: List[Dict[str, Any]] = []
         if self.version == VersionConstants.IIDX_HEROIC_VERSE:
-            stride = 16                
-            qp_head_offset = 0x82E6B0  # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
-            qp_head_length = 290         # the qpro id numbers, it's best to store them as separate types in the catalog as well. 
+            stride = 16
+            qp_head_offset = 0x82E6B0    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 290         # the qpro id numbers, it's best to store them as separate types in the catalog as well.
             qp_hair_offset = 0x82F8D0
             qp_hair_length = 290
             qp_face_offset = 0x82AFB0
@@ -2044,8 +2044,8 @@ class ImportIIDX(ImportBase):
             filename_offset = 0
             qpro_id_offset = 1
             packedfmt = (
-                'L' # filename
-                'L' # string containing id and name of the part
+                'L'  # filename
+                'L'  # string containing id and name of the part
             )
 
         def read_string(offset: int) -> str:
@@ -2078,7 +2078,7 @@ class ImportIIDX(ImportBase):
                     'type': type,
                 }
                 qpros.append(qproinfo)
-        if import_qpros:     
+        if import_qpros:
             read_qpro_db(qp_head_offset, qp_head_length, 'head')
             read_qpro_db(qp_hair_offset, qp_hair_length, 'hair')
             read_qpro_db(qp_face_offset, qp_face_length, 'face')
@@ -2087,7 +2087,7 @@ class ImportIIDX(ImportBase):
 
         return songs, qpros
 
-    def lookup(self, server: str, token: str) -> List[Dict[str, Any]]:
+    def lookup(self, server: str, token: str) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         if self.version is None:
             raise Exception('Can\'t look up IIDX database for \'all\' version!')
 
