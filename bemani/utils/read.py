@@ -2078,12 +2078,12 @@ class ImportIIDX(ImportBase):
                     'type': type,
                 }
                 qpros.append(qproinfo)
-        
-        read_qpro_db(qp_head_offset, qp_head_length, 'head')
-        read_qpro_db(qp_hair_offset, qp_hair_length, 'hair')
-        read_qpro_db(qp_face_offset, qp_face_length, 'face')
-        read_qpro_db(qp_hand_offset, qp_hand_length, 'hand')
-        read_qpro_db(qp_body_offset, qp_body_length, 'body')
+        if import_qpros:     
+            read_qpro_db(qp_head_offset, qp_head_length, 'head')
+            read_qpro_db(qp_hair_offset, qp_hair_length, 'hair')
+            read_qpro_db(qp_face_offset, qp_face_length, 'face')
+            read_qpro_db(qp_hand_offset, qp_hand_length, 'hand')
+            read_qpro_db(qp_body_offset, qp_body_length, 'body')
 
         return songs, qpros
 
