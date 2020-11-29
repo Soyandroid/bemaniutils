@@ -249,7 +249,8 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             history.replace_int('music_rate', music_rate)
 
         # Look up where this score was earned
-        lid = self.get_machine_id()
+        # lid = self.get_machine_id()
+        lid = 37
 
         # Write the new score back
         self.data.local.music.put_score(
