@@ -173,7 +173,6 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         ghost: Optional[List[int]]=None,
         stats: Optional[Dict[str, int]]=None,
         music_rate: int=None,
-        hard_mode: bool=False,
     ) -> None:
         """
         Given various pieces of a score, update the user's high score and score
@@ -190,13 +189,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             self.PLAY_MEDAL_EXCELLENT,
         ]:
             raise Exception(f"Invalid medal value {medal}")
-        if hard_mode:
-            hard_mode_map = {
-                self.CHART_TYPE_BASIC: self.CHART_TYPE_HARD_BASIC,
-                self.CHART_TYPE_ADVANCED: self.CHART_TYPE_HARD_ADVANCED,
-                self.CHART_TYPE_EXTREME: self.CHART_TYPE_HARD_EXTREME,
-            }
-            chart = hard_mode_map.get(chart)
+
         oldscore = self.data.local.music.get_score(
             self.game,
             self.music_version,

@@ -43,8 +43,36 @@ class JubeatSaucerFulfill(
     GAME_COURSE_RATING_SILVER = 3
     GAME_COURSE_RATING_GOLD = 4
 
+    GAME_CHART_TYPE_BASIC = 0
+    GAME_CHART_TYPE_ADVANCED = 1
+    GAME_CHART_TYPE_EXTREME = 2
+
     def previous_version(self) -> Optional[JubeatBase]:
         return JubeatSaucer(self.data, self.config, self.model)
+
+    def game_to_db_chart(self, game_chart: int, hard_mode: bool) -> int:
+        if hard_mode:
+            return {
+                self.GAME_CHART_TYPE_BASIC: self.CHART_TYPE_HARD_BASIC,
+                self.GAME_CHART_TYPE_ADVANCED: self.CHART_TYPE_HARD_ADVANCED,
+                self.GAME_CHART_TYPE_EXTREME: self.CHART_TYPE_HARD_EXTREME,
+            }[game_chart]
+        else:
+            return {
+                self.GAME_CHART_TYPE_BASIC: self.CHART_TYPE_BASIC,
+                self.GAME_CHART_TYPE_ADVANCED: self.CHART_TYPE_ADVANCED,
+                self.GAME_CHART_TYPE_EXTREME: self.CHART_TYPE_EXTREME,
+            }[game_chart]
+
+    def db_to_game_chart(self, db_chart: int) -> int:
+        return {
+            self.CHART_TYPE_BASIC: self.GAME_CHART_TYPE_BASIC,
+            self.CHART_TYPE_ADVANCED: self.GAME_CHART_TYPE_ADVANCED,
+            self.CHART_TYPE_EXTREME: self.GAME_CHART_TYPE_EXTREME,
+            self.CHART_TYPE_HARD_BASIC: self.GAME_CHART_TYPE_BASIC,
+            self.CHART_TYPE_HARD_ADVANCED: self.GAME_CHART_TYPE_ADVANCED,
+            self.CHART_TYPE_HARD_EXTREME: self.GAME_CHART_TYPE_EXTREME,
+        }[db_chart]
 
     @classmethod
     def run_scheduled_work(cls, data: Data, config: Dict[str, Any]) -> List[Tuple[str, Dict[str, Any]]]:
@@ -692,12 +720,11 @@ class JubeatSaucerFulfill(
                 last.replace_int('category', tune.child_value('category'))
                 last.replace_int('rank_sort', tune.child_value('rank_sort'))
                 last.replace_int('combo_disp', tune.child_value('combo_disp'))
-                is_hard_mode = bool(result.child_value('is_hard_mode'))
 
                 songid = tune.child_value('music')
                 entry = int(tune.attribute('id'))
                 timestamp = timestamps.get(entry, Time.now())
-                chart = int(result.child('score').attribute('seq'))
+                chart = self.game_to_db_chart(int(result.child('score').attribute('seq')), bool(result.child_value('is_hard_mode')))
                 points = result.child_value('score')
                 flags = int(result.child('score').attribute('clear'))
                 combo = int(result.child('score').attribute('combo'))
@@ -721,7 +748,7 @@ class JubeatSaucerFulfill(
                     if flags & bit > 0:
                         medal = max(medal, mapping[bit])
 
-                self.update_score(userid, timestamp, songid, chart, points, medal, combo, ghost, hard_mode=is_hard_mode)
+                self.update_score(userid, timestamp, songid, chart, points, medal, combo, ghost)
 
         # Grab the course results as well
         course = data.child('course')
@@ -769,15 +796,7 @@ class JubeatSaucerFulfill(
 
         music = ValidatedDict()
         for score in scores:
-            if score.chart in [self.CHART_TYPE_HARD_BASIC, self.CHART_TYPE_HARD_ADVANCED, self.CHART_TYPE_HARD_EXTREME]:
-                hard_mode_map = {
-                    self.CHART_TYPE_HARD_BASIC: self.CHART_TYPE_BASIC,
-                    self.CHART_TYPE_HARD_ADVANCED: self.CHART_TYPE_ADVANCED,
-                    self.CHART_TYPE_HARD_EXTREME: self.CHART_TYPE_EXTREME,
-                }
-                chart = hard_mode_map.get(score.chart)
-            else:
-                chart = score.chart
+            chart = self.db_to_game_chart(score.chart)
             data = music.get_dict(str(score.id))
             play_cnt = data.get_int_array('play_cnt', 3)
             clear_cnt = data.get_int_array('clear_cnt', 3)

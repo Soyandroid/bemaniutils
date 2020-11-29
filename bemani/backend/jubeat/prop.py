@@ -77,8 +77,36 @@ class JubeatProp(
         },
     }
 
+    GAME_CHART_TYPE_BASIC = 0
+    GAME_CHART_TYPE_ADVANCED = 1
+    GAME_CHART_TYPE_EXTREME = 2
+
     def previous_version(self) -> Optional[JubeatBase]:
         return JubeatSaucerFulfill(self.data, self.config, self.model)
+
+    def game_to_db_chart(self, game_chart: int, hard_mode: bool) -> int:
+        if hard_mode:
+            return {
+                self.GAME_CHART_TYPE_BASIC: self.CHART_TYPE_HARD_BASIC,
+                self.GAME_CHART_TYPE_ADVANCED: self.CHART_TYPE_HARD_ADVANCED,
+                self.GAME_CHART_TYPE_EXTREME: self.CHART_TYPE_HARD_EXTREME,
+            }[game_chart]
+        else:
+            return {
+                self.GAME_CHART_TYPE_BASIC: self.CHART_TYPE_BASIC,
+                self.GAME_CHART_TYPE_ADVANCED: self.CHART_TYPE_ADVANCED,
+                self.GAME_CHART_TYPE_EXTREME: self.CHART_TYPE_EXTREME,
+            }[game_chart]
+
+    def db_to_game_chart(self, db_chart: int) -> int:
+        return {
+            self.CHART_TYPE_BASIC: self.GAME_CHART_TYPE_BASIC,
+            self.CHART_TYPE_ADVANCED: self.GAME_CHART_TYPE_ADVANCED,
+            self.CHART_TYPE_EXTREME: self.GAME_CHART_TYPE_EXTREME,
+            self.CHART_TYPE_HARD_BASIC: self.GAME_CHART_TYPE_BASIC,
+            self.CHART_TYPE_HARD_ADVANCED: self.GAME_CHART_TYPE_ADVANCED,
+            self.CHART_TYPE_HARD_EXTREME: self.GAME_CHART_TYPE_EXTREME,
+        }[db_chart]
 
     @classmethod
     def __class_to_rank(cls, cur_class: int, cur_subclass: int) -> int:
@@ -1243,12 +1271,11 @@ class JubeatProp(
                 entry = int(tune.attribute('id'))
                 songid = tune.child_value('music')
                 timestamp = timestamps.get(entry, Time.now())
-                chart = int(result.child('score').attribute('seq'))
+                chart = self.game_to_db_chart(int(result.child('score').attribute('seq')), bool(result.child_value('is_hard_mode')))
                 points = result.child_value('score')
                 flags = int(result.child('score').attribute('clear'))
                 combo = int(result.child('score').attribute('combo'))
                 ghost = result.child_value('mbar')
-                is_hard_mode = bool(result.child_value('is_hard_mode'))
 
                 # Miscelaneous last data for echoing to profile get
                 last.replace_int('music_id', songid)
@@ -1268,7 +1295,7 @@ class JubeatProp(
                     if flags & bit > 0:
                         medal = max(medal, mapping[bit])
 
-                self.update_score(userid, timestamp, songid, chart, points, medal, combo, ghost, hard_mode=is_hard_mode)
+                self.update_score(userid, timestamp, songid, chart, points, medal, combo, ghost)
 
         # If this was a course save, grab and save that info too
         course = player.child('course')
@@ -1354,15 +1381,7 @@ class JubeatProp(
 
         music = ValidatedDict()
         for score in scores:
-            if score.chart in [self.CHART_TYPE_HARD_BASIC, self.CHART_TYPE_HARD_ADVANCED, self.CHART_TYPE_HARD_EXTREME]:
-                hard_mode_map = {
-                    self.CHART_TYPE_HARD_BASIC: self.CHART_TYPE_BASIC,
-                    self.CHART_TYPE_HARD_ADVANCED: self.CHART_TYPE_ADVANCED,
-                    self.CHART_TYPE_HARD_EXTREME: self.CHART_TYPE_EXTREME,
-                }
-                chart = hard_mode_map.get(score.chart)
-            else:
-                chart = score.chart
+            chart = self.db_to_game_chart(score.chart)
             data = music.get_dict(str(score.id))
             play_cnt = data.get_int_array('play_cnt', 3)
             clear_cnt = data.get_int_array('clear_cnt', 3)
