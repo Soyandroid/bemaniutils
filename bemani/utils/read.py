@@ -2029,6 +2029,126 @@ class ImportIIDX(ImportBase):
                         },
                     })
         qpros: List[Dict[str, Any]] = []
+        if self.version == VersionConstants.IIDX_TRICORO:
+            stride = 4
+            qp_head_offset = 0x1CCB18    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 79          # the qpro id numbers, it's best to store them as separate types in the catalog as well.
+            qp_hair_offset = 0x1CCC58
+            qp_hair_length = 103
+            qp_face_offset = 0x1CCDF8
+            qp_face_length = 50
+            qp_hand_offset = 0x1CCEC0
+            qp_hand_length = 103
+            qp_body_offset = 0x1CD060
+            qp_body_length = 106
+            filename_offset = 0
+            packedfmt = (
+                'I'  # filename
+            )
+        if self.version == VersionConstants.IIDX_SPADA:
+            stride = 4
+            qp_head_offset = 0x213B50    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 125         # the qpro id numbers, it's best to store them as separate types in the catalog as well.
+            qp_hair_offset = 0x213D48
+            qp_hair_length = 126
+            qp_face_offset = 0x213F40
+            qp_face_length = 72
+            qp_hand_offset = 0x214060
+            qp_hand_length = 135
+            qp_body_offset = 0x214280
+            qp_body_length = 135
+            filename_offset = 0
+            packedfmt = (
+                'I'  # filename
+            )
+        if self.version == VersionConstants.IIDX_PENDUAL:
+            stride = 4
+            qp_head_offset = 0x1D5228    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 163         # the qpro id numbers, it's best to store them as separate types in the catalog as well.
+            qp_hair_offset = 0x1D54B8
+            qp_hair_length = 182
+            qp_face_offset = 0x1D5790
+            qp_face_length = 106
+            qp_hand_offset = 0x1D5938
+            qp_hand_length = 184
+            qp_body_offset = 0x1D5C18
+            qp_body_length = 191
+            filename_offset = 0
+            packedfmt = (
+                'I'  # filename
+            )
+        if self.version == VersionConstants.IIDX_COPULA:
+            stride = 8
+            qp_head_offset = 0x12F9D8    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 186         # the qpro id numbers, it's best to store them as separate types in the catalog as well.
+            qp_hair_offset = 0x12FFA8
+            qp_hair_length = 202
+            qp_face_offset = 0x1305F8
+            qp_face_length = 126
+            qp_hand_offset = 0x1309E8
+            qp_hand_length = 206
+            qp_body_offset = 0x131058
+            qp_body_length = 211
+            filename_offset = 0
+            qpro_id_offset = 1
+            packedfmt = (
+                'I'  # filename
+                'I'  # string containing id and name of the part
+            )
+        if self.version == VersionConstants.IIDX_SINOBUZ:
+            stride = 8
+            qp_head_offset = 0x149F88    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 211         # the qpro id numbers, it's best to store them as separate types in the catalog as well.
+            qp_hair_offset = 0x14A620
+            qp_hair_length = 245
+            qp_face_offset = 0x14ADC8
+            qp_face_length = 152
+            qp_hand_offset = 0x14B288
+            qp_hand_length = 236
+            qp_body_offset = 0x14B9E8
+            qp_body_length = 256
+            filename_offset = 0
+            qpro_id_offset = 1
+            packedfmt = (
+                'I'  # filename
+                'I'  # string containing id and name of the part
+            )
+        if self.version == VersionConstants.IIDX_CANNON_BALLERS:
+            stride = 16
+            qp_head_offset = 0x2339E0    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 231         # the qpro id numbers, it's best to store them as separate types in the catalog as well.
+            qp_hair_offset = 0x234850
+            qp_hair_length = 267
+            qp_face_offset = 0x235900
+            qp_face_length = 173
+            qp_hand_offset = 0x2363D0
+            qp_hand_length = 261
+            qp_body_offset = 0x237420
+            qp_body_length = 282
+            filename_offset = 0
+            qpro_id_offset = 1
+            packedfmt = (
+                'L'  # filename
+                'L'  # string containing id and name of the part
+            )
+        if self.version == VersionConstants.IIDX_ROOTAGE:
+            stride = 16
+            qp_head_offset = 0x5065F0    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
+            qp_head_length = 259         # the qpro id numbers, it's best to store them as separate types in the catalog as well.
+            qp_hair_offset = 0x507620
+            qp_hair_length = 288
+            qp_face_offset = 0x508820
+            qp_face_length = 193
+            qp_hand_offset = 0x509430
+            qp_hand_length = 287
+            qp_body_offset = 0x50A620
+            qp_body_length = 304
+            filename_offset = 0
+            qpro_id_offset = 1
+            packedfmt = (
+                'L'  # filename
+                'L'  # string containing id and name of the part
+            )
         if self.version == VersionConstants.IIDX_HEROIC_VERSE:
             stride = 16
             qp_head_offset = 0x82E6B0    # qpro body parts are stored in 5 separate arrays in the game data, since there can be collision in
@@ -2061,21 +2181,23 @@ class ImportIIDX(ImportBase):
             # Its shift-jis encoded, so decode it now
             return bytes(bytestring).decode('shift_jisx0213')
 
-        def read_qpro_db(offset: int, length: int, type: str) -> None:
+        def read_qpro_db(offset: int, length: int, qp_type: str) -> None:
             for qpro_id in range(length):
                 chunkoffset = offset + (stride * qpro_id)
                 chunkdata = binarydata[chunkoffset:(chunkoffset + stride)]
                 unpacked = struct.unpack(packedfmt, chunkdata)
-                id_string = read_string(unpacked[qpro_id_offset])
                 filename = read_string(unpacked[filename_offset]).replace('qp_', '')
-                remove = ['_head.ifs', '_hair.ifs', '_face.ifs', '_hand.ifs', '_body.ifs']
-                for s in remove:
-                    filename = filename.replace(s, '')
+                remove = f'_{qp_type}.ifs'
+                filename = filename.replace(remove, '').replace('_head1.ifs', '').replace('_head2.ifs', '')
+                if self.version in [VersionConstants.IIDX_TRICORO, VersionConstants.IIDX_SPADA, VersionConstants.IIDX_PENDUAL]:
+                    name = filename  # qpro names are not stored in these 3 games so use the identifier instead
+                else:
+                    name = read_string(unpacked[qpro_id_offset])[4:] # qpro name is stored in second string of form "000:name"
                 qproinfo = {
                     'identifier': filename,
-                    'id': int(id_string[0:3]),  # id string is always 3 characters and then a ':'
-                    'name': id_string[4:],
-                    'type': type,
+                    'id': qpro_id,
+                    'name': name,
+                    'type': qp_type,
                 }
                 qpros.append(qproinfo)
         if import_qpros:
