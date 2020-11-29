@@ -2192,7 +2192,7 @@ class ImportIIDX(ImportBase):
                 if self.version in [VersionConstants.IIDX_TRICORO, VersionConstants.IIDX_SPADA, VersionConstants.IIDX_PENDUAL]:
                     name = filename  # qpro names are not stored in these 3 games so use the identifier instead
                 else:
-                    name = read_string(unpacked[qpro_id_offset])[4:] # qpro name is stored in second string of form "000:name"
+                    name = read_string(unpacked[qpro_id_offset])[4:]  # qpro name is stored in second string of form "000:name"
                 qproinfo = {
                     'identifier': filename,
                     'id': qpro_id,
@@ -2279,12 +2279,12 @@ class ImportIIDX(ImportBase):
         qpros: List[Dict[str, Any]] = []
         game = self.remote_game(server, token)
         for item in game.get_items(self.game, self.version):
-            if item.type in ['qp_body', 'qp_face', 'qp_hair', 'qp_hand', 'qp_head']:
+            if item.type == 'qpro':
                 qpros.append({
                     'identifier': item.data.get_str('identifier'),
                     'id': item.id,
                     'name': item.data.get_str('name'),
-                    'type': item.type[3:]
+                    'type': item.data.get_str('type'),
                 })
 
         return [val for _, val in lut.items()], qpros
