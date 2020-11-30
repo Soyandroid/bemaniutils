@@ -2,23 +2,10 @@
 
 import csv  # type: ignore
 import argparse
-import copy
-import io
-import jaconv  # type: ignore
-import json
-import os
-import pefile  # type: ignore
-import struct
 import yaml  # type: ignore
-import xml.etree.ElementTree as ET
-from sqlalchemy import create_engine  # type: ignore
-from sqlalchemy.engine.result import ResultProxy  # type: ignore
-from sqlalchemy.orm import sessionmaker  # type: ignore
-from sqlalchemy.sql import text  # type: ignore
-from sqlalchemy.exc import IntegrityError  # type: ignore
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict
 
-from bemani.common import GameConstants, DBConstants, Time, Model
+from bemani.common import GameConstants, DBConstants, Model
 from bemani.data import Data, UserID
 from bemani.backend.jubeat import JubeatBase
 
@@ -78,6 +65,10 @@ class ImportJubeat():
                 if hard_mode:
                     chart += 3
                 jubeat.version = 13
+                if stats['poor'] == 0 and stats['miss'] == 0:
+                    combo = stats['perfect'] + stats['great'] + stats['good']
+                else:
+                    combo = -1
                 # print(userid)
                 # print(timestamp)
                 # print(songid)
@@ -88,8 +79,9 @@ class ImportJubeat():
                 # print(hex(clear_type))
                 # print(stats)
                 # print(music_rate)
+                # print(combo)
                 # break
-                jubeat.update_score(userid, timestamp, songid, chart, score, medal, 0, ghost, stats, music_rate)
+                jubeat.update_score(userid, timestamp, songid, chart, score, medal, combo, ghost, stats, music_rate)
 
 
 if __name__ == "__main__":
@@ -120,6 +112,12 @@ if __name__ == "__main__":
         required=True,
         help="User id that we are importing scores for"
     )
+    parser.add_argument(
+        '--pcbid',
+        type=str,
+        required=True,
+        help="Machine pcbid that we assign the scores to"
+    )
 
     # Parse args, validate invariants.
     args = parser.parse_args()
@@ -127,6 +125,7 @@ if __name__ == "__main__":
     # Load the config so we can talk to the server
     config = yaml.safe_load(open(args.config))  # type: ignore
     config['database']['engine'] = Data.create_engine(config)
+    config['machine'] = {'pcbid': args.pcbid}
     data = Data(config)
     if args.series == GameConstants.JUBEAT:
         model = Model('L44', 'J', 'F', 'A', 2019090300)
