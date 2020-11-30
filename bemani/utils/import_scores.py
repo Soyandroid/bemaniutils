@@ -65,22 +65,10 @@ class ImportJubeat():
                 if hard_mode:
                     chart += 3
                 jubeat.version = 13
-                if stats['poor'] == 0 and stats['miss'] == 0:
+                if stats['poor'] == 0 and stats['miss'] == 0:  # Echidna doesn't store combo currently so calculate combo for FCs/EXCs
                     combo = stats['perfect'] + stats['great'] + stats['good']
                 else:
-                    combo = -1
-                # print(userid)
-                # print(timestamp)
-                # print(songid)
-                # print(chart)
-                # print(score)
-                # print(medal)
-                # print(ghost)
-                # print(hex(clear_type))
-                # print(stats)
-                # print(music_rate)
-                # print(combo)
-                # break
+                    combo = -1  # Default to -1 to indicate combo isn't present for this score
                 jubeat.update_score(userid, timestamp, songid, chart, score, medal, combo, ghost, stats, music_rate)
 
 
