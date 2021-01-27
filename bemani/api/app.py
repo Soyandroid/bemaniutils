@@ -236,6 +236,9 @@ def lookup(protoversion: str, requestgame: str, requestversion: str) -> Dict[str
             '23': VersionConstants.IIDX_COPULA,
             '24': VersionConstants.IIDX_SINOBUZ,
             '25': VersionConstants.IIDX_CANNON_BALLERS,
+            '26': VersionConstants.IIDX_ROOTAGE,
+            '27': VersionConstants.IIDX_HEROIC_VERSE,
+            '28': VersionConstants.IIDX_BISTROVER,
         },
         GameConstants.JUBEAT: {
             '5': VersionConstants.JUBEAT_SAUCER,
@@ -243,6 +246,7 @@ def lookup(protoversion: str, requestgame: str, requestversion: str) -> Dict[str
             '6': VersionConstants.JUBEAT_PROP,
             '7': VersionConstants.JUBEAT_QUBELL,
             '8': VersionConstants.JUBEAT_CLAN,
+            '9': VersionConstants.JUBEAT_FESTO,
         },
         GameConstants.MUSECA: {
             '1': VersionConstants.MUSECA,
@@ -255,6 +259,8 @@ def lookup(protoversion: str, requestgame: str, requestversion: str) -> Dict[str
             '22': VersionConstants.POPN_MUSIC_LAPISTORIA,
             '23': VersionConstants.POPN_MUSIC_ECLALE,
             '24': VersionConstants.POPN_MUSIC_USANEKO,
+            '25': VersionConstants.POPN_MUSIC_PEACE,
+            '26': VersionConstants.POPN_MUSIC_KAIMEI_RIDDLES,
         },
         GameConstants.REFLEC_BEAT: {
             '1': VersionConstants.REFLEC_BEAT,
@@ -278,6 +284,7 @@ def lookup(protoversion: str, requestgame: str, requestversion: str) -> Dict[str
             '2': VersionConstants.SDVX_INFINITE_INFECTION,
             '3': VersionConstants.SDVX_GRAVITY_WARS,
             '4': VersionConstants.SDVX_HEAVENLY_HAVEN,
+            '5': VersionConstants.SDVX_VIVID_WAVE,
         },
     }.get(game, {}).get(requestversion)
     if version is None:

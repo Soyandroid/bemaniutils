@@ -89,6 +89,7 @@ class RecordsObject(BaseObject):
             'status': status,
             'combo': record.data.get_int('combo', -1),
             'ghost': ghost,
+            'music_rate': record.data.get_int('music_rate', -1)
         }
 
     def __format_museca_record(self, record: Score) -> Dict[str, Any]:
@@ -222,7 +223,9 @@ class RecordsObject(BaseObject):
 
     @property
     def music_version(self) -> int:
-        if self.game in [GameConstants.IIDX, GameConstants.MUSECA]:
+        if self.game in [GameConstants.IIDX, GameConstants.MUSECA,
+                         GameConstants.JUBEAT, GameConstants.POPN_MUSIC,
+                         GameConstants.REFLEC_BEAT]:
             if self.omnimix:
                 return self.version + DBConstants.OMNIMIX_VERSION_BUMP
             else:

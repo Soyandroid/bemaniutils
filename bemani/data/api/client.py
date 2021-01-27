@@ -124,6 +124,9 @@ class APIClient:
                 VersionConstants.IIDX_COPULA: '23',
                 VersionConstants.IIDX_SINOBUZ: '24',
                 VersionConstants.IIDX_CANNON_BALLERS: '25',
+                VersionConstants.IIDX_ROOTAGE: '26',
+                VersionConstants.IIDX_HEROIC_VERSE: '27',
+                VersionConstants.IIDX_BISTROVER: '28'
             },
             GameConstants.JUBEAT: {
                 VersionConstants.JUBEAT_SAUCER: '5',
@@ -131,6 +134,7 @@ class APIClient:
                 VersionConstants.JUBEAT_PROP: '6',
                 VersionConstants.JUBEAT_QUBELL: '7',
                 VersionConstants.JUBEAT_CLAN: '8',
+                VersionConstants.JUBEAT_FESTO: '9',
             },
             GameConstants.MUSECA: {
                 VersionConstants.MUSECA: '1',
@@ -143,6 +147,8 @@ class APIClient:
                 VersionConstants.POPN_MUSIC_LAPISTORIA: '22',
                 VersionConstants.POPN_MUSIC_ECLALE: '23',
                 VersionConstants.POPN_MUSIC_USANEKO: '24',
+                VersionConstants.POPN_MUSIC_PEACE: '25',
+                VersionConstants.POPN_MUSIC_KAIMEI_RIDDLES: '26',
             },
             GameConstants.REFLEC_BEAT: {
                 VersionConstants.REFLEC_BEAT: '1',
@@ -158,6 +164,7 @@ class APIClient:
                 VersionConstants.SDVX_INFINITE_INFECTION: '2',
                 VersionConstants.SDVX_GRAVITY_WARS: '3',
                 VersionConstants.SDVX_HEAVENLY_HAVEN: '4',
+                VersionConstants.SDVX_VIVID_WAVE: '5',
             },
         }.get(game, {}).get(version)
         if serverversion is None:

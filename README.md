@@ -410,6 +410,13 @@ will not work properly. An example is as follows:
       --xml data/emblem-info/emblem-info.xml
 ```
 
+After importing the emblem DB, if you want emblem customization to work properly, you need to import the
+actual textures like so:
+
+```
+./import_emblems --xml data/emblem-info/emblem-info.xml --assets data/emblem-textures
+```
+
 ### IIDX
 
 For IIDX, you will need the data directory of the mix you wish to support. The import

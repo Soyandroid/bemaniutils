@@ -56,6 +56,9 @@ class VersionConstants:
     IIDX_COPULA = 23
     IIDX_SINOBUZ = 24
     IIDX_CANNON_BALLERS = 25
+    IIDX_ROOTAGE = 26
+    IIDX_HEROIC_VERSE = 27
+    IIDX_BISTROVER = 28
 
     JUBEAT = 1
     JUBEAT_RIPPLES = 2
@@ -99,6 +102,7 @@ class VersionConstants:
     POPN_MUSIC_ECLALE = 23
     POPN_MUSIC_USANEKO = 24
     POPN_MUSIC_PEACE = 25
+    POPN_MUSIC_KAIMEI_RIDDLES = 26
 
     REFLEC_BEAT = 1
     REFLEC_BEAT_LIMELIGHT = 2
@@ -112,6 +116,7 @@ class VersionConstants:
     SDVX_INFINITE_INFECTION = 2
     SDVX_GRAVITY_WARS = 3
     SDVX_HEAVENLY_HAVEN = 4
+    SDVX_VIVID_WAVE = 5
 
 
 class APIConstants:

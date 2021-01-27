@@ -12,6 +12,7 @@ set -e
 ./read --series pnm --version 22 "$@"
 ./read --series pnm --version 23 "$@"
 ./read --series pnm --version 24 "$@"
+./read --series pnm --version 25 "$@"
 
 # Init Jubeat
 ./read --series jubeat --version saucer "$@"
@@ -19,6 +20,13 @@ set -e
 ./read --series jubeat --version prop "$@"
 ./read --series jubeat --version qubell "$@"
 ./read --series jubeat --version clan "$@"
+./read --series jubeat --version festo "$@"
+
+# Init Jubeat Omnimix
+./read --series jubeat --version omni-prop "$@"
+./read --series jubeat --version omni-qubell "$@"
+./read --series jubeat --version omni-clan "$@"
+./read --series jubeat --version omni-festo "$@"
 
 # Init IIDX
 ./read --series iidx --version 20 "$@"
@@ -26,6 +34,9 @@ set -e
 ./read --series iidx --version 22 "$@"
 ./read --series iidx --version 23 "$@"
 ./read --series iidx --version 24 "$@"
+./read --series iidx --version 25 "$@"
+./read --series iidx --version 26 "$@"
+./read --series iidx --version 27 "$@"
 
 # Init IIDX Omnimix
 ./read --series iidx --version omni-20 "$@"
@@ -33,6 +44,9 @@ set -e
 ./read --series iidx --version omni-22 "$@"
 ./read --series iidx --version omni-23 "$@"
 ./read --series iidx --version omni-24 "$@"
+./read --series iidx --version omni-25 "$@"
+./read --series iidx --version omni-26 "$@"
+./read --series iidx --version omni-27 "$@"
 
 # Init DDR
 ./read --series ddr --version 12 "$@"
@@ -46,6 +60,7 @@ set -e
 ./read --series sdvx --version 2 "$@"
 ./read --series sdvx --version 3 "$@"
 ./read --series sdvx --version 4 "$@"
+./read --series sdvx --version 5 "$@"
 
 # Init Museca
 ./read --series museca --version 1 "$@"

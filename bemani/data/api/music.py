@@ -139,7 +139,8 @@ class GlobalMusicData(BaseGlobalData):
             {
                 'medal': status,
                 'combo': int(data.get('combo', -1)),
-                'ghost': [int(x) for x in data.get('ghost', [])]
+                'ghost': [int(x) for x in data.get('ghost', [])],
+                'music_rate': int(data.get('music_rate', -1))
             },
         )
 
@@ -358,6 +359,7 @@ class GlobalMusicData(BaseGlobalData):
                 'ghost': oldscore.data.get('ghost') if oldscore.points > newscore.points else newscore.data.get('ghost'),
                 'combo': self.__max(oldscore.data['combo'], newscore.data['combo']),
                 'medal': self.__max(oldscore.data['medal'], newscore.data['medal']),
+                'music_rate': self.__max(oldscore.data['music_rate'], newscore.data['music_rate'])
             },
         )
 
@@ -549,7 +551,7 @@ class GlobalMusicData(BaseGlobalData):
         for score in localscores:
             add_score(score)
 
-        # Second, merge in remote scorse
+        # Second, merge in remote scores
         for remotescore in scores:
             songid = int(remotescore['song'])
             chart = int(remotescore['chart'])

@@ -25,7 +25,9 @@ class StatisticsObject(BaseObject):
 
     @property
     def music_version(self) -> int:
-        if self.game in [GameConstants.IIDX, GameConstants.MUSECA]:
+        if self.game in [GameConstants.IIDX, GameConstants.MUSECA,
+                         GameConstants.JUBEAT, GameConstants.POPN_MUSIC,
+                         GameConstants.REFLEC_BEAT]:
             if self.omnimix:
                 return self.version + DBConstants.OMNIMIX_VERSION_BUMP
             else:
