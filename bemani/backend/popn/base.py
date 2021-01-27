@@ -1,10 +1,10 @@
 # vim: set fileencoding=utf-8
-from typing import Dict, Optional, Sequence
+from typing import Dict, Optional, Sequence, Any
 
 from bemani.backend.base import Base
 from bemani.backend.core import CoreHandler, CardManagerHandler, PASELIHandler
-from bemani.common import ValidatedDict, Time, GameConstants, DBConstants
-from bemani.data import UserID, Achievement, ScoreSaveException
+from bemani.common import ValidatedDict, Time, GameConstants, DBConstants, Model
+from bemani.data import UserID, Achievement, ScoreSaveException, Data
 from bemani.protocol import Node
 
 
@@ -40,6 +40,19 @@ class PopnMusicBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     NEW_PROFILE_ONLY = 0
     OLD_PROFILE_ONLY = 1
     OLD_PROFILE_FALLTHROUGH = 2
+
+    def __init__(self, data: Data, config: Dict[str, Any], model: Model) -> None:
+        super().__init__(data, config, model)
+        if model.rev == 'X':
+            self.omnimix = True
+        else:
+            self.omnimix = False
+
+    @property
+    def music_version(self) -> int:
+        if self.omnimix:
+            return DBConstants.OMNIMIX_VERSION_BUMP + self.version
+        return self.version
 
     def previous_version(self) -> Optional['PopnMusicBase']:
         """
@@ -195,7 +208,7 @@ class PopnMusicBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
 
         oldscore = self.data.local.music.get_score(
             self.game,
-            self.version,
+            self.music_version,
             userid,
             songid,
             chart,
@@ -249,7 +262,7 @@ class PopnMusicBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             # Write the new score back
             self.data.local.music.put_score(
                 self.game,
-                self.version,
+                self.music_version,
                 userid,
                 songid,
                 chart,
@@ -264,7 +277,7 @@ class PopnMusicBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
                 # Save the history of this score too
                 self.data.local.music.put_attempt(
                     self.game,
-                    self.version,
+                    self.music_version,
                     userid,
                     songid,
                     chart,

@@ -109,8 +109,8 @@ class PopnMusicSunnyPark(PopnMusicBase):
             rivalcount += 1
         base.add_child(Node.u8('active_fr_num', rivalcount))
 
-        last_played = [x[0] for x in self.data.local.music.get_last_played(self.game, self.version, userid, 3)]
-        most_played = [x[0] for x in self.data.local.music.get_most_played(self.game, self.version, userid, 20)]
+        last_played = [x[0] for x in self.data.local.music.get_last_played(self.game, self.music_version, userid, 3)]
+        most_played = [x[0] for x in self.data.local.music.get_most_played(self.game, self.music_version, userid, 20)]
         while len(last_played) < 3:
             last_played.append(-1)
         while len(most_played) < 20:
@@ -120,7 +120,7 @@ class PopnMusicSunnyPark(PopnMusicBase):
         clear_medal = [0] * self.GAME_MAX_MUSIC_ID
         clear_medal_sub = [0] * self.GAME_MAX_MUSIC_ID
 
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
         for score in scores:
             if score.id > self.GAME_MAX_MUSIC_ID:
                 continue
@@ -303,7 +303,7 @@ class PopnMusicSunnyPark(PopnMusicBase):
         root.add_child(Node.s32('option', profile.get_int('option', 0)))
         root.add_child(Node.s8('result', 1))
 
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
         for score in scores:
             if score.id > self.GAME_MAX_MUSIC_ID:
                 continue
@@ -571,7 +571,7 @@ class PopnMusicSunnyPark(PopnMusicBase):
             for rival in links[:2]:
                 rivalid = rival.other_userid
                 rivalprofile = profiles[rivalid]
-                scores = self.data.remote.music.get_scores(self.game, self.version, rivalid)
+                scores = self.data.remote.music.get_scores(self.game, self.music_version, rivalid)
 
                 # First, output general profile info.
                 friend = Node.void('friend')

@@ -211,7 +211,7 @@ class PopnMusicLapistoria(PopnMusicBase):
                 return root
             rivalid = links[no].other_userid
             rivalprofile = profiles[rivalid]
-            scores = self.data.remote.music.get_scores(self.game, self.version, rivalid)
+            scores = self.data.remote.music.get_scores(self.game, self.music_version, rivalid)
 
             # First, output general profile info.
             friend = Node.void('friend')
@@ -371,8 +371,8 @@ class PopnMusicLapistoria(PopnMusicBase):
         account.add_child(Node.u8('active_fr_num', rivalcount))
 
         # Add scores section
-        last_played = [x[0] for x in self.data.local.music.get_last_played(self.game, self.version, userid, 5)]
-        most_played = [x[0] for x in self.data.local.music.get_most_played(self.game, self.version, userid, 10)]
+        last_played = [x[0] for x in self.data.local.music.get_last_played(self.game, self.music_version, userid, 5)]
+        most_played = [x[0] for x in self.data.local.music.get_most_played(self.game, self.music_version, userid, 10)]
         while len(last_played) < 5:
             last_played.append(-1)
         while len(most_played) < 10:
@@ -381,7 +381,7 @@ class PopnMusicLapistoria(PopnMusicBase):
         account.add_child(Node.s16_array('my_best', most_played))
         account.add_child(Node.s16_array('latest_music', last_played))
 
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
         for score in scores:
             # Skip any scores for chart types we don't support
             if score.chart not in [
@@ -696,7 +696,7 @@ class PopnMusicLapistoria(PopnMusicBase):
         root.add_child(Node.s16('chara', profile.get_int('chara', -1)))
         root.add_child(Node.s8('result', 1))
 
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
         for score in scores:
             if score.id > self.GAME_MAX_MUSIC_ID:
                 continue

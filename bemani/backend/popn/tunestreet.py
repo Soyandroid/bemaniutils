@@ -142,7 +142,7 @@ class PopnMusicTuneStreet(PopnMusicBase):
 
         # Format Scores
         hiscore_array = [0] * int((((self.GAME_MAX_MUSIC_ID * 7) * 17) + 7) / 8)
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
         for score in scores:
             if score.id > self.GAME_MAX_MUSIC_ID:
                 continue
@@ -186,7 +186,7 @@ class PopnMusicTuneStreet(PopnMusicBase):
             hiscore_array[hiscore_byte_pos + 2] = hiscore_array[hiscore_byte_pos + 2] | ((hiscore_value >> 16) & 0xFF)
 
         # Format most played
-        most_played = [x[0] for x in self.data.local.music.get_most_played(self.game, self.version, userid, 20)]
+        most_played = [x[0] for x in self.data.local.music.get_most_played(self.game, self.music_version, userid, 20)]
         while len(most_played) < 20:
             most_played.append(-1)
         profile_pos = 68
@@ -213,7 +213,7 @@ class PopnMusicTuneStreet(PopnMusicBase):
         root.add_child(Node.u8('season', 0))
 
         medals = [0] * (self.GAME_MAX_MUSIC_ID)
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
         for score in scores:
             if score.id > self.GAME_MAX_MUSIC_ID:
                 continue
