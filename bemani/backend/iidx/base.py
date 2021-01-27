@@ -38,8 +38,13 @@ class IIDXBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     CHART_TYPE_N14 = 3
     CHART_TYPE_H14 = 4
     CHART_TYPE_A14 = 5
-    # Beginner charts only save status
+    # Beginner charts only save status in rootage and below
     CHART_TYPE_B7 = 6
+    # Some new chart ids added because of HV. No B14 charts
+    # yet but the should be ready "just in case"
+    CHART_TYPE_L7 = 7
+    CHART_TYPE_B14 = 8
+    CHART_TYPE_L14 = 9
 
     DAN_RANK_7_KYU = DBConstants.IIDX_DAN_RANK_7_KYU
     DAN_RANK_6_KYU = DBConstants.IIDX_DAN_RANK_6_KYU

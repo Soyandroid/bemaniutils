@@ -6,17 +6,17 @@ from typing import Optional, Dict, Any, List, Tuple
 
 from bemani.backend.iidx.base import IIDXBase
 from bemani.backend.iidx.course import IIDXCourse
-from bemani.backend.iidx.sinobuz import IIDXSinobuz
+from bemani.backend.iidx.cannonballers import IIDXCannonBallers
 
 from bemani.common import ValidatedDict, VersionConstants, Time, ID, intish
 from bemani.data import Data, UserID
 from bemani.protocol import Node
 
 
-class IIDXCannonBallers(IIDXCourse, IIDXBase):
+class IIDXRootage(IIDXCourse, IIDXBase):
 
-    name = 'Beatmania IIDX CANNON BALLERS'
-    version = VersionConstants.IIDX_CANNON_BALLERS
+    name = 'Beatmania IIDX ROOTAGE'
+    version = VersionConstants.IIDX_ROOTAGE
 
     GAME_CLTYPE_SINGLE = 0
     GAME_CLTYPE_DOUBLE = 1
@@ -87,7 +87,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
     FAVORITE_LIST_LENGTH = 20
 
     def previous_version(self) -> Optional[IIDXBase]:
-        return IIDXSinobuz(self.data, self.config, self.model)
+        return IIDXCannonBallers(self.data, self.config, self.model)
 
     @classmethod
     def run_scheduled_work(cls, data: Data, config: Dict[str, Any]) -> List[Tuple[str, Dict[str, Any]]]:
@@ -134,8 +134,8 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                     'tip': 'Return network-wide ranking instead of shop ranking on results screen.',
                     'category': 'game_config',
                     'setting': 'global_shop_ranking',
-                },
-            ],
+                }
+            ]
         }
 
     def db_to_game_status(self, db_status: int) -> int:
@@ -266,7 +266,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         else:
             raise Exception('Invalid cltype!')
 
-    def handle_IIDX25shop_getname_request(self, request: Node) -> Node:
+    def handle_IIDX26shop_getname_request(self, request: Node) -> Node:
         machine = self.data.local.machine.get_machine(self.config['machine']['pcbid'])
         if machine is not None:
             machine_name = machine.name
@@ -279,7 +279,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             hour = 0
             minute = 0
 
-        root = Node.void('IIDX25shop')
+        root = Node.void('IIDX26shop')
         root.set_attribute('opname', machine_name)
         root.set_attribute('pid', '51')
         root.set_attribute('cls_opt', '1' if close else '0')
@@ -287,7 +287,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.set_attribute('mi', str(minute))
         return root
 
-    def handle_IIDX25shop_savename_request(self, request: Node) -> Node:
+    def handle_IIDX26shop_savename_request(self, request: Node) -> Node:
         self.update_machine_name(request.attribute('opname'))
 
         shop_close = intish(request.attribute('cls_opt')) or 0
@@ -300,18 +300,18 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             'hours': hours,
         })
 
-        return Node.void('IIDX25shop')
+        return Node.void('IIDX26shop')
 
-    def handle_IIDX25shop_sentinfo_request(self, request: Node) -> Node:
-        return Node.void('IIDX25shop')
+    def handle_IIDX26shop_sentinfo_request(self, request: Node) -> Node:
+        return Node.void('IIDX26shop')
 
-    def handle_IIDX25shop_sendescapepackageinfo_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25shop')
+    def handle_IIDX26shop_sendescapepackageinfo_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26shop')
         root.set_attribute('expire', str((Time.now() + 86400 * 365) * 1000))
         return root
 
-    def handle_IIDX25shop_getconvention_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25shop')
+    def handle_IIDX26shop_getconvention_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26shop')
         machine = self.data.local.machine.get_machine(self.config['machine']['pcbid'])
         if machine.arcade is not None:
             course = self.data.local.machine.get_settings(machine.arcade, self.game, self.music_version, 'shop_course')
@@ -328,7 +328,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.add_child(Node.bool('valid', course.get_bool('valid')))
         return root
 
-    def handle_IIDX25shop_setconvention_request(self, request: Node) -> Node:
+    def handle_IIDX26shop_setconvention_request(self, request: Node) -> Node:
         machine = self.data.local.machine.get_machine(self.config['machine']['pcbid'])
         if machine.arcade is not None:
             course = ValidatedDict()
@@ -339,10 +339,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             course.replace_bool('valid', request.child_value('valid'))
             self.data.local.machine.put_settings(machine.arcade, self.game, self.music_version, 'shop_course', course)
 
-        return Node.void('IIDX25shop')
+        return Node.void('IIDX26shop')
 
-    def handle_IIDX25ranking_getranker_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25ranking')
+    def handle_IIDX26ranking_getranker_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26ranking')
         chart = int(request.attribute('clid'))
         if chart not in [
             self.CHART_TYPE_N7,
@@ -432,7 +432,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25ranking_entry_request(self, request: Node) -> Node:
+    def handle_IIDX26ranking_entry_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         courseid = int(request.attribute('coid'))
         chart = int(request.attribute('clid'))
@@ -463,12 +463,12 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         # We should return the user's position, but its not displayed anywhere
         # so fuck it.
-        root = Node.void('IIDX25ranking')
+        root = Node.void('IIDX26ranking')
         root.set_attribute('anum', '1')
         root.set_attribute('jun', '1')
         return root
 
-    def handle_IIDX25ranking_classicentry_request(self, request: Node) -> Node:
+    def handle_IIDX26ranking_classicentry_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidx_id'))
         courseid = int(request.attribute('course_id'))
         coursestyle = int(request.attribute('play_style'))
@@ -489,10 +489,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 greats,
             )
 
-        return Node.void('IIDX25ranking')
+        return Node.void('IIDX26ranking')
 
-    def handle_IIDX25music_crate_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25music')
+    def handle_IIDX26music_crate_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26music')
         attempts = self.get_clear_rates()
 
         all_songs = list(set([song.id for song in self.data.local.music.get_all_songs(self.game, self.music_version)]))
@@ -518,10 +518,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25music_getrank_request(self, request: Node) -> Node:
+    def handle_IIDX26music_getrank_request(self, request: Node) -> Node:
         cltype = int(request.attribute('cltype'))
 
-        root = Node.void('IIDX25music')
+        root = Node.void('IIDX26music')
         style = Node.void('style')
         root.add_child(style)
         style.set_attribute('type', str(cltype))
@@ -569,14 +569,14 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25music_appoint_request(self, request: Node) -> Node:
+    def handle_IIDX26music_appoint_request(self, request: Node) -> Node:
         musicid = int(request.attribute('mid'))
         chart = int(request.attribute('clid'))
         ghost_type = int(request.attribute('ctype'))
         extid = int(request.attribute('iidxid'))
         userid = self.data.remote.user.from_extid(self.game, self.version, extid)
 
-        root = Node.void('IIDX25music')
+        root = Node.void('IIDX26music')
 
         if userid is not None:
             # Try to look up previous ghost for user
@@ -619,7 +619,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25music_breg_request(self, request: Node) -> Node:
+    def handle_IIDX26music_breg_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         musicid = int(request.attribute('mid'))
         userid = self.data.remote.user.from_extid(self.game, self.version, extid)
@@ -642,9 +642,9 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         )
 
         # Return nothing.
-        return Node.void('IIDX25music')
+        return Node.void('IIDX26music')
 
-    def handle_IIDX25music_reg_request(self, request: Node) -> Node:
+    def handle_IIDX26music_reg_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         musicid = int(request.attribute('mid'))
         chart = int(request.attribute('clid'))
@@ -708,7 +708,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             )
 
         # Calculate and return statistics about this song
-        root = Node.void('IIDX25music')
+        root = Node.void('IIDX26music')
         root.set_attribute('clid', request.attribute('clid'))
         root.set_attribute('mid', request.attribute('mid'))
 
@@ -813,7 +813,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
 
         return root
 
-    def handle_IIDX25music_play_request(self, request: Node) -> Node:
+    def handle_IIDX26music_play_request(self, request: Node) -> Node:
         musicid = int(request.attribute('mid'))
         chart = int(request.attribute('clid'))
         clear_status = self.game_to_db_status(int(request.attribute('cflg')))
@@ -831,7 +831,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         )
 
         # Calculate and return statistics about this song
-        root = Node.void('IIDX25music')
+        root = Node.void('IIDX26music')
         root.set_attribute('clid', request.attribute('clid'))
         root.set_attribute('mid', request.attribute('mid'))
 
@@ -850,10 +850,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         return root
 
     # Bare minimum response to say we handled the request
-    def handle_IIDX25music_beginnerplay_request(self, request: Node) -> Node:
-        return Node.void('IIDX25music')
+    def handle_IIDX26music_beginnerplay_request(self, request: Node) -> Node:
+        return Node.void('IIDX26music')
 
-    def handle_IIDX25grade_raised_request(self, request: Node) -> Node:
+    def handle_IIDX26grade_raised_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         cltype = int(request.attribute('gtype'))
         rank = self.game_to_db_rank(int(request.attribute('gid')), cltype)
@@ -888,17 +888,20 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 continue
             num_players = num_players + 1
 
-        root = Node.void('IIDX25grade')
+        root = Node.void('IIDX26grade')
         root.set_attribute('pnum', str(num_players))
         return root
 
-    def handle_IIDX25pc_common_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25pc')
+    def handle_IIDX26pc_common_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26pc')
         root.set_attribute('expire', '600')
 
         ir = Node.void('ir')
         root.add_child(ir)
         ir.set_attribute('beat', '2')
+
+        escape_package_info = Node.void('escape_package_info')
+        root.add_child(escape_package_info)
 
         vip_black_pass = Node.void('vip_pass_black')
         root.add_child(vip_black_pass)
@@ -915,303 +918,40 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.add_child(common_evnet)
         common_evnet.set_attribute('flg', '0')
 
-        # Course definitions
-        courses: List[Dict[str, Any]] = [
-            {
-                'name': 'NINJA',
-                'id': 1,
-                'songs': [
-                    24068,
-                    24011,
-                    24031,
-                    24041,
-                ],
-            },
-            {
-                'name': '24A12',
-                'id': 2,
-                'songs': [
-                    24024,
-                    24023,
-                    24005,
-                    24012,
-                ],
-            },
-            {
-                'name': '80\'S',
-                'id': 3,
-                'songs': [
-                    20033,
-                    15029,
-                    24056,
-                    20068,
-                ],
-            },
-            {
-                'name': 'DJ TECHNORCH',
-                'id': 4,
-                'songs': [
-                    21029,
-                    22035,
-                    22049,
-                    21063,
-                ],
-            },
-            {
-                'name': 'COLORS',
-                'id': 5,
-                'songs': [
-                    11032,
-                    15022,
-                    15004,
-                    22089,
-                ],
-            },
-            {
-                'name': 'OHANA',
-                'id': 6,
-                'songs': [
-                    16050,
-                    13000,
-                    22087,
-                    10022,
-                ],
-            },
-            {
-                'name': 'DPER',
-                'id': 7,
-                'songs': [
-                    18004,
-                    19063,
-                    20047,
-                    17059,
-                ],
-            },
-            {
-                'name': 'DA',
-                'id': 8,
-                'songs': [
-                    23058,
-                    17021,
-                    18025,
-                    22006,
-                ],
-            },
-            {
-                'name': 'SOF-LAN',
-                'id': 9,
-                'songs': [
-                    23079,
-                    15005,
-                    7002,
-                    15023,
-                ],
-            },
-            {
-                'name': 'TEMPEST',
-                'id': 10,
-                'songs': [
-                    19008,
-                    20038,
-                    16020,
-                    23051,
-                ],
-            },
-            {
-                'name': 'STAR LIGHT',
-                'id': 11,
-                'songs': [
-                    23082,
-                    24027,
-                    20066,
-                    23031,
-                ],
-            },
-            {
-                'name': 'SCRATCH',
-                'id': 12,
-                'songs': [
-                    11025,
-                    16053,
-                    16031,
-                    22067,
-                ],
-            },
-            {
-                'name': 'L.E.D.-G',
-                'id': 13,
-                'songs': [
-                    15007,
-                    24000,
-                    22011,
-                    17009,
-                ],
-            },
-            {
-                'name': 'QQQ',
-                'id': 14,
-                'songs': [
-                    18062,
-                    18019,
-                    12011,
-                    16045,
-                ],
-            },
-            {
-                'name': 'BMK 2017',
-                'id': 15,
-                'songs': [
-                    24084,
-                    24017,
-                    24022,
-                    24043,
-                ],
-            },
-        ]
+        expert = Node.void('expert')
+        root.add_child(expert)
+        expert.set_attribute('phase', '1')
 
-        # Secret course definitions
-        secret_courses: List[Dict[str, Any]] = [
-            {
-                'name': 'L.E.D.-K',
-                'id': 1,
-                'songs': [
-                    13034,
-                    21068,
-                    17060,
-                    24089,
-                ],
-            },
-            {
-                'name': 'SOTA K',
-                'id': 2,
-                'songs': [
-                    16010,
-                    14038,
-                    20016,
-                    24090,
-                ],
-            },
-            {
-                'name': 'POP',
-                'id': 3,
-                'songs': [
-                    22042,
-                    14056,
-                    15003,
-                    24091,
-                ],
-            },
-            {
-                'name': 'REMO-CON',
-                'id': 4,
-                'songs': [
-                    15030,
-                    12031,
-                    22078,
-                    24092,
-                ],
-            },
-            {
-                'name': 'NUMBER',
-                'id': 5,
-                'songs': [
-                    1003,
-                    17051,
-                    17041,
-                    24093,
-                ],
-            },
-            {
-                'name': 'FANTASY',
-                'id': 6,
-                'songs': [
-                    20102,
-                    24013,
-                    23092,
-                    24094,
-                ],
-            },
-            {
-                'name': 'DRUM\'N\'BASS',
-                'id': 7,
-                'songs': [
-                    6013,
-                    22016,
-                    20073,
-                    24095,
-                ],
-            },
-        ]
+        expert_random_select = Node.void('expert_random_secret')
+        root.add_child(expert_random_select)
+        expert_random_select.set_attribute('phase', '1')
 
-        # For some reason, omnimix crashes on course mode, so don't enable it
-        if not self.omnimix:
-            internet_ranking = Node.void('internet_ranking')
-            root.add_child(internet_ranking)
+        expert_full = Node.void('expert_secret_full_open')
+        root.add_child(expert_full)
 
-            used_ids: List[int] = []
-            for c in courses:
-                if c['id'] in used_ids:
-                    raise Exception('Cannot have multiple courses with the same ID!')
-                elif c['id'] < 0 or c['id'] >= 20:
-                    raise Exception('Course ID is out of bounds!')
-                else:
-                    used_ids.append(c['id'])
+        # some new nodes for rootage
 
-                course = Node.void('course')
-                internet_ranking.add_child(course)
-                course.set_attribute('course_id', str(c['id']))
-                course.set_attribute('name', c['name'])
-                course.set_attribute('mid0', str(c['songs'][0]))
-                course.set_attribute('mid1', str(c['songs'][1]))
-                course.set_attribute('mid2', str(c['songs'][2]))
-                course.set_attribute('mid3', str(c['songs'][3]))
-                course.set_attribute('opflg', '1')
+        system_voice = Node.void('system_voice_phase')
+        root.add_child(system_voice)
+        system_voice.set_attribute('phase', '1')
 
-            secret_ex_course = Node.void('secret_ex_course')
-            root.add_child(secret_ex_course)
-
-            used_secret_ids: List[int] = []
-            for c in secret_courses:
-                if c['id'] in used_secret_ids:
-                    raise Exception('Cannot have multiple secret courses with the same ID!')
-                elif c['id'] < 0 or c['id'] >= 20:
-                    raise Exception('Secret course ID is out of bounds!')
-                else:
-                    used_secret_ids.append(c['id'])
-
-                course = Node.void('course')
-                secret_ex_course.add_child(course)
-                course.set_attribute('course_id', str(c['id']))
-                course.set_attribute('name', c['name'])
-                course.set_attribute('mid0', str(c['songs'][0]))
-                course.set_attribute('mid1', str(c['songs'][1]))
-                course.set_attribute('mid2', str(c['songs'][2]))
-                course.set_attribute('mid3', str(c['songs'][3]))
-
-            expert = Node.void('expert')
-            root.add_child(expert)
-            expert.set_attribute('phase', '1')
-
-            expert_random_select = Node.void('expert_random_select')
-            root.add_child(expert_random_select)
-            expert_random_select.set_attribute('phase', '1')
-
-            expert_full = Node.void('expert_secret_full_open')
-            root.add_child(expert_full)
+        anniv20 = Node.void('anniv20_phase')
+        root.add_child(anniv20)
+        anniv20.set_attribute('phase', '1')
 
         return root
 
-    def handle_IIDX25pc_delete_request(self, request: Node) -> Node:
-        return Node.void('IIDX25pc')
+    def handle_IIDX26pc_delete_request(self, request: Node) -> Node:
+        return Node.void('IIDX26pc')
 
-    def handle_IIDX25pc_playstart_request(self, request: Node) -> Node:
-        return Node.void('IIDX25pc')
+    def handle_IIDX26pc_playstart_request(self, request: Node) -> Node:
+        return Node.void('IIDX26pc')
 
-    def handle_IIDX25pc_playend_request(self, request: Node) -> Node:
-        return Node.void('IIDX25pc')
+    def handle_IIDX26pc_playend_request(self, request: Node) -> Node:
+        return Node.void('IIDX26pc')
 
-    def handle_IIDX25pc_visit_request(self, request: Node) -> Node:
-        root = Node.void('IIDX25pc')
+    def handle_IIDX26pc_visit_request(self, request: Node) -> Node:
+        root = Node.void('IIDX26pc')
         root.set_attribute('anum', '0')
         root.set_attribute('snum', '0')
         root.set_attribute('pnum', '0')
@@ -1220,7 +960,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.set_attribute('pflg', '0')
         return root
 
-    def handle_IIDX25pc_shopregister_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_shopregister_request(self, request: Node) -> Node:
         extid = int(request.child_value('iidx_id'))
         location = ID.parse_machine_id(request.child_value('location_id'))
 
@@ -1232,10 +972,10 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             profile.replace_int('shop_location', location)
             self.put_profile(userid, profile)
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         return root
 
-    def handle_IIDX25pc_oldget_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_oldget_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         userid = self.data.remote.user.from_refid(self.game, self.version, refid)
         if userid is not None:
@@ -1244,11 +984,11 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         else:
             profile = None
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         root.set_attribute('status', '1' if profile is None else '0')
         return root
 
-    def handle_IIDX25pc_getname_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_getname_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         userid = self.data.remote.user.from_refid(self.game, self.version, refid)
         if userid is not None:
@@ -1263,56 +1003,56 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 'which should tell the game not to present a migration.'
             )
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         root.set_attribute('name', profile.get_str('name'))
         root.set_attribute('idstr', ID.format_extid(profile.get_int('extid')))
         root.set_attribute('pid', str(profile.get_int('pid')))
         return root
 
-    def handle_IIDX25pc_takeover_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_takeover_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         name = request.attribute('name')
         pid = int(request.attribute('pid'))
         newprofile = self.new_profile_by_refid(refid, name, pid)
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         if newprofile is not None:
             root.set_attribute('id', str(newprofile.get_int('extid')))
         return root
 
-    def handle_IIDX25pc_reg_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_reg_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         name = request.attribute('name')
         pid = int(request.attribute('pid'))
         profile = self.new_profile_by_refid(refid, name, pid)
 
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
         if profile is not None:
             root.set_attribute('id', str(profile.get_int('extid')))
             root.set_attribute('id_str', ID.format_extid(profile.get_int('extid')))
         return root
 
-    def handle_IIDX25pc_get_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_get_request(self, request: Node) -> Node:
         refid = request.attribute('rid')
         root = self.get_profile_by_refid(refid)
         if root is None:
-            root = Node.void('IIDX25pc')
+            root = Node.void('IIDX26pc')
         return root
 
-    def handle_IIDX25pc_save_request(self, request: Node) -> Node:
+    def handle_IIDX26pc_save_request(self, request: Node) -> Node:
         extid = int(request.attribute('iidxid'))
         self.put_profile_by_extid(extid, request)
 
-        return Node.void('IIDX25pc')
+        return Node.void('IIDX26pc')
 
-    def handle_IIDX25pc_logout_request(self, request: Node) -> Node:
-        return Node.void('IIDX25pc')
+    def handle_IIDX26pc_logout_request(self, request: Node) -> Node:
+        return Node.void('IIDX26pc')
 
-    def handle_IIDX25gameSystem_systemInfo_request(self, request: Node) -> Node:
-        return Node.void('IIDX25gameSystem')
+    def handle_IIDX26gameSystem_systemInfo_request(self, request: Node) -> Node:
+        return Node.void('IIDX26gameSystem')
 
     def format_profile(self, userid: UserID, profile: ValidatedDict) -> Node:
-        root = Node.void('IIDX25pc')
+        root = Node.void('IIDX26pc')
 
         # Look up play stats we bridge to every mix
         play_stats = self.get_play_statistics(userid)
@@ -1367,8 +1107,6 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         pcdata.set_attribute('d_disp_judge', str(profile.get_int('d_disp_judge')))
         pcdata.set_attribute('s_opstyle', str(profile.get_int('s_opstyle')))
         pcdata.set_attribute('d_opstyle', str(profile.get_int('d_opstyle')))
-        pcdata.set_attribute('s_exscore', str(profile.get_int('s_exscore')))
-        pcdata.set_attribute('d_exscore', str(profile.get_int('d_exscore')))
         pcdata.set_attribute('s_graph_score', str(profile.get_int('s_graph_score')))
         pcdata.set_attribute('d_graph_score', str(profile.get_int('d_graph_score')))
         pcdata.set_attribute('s_auto_scrach', str(profile.get_int('s_auto_scrach')))
@@ -1379,13 +1117,19 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         pcdata.set_attribute('d_lane_brignt', str(profile.get_int('d_lane_brignt')))
         pcdata.set_attribute('s_camera_layout', str(profile.get_int('s_camera_layout')))
         pcdata.set_attribute('d_camera_layout', str(profile.get_int('d_camera_layout')))
+        pcdata.set_attribute('s_ghost_score', str(profile.get_int('s_ghost_score')))
+        pcdata.set_attribute('d_ghost_score', str(profile.get_int('d_ghost_score')))
+        pcdata.set_attribute('s_tsujigiri_disp', str(profile.get_int('s_tsujigiri_disp')))
+        pcdata.set_attribute('d_tsujigiri_disp', str(profile.get_int('d_tsujigiri_disp')))
 
-        spdp_rival = Node.void('spdp_rival')
-        root.add_child(spdp_rival)
-        spdp_rival.set_attribute('flg', str(profile.get_int('spdp_rival_flag')))
-
-        premium_unlocks = Node.void('ea_premium_course')
-        root.add_child(premium_unlocks)
+        # KAC stuff
+        # kac_entry_info = Node.void('kac_entry_info')
+        # root.add_child(kac_entry_info)
+        # kac_entry_info.add_child(Node.void('enable_kac_deller'))
+        # kac_entry_info.add_child(Node.void('disp_kac_mark'))
+        # kac_entry_info.add_child(Node.void('is_kac_evnet_entry'))
+        # kac_secret_music = Node.void('kac_secret_music')
+        # kac_entry_info.add_child(kac_secret_music)
 
         legendarias = Node.void('leggendaria_open')
         root.add_child(legendarias)
@@ -1437,6 +1181,20 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             favorite.add_child(Node.binary('dp_mlist', dp_mlist))
             favorite.add_child(Node.binary('dp_clist', dp_clist))
 
+        # Playlist stuff, not currently saved
+        # playlist = Node.void('playlist')
+        # root.add_child(playlist)
+
+        # Qpro secret data from step-up mode
+        qpro_secrete_dict = profile.get_dict('qpro_secret')
+        qpro_secret = Node.void('qpro_secret')
+        root.add_child(qpro_secret)
+        qpro_secret.add_child(Node.s64_array('head', qpro_secrete_dict.get_int_array('head', 5)))
+        qpro_secret.add_child(Node.s64_array('hair', qpro_secrete_dict.get_int_array('hair', 5)))
+        qpro_secret.add_child(Node.s64_array('face', qpro_secrete_dict.get_int_array('face', 5)))
+        qpro_secret.add_child(Node.s64_array('body', qpro_secrete_dict.get_int_array('body', 5)))
+        qpro_secret.add_child(Node.s64_array('hand', qpro_secrete_dict.get_int_array('hand', 5)))
+
         # DAN rankings
         grade = Node.void('grade')
         root.add_child(grade)
@@ -1481,9 +1239,17 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 settings_dict.get_int('pacemaker'),
                 settings_dict.get_int('effector_lock'),
                 settings_dict.get_int('effector_preset'),
+                0,
+                0,
+                1,
             ],
         )
         root.add_child(skin)
+
+        skin_customize_flg = Node.void('skin_customize_flg')
+        root.add_child(skin_customize_flg)
+        skin_customize_flg.set_attribute('skin_bgm_flg', '1')
+        skin_customize_flg.set_attribute('skin_frame_flg', '1')
 
         # Qpro data
         qpro_dict = profile.get_dict('qpro')
@@ -1497,16 +1263,6 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 qpro_dict.get_int('body'),
             ],
         ))
-
-        # Qpro secret data from step-up mode
-        qpro_secrete_dict = profile.get_dict('qpro_secret')
-        qpro_secret = Node.void('qpro_secret')
-        root.add_child(qpro_secret)
-        qpro_secret.add_child(Node.s64_array('head', qpro_secrete_dict.get_int_array('head', 5)))
-        qpro_secret.add_child(Node.s64_array('hair', qpro_secrete_dict.get_int_array('hair', 5)))
-        qpro_secret.add_child(Node.s64_array('face', qpro_secrete_dict.get_int_array('face', 5)))
-        qpro_secret.add_child(Node.s64_array('body', qpro_secrete_dict.get_int_array('body', 5)))
-        qpro_secret.add_child(Node.s64_array('hand', qpro_secrete_dict.get_int_array('hand', 5)))
 
         # Rivals
         rlist = Node.void('rlist')
@@ -1559,46 +1315,8 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             qprodata.set_attribute('body', str(qpro.get_int('body')))
             qprodata.set_attribute('hand', str(qpro.get_int('hand')))
 
-        # Expert courses
-        ir_data = Node.void('ir_data')
-        root.add_child(ir_data)
-        for course in achievements:
-            if course.type == self.COURSE_TYPE_INTERNET_RANKING:
-                courseid, coursechart = self.id_and_chart_from_courseid(course.id)
-                ir_data.add_child(Node.s32_array('e', [
-                    courseid,  # course ID
-                    coursechart,  # course chart
-                    self.db_to_game_status(course.data.get_int('clear_status')),  # course clear status
-                    course.data.get_int('pgnum'),  # flashing great count
-                    course.data.get_int('gnum'),  # great count
-                ]))
-
-        secret_course_data = Node.void('secret_course_data')
-        root.add_child(secret_course_data)
-        for course in achievements:
-            if course.type == self.COURSE_TYPE_SECRET:
-                courseid, coursechart = self.id_and_chart_from_courseid(course.id)
-                secret_course_data.add_child(Node.s32_array('e', [
-                    courseid,  # course ID
-                    coursechart,  # course chart
-                    self.db_to_game_status(course.data.get_int('clear_status')),  # course clear status
-                    course.data.get_int('pgnum'),  # flashing great count
-                    course.data.get_int('gnum'),  # great count
-                ]))
-
-        classic_course_data = Node.void('classic_course_data')
-        root.add_child(classic_course_data)
-        for course in achievements:
-            if course.type == self.COURSE_TYPE_CLASSIC:
-                courseid, playstyle = self.id_and_chart_from_courseid(course.id)
-                score_data = Node.void('score_data')
-                classic_course_data.add_child(score_data)
-                score_data.set_attribute('play_style', str(playstyle))
-                score_data.set_attribute('course_id', str(courseid))
-                score_data.set_attribute('score', str(course.data.get_int('pgnum') * 2 + course.data.get_int('gnum')))
-                score_data.set_attribute('pgnum', str(course.data.get_int('pgnum')))
-                score_data.set_attribute('gnum', str(course.data.get_int('gnum')))
-                score_data.set_attribute('cflg', str(self.db_to_game_status(course.data.get_int('clear_status'))))
+            challenge = Node.void('challenge')
+            rival.add_child(challenge)
 
         # DJ RANK
         for dj_rank in achievements:
@@ -1608,39 +1326,84 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             dj_rank_node = Node.void('dj_rank')
             root.add_child(dj_rank_node)
             dj_rank_node.set_attribute('style', str(dj_rank.id))
-            dj_rank_node.add_child(Node.s32_array('rank', dj_rank.data.get_int_array('rank', 13)))
-            dj_rank_node.add_child(Node.s32_array('point', dj_rank.data.get_int_array('point', 13)))
+            dj_rank_node.add_child(Node.s32_array('rank', dj_rank.data.get_int_array('rank', 15)))
+            dj_rank_node.add_child(Node.s32_array('point', dj_rank.data.get_int_array('point', 15)))
 
-        for i in range(2):
-            for j in range(15):
-                dj_rank_ranking_node = Node.void('dj_rank_ranking')
-                root.add_child(dj_rank_ranking_node)
-                dj_rank_ranking_node.set_attribute('style', str(i))
-                detail = Node.void('detail')
-                dj_rank_ranking_node.add_child(detail)
-                detail.set_attribute('category', str(j))
-                detail.set_attribute('total_user', '0')
-                detail.set_attribute('rank', '0')
-                detail.set_attribute('platinum_point', '0')
-                detail.set_attribute('platinum_rank', '0')
-                detail.set_attribute('gold_point', '0')
-                detail.set_attribute('gold_rank', '0')
-                detail.set_attribute('silver_point', '0')
-                detail.set_attribute('silver_rank', '0')
-                detail.set_attribute('bronze_point', '0')
-                detail.set_attribute('bronze_rank', '0')
-                detail.set_attribute('white_point', '0')
-                detail.set_attribute('white_rank', '0')
+        dj_rank_ranking_node = Node.void('dj_rank_ranking')
+        root.add_child(dj_rank_ranking_node)
+        dj_rank_ranking_node.set_attribute('style', '0')
+        for j in range(15):
+            detail = Node.void('detail')
+            dj_rank_ranking_node.add_child(detail)
+            detail.set_attribute('category', str(j))
+            detail.set_attribute('total_user', '0')
+            detail.set_attribute('rank', '0')
+            detail.set_attribute('platinum_point', '0')
+            detail.set_attribute('platinum_rank', '0')
+            detail.set_attribute('gold_point', '0')
+            detail.set_attribute('gold_rank', '0')
+            detail.set_attribute('silver_point', '0')
+            detail.set_attribute('silver_rank', '0')
+            detail.set_attribute('bronze_point', '0')
+            detail.set_attribute('bronze_rank', '0')
+            detail.set_attribute('white_point', '0')
+            detail.set_attribute('white_rank', '0')
+
+        dj_rank_ranking_node = Node.void('dj_rank_ranking')
+        root.add_child(dj_rank_ranking_node)
+        dj_rank_ranking_node.set_attribute('style', '1')
+        for j in range(15):
+            detail = Node.void('detail')
+            dj_rank_ranking_node.add_child(detail)
+            detail.set_attribute('category', str(j))
+            detail.set_attribute('total_user', '0')
+            detail.set_attribute('rank', '0')
+            detail.set_attribute('platinum_point', '0')
+            detail.set_attribute('platinum_rank', '0')
+            detail.set_attribute('gold_point', '0')
+            detail.set_attribute('gold_rank', '0')
+            detail.set_attribute('silver_point', '0')
+            detail.set_attribute('silver_rank', '0')
+            detail.set_attribute('bronze_point', '0')
+            detail.set_attribute('bronze_rank', '0')
+            detail.set_attribute('white_point', '0')
+            detail.set_attribute('white_rank', '0')
 
         # arena_data = Node.void('arena_data')
         # root.add_child(arena_data)
         # arena_data.set_attribute('play_num', '0')
         # arena_data.set_attribute('play_num_dp', '0')
         # arena_data.set_attribute('play_num_sp', '0')
-        # cube_data = Node.void('cube_data')
-        # arena_data.add_child(cube_data)
-        # cube_data.set_attribute('cube', '0')
-        # cube_data.set_attribute('season_id', '0')
+
+        # sp_list = Node.void('sp_list')
+        # root.add_child(sp_list)
+
+        # dp_list = Node.void('dp_list')
+        # root.add_child(dp_list)
+
+        tonyutsu = Node.void('tonyutsu')
+        tonyutsu_dict = profile.get_dict('tonyutsu')
+        tonyutsu.set_attribute('platinum_pass', str(tonyutsu_dict.get_int('platiunum_pass')))
+        tonyutsu.set_attribute('black_pass', str(tonyutsu_dict.get_int('black_pass')))
+
+        # shitei = Node.void('shitei')
+        # root.add_child(shitei)
+
+        # bingo = Node.void('bingo_data')
+        # root.add_child(bingo)
+
+        # mass_data = Node.void('mass_data')
+        # root.add_child(mass_data)
+
+        # extra_boss_event = Node.void('extra_boss_event')
+        # root.add_child(extra_boss_event)
+
+        # visitor = Node.void('visitor')
+        # visitor.set_attribute('anum', '0')
+        # visitor.set_attribute('snum', '0')
+        # visitor.set_attribute('pnum', '0')
+        # visitor.set_attribute('vs_flg', '0')
+        # root.add_child(visitor)
 
         # If the user joined a particular shop, let the game know.
         if 'shop_location' in profile:
@@ -1660,12 +1423,22 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         root.add_child(step)
         step.set_attribute('enemy_damage', str(step_dict.get_int('enemy_damage')))
         step.set_attribute('progress', str(step_dict.get_int('progress')))
-        step.set_attribute('point', str(step_dict.get_int('point')))
-        step.set_attribute('enemy_defeat_flg', str(step_dict.get_int('enemy_defeat_flg')))
+        step.add_child(Node.bool('is_track_ticket', step_dict.get_bool('is_track_ticket')))
         step.set_attribute('sp_level', str(step_dict.get_int('sp_level')))
         step.set_attribute('dp_level', str(step_dict.get_int('dp_level')))
+        step.set_attribute('sp_mission_point', str(step_dict.get_int('sp_mission_point')))
+        step.set_attribute('dp_mission_point', str(step_dict.get_int('dp_mission_point')))
+        step.set_attribute('sp_dj_mission_level', str(step_dict.get_int('sp_dj_mission_level@')))
+        step.set_attribute('dp_dj_mission_level', str(step_dict.get_int('dp_dj_mission_level@')))
+        step.set_attribute('sp_clear_mission_level', str(step_dict.get_int('sp_clear_mission_level')))
+        step.set_attribute('dp_clear_mission_level', str(step_dict.get_int('dp_clear_mission_level')))
+        step.set_attribute('sp_dj_mission_clear', str(step_dict.get_int('sp_dj_mission_clear')))
+        step.set_attribute('dp_dj_mission_clear', str(step_dict.get_int('dp_dj_mission_clear')))
+        step.set_attribute('sp_clear_mission_clear', str(step_dict.get_int('sp_clear_mission_clear')))
+        step.set_attribute('dp_clear_mission_clear', str(step_dict.get_int('dp_clear_mission_clear')))
         step.set_attribute('sp_mplay', str(step_dict.get_int('sp_mplay')))
         step.set_attribute('dp_mplay', str(step_dict.get_int('dp_mplay')))
+        step.set_attribute('tips_read_list', str(step_dict.get_int('tips_read_list')))
 
         # Daily recommendations
         entry = self.data.local.game.get_time_sensitive_settings(self.game, self.version, 'dailies')
@@ -1720,6 +1493,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         orb_data = Node.void('orb_data')
         root.add_child(orb_data)
         orb_data.set_attribute('rest_orb', str(profile.get_int('orbs')))
+        orb_data.set_attribute('present_orb', str(profile.get_int('present_orb')))
 
         # Expert points
         expert_point = Node.void('expert_point')
@@ -1740,6 +1514,7 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         pay_per_use = Node.void('pay_per_use')
         root.add_child(pay_per_use)
         pay_per_use.set_attribute('item_num', '99')
+
         return root
 
     def unformat_profile(self, userid: UserID, request: Node, oldprofile: ValidatedDict) -> ValidatedDict:
@@ -1796,11 +1571,16 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
         newprofile.replace_int('d_lane_brignt', int(request.attribute('d_lane_brignt')))
         newprofile.replace_int('s_camera_layout', int(request.attribute('s_camera_layout')))
         newprofile.replace_int('d_camera_layout', int(request.attribute('d_camera_layout')))
+        newprofile.replace_int('s_ghost_score', int(request.attribute('s_ghost_score')))
+        newprofile.replace_int('d_ghost_score', int(request.attribute('d_ghost_score')))
+        newprofile.replace_int('s_tsujigiri_disp', int(request.attribute('s_tsujigiri_disp')))
+        newprofile.replace_int('d_tsujigiri_disp', int(request.attribute('d_tsujigiri_disp')))
         newprofile.replace_int('s_lift', int(request.attribute('s_lift')))
         newprofile.replace_int('d_lift', int(request.attribute('d_lift')))
         newprofile.replace_int('mode', int(request.attribute('mode')))
         newprofile.replace_int('pmode', int(request.attribute('pmode')))
         newprofile.replace_int('rtype', int(request.attribute('rtype')))
+
         # Update judge window adjustments per-machine
         judge_dict = newprofile.get_dict('machine_judge_adjust')
         machine_judge = judge_dict.get_dict(self.config['machine']['pcbid'])
@@ -1957,12 +1737,22 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
             step_dict = newprofile.get_dict('step')
             step_dict.replace_int('enemy_damage', int(step.attribute('enemy_damage')))
             step_dict.replace_int('progress', int(step.attribute('progress')))
-            step_dict.replace_int('point', int(step.attribute('point')))
-            step_dict.replace_int('enemy_defeat_flg', int(step.attribute('enemy_defeat_flg')))
+            step_dict.replace_bool('is_track_ticket', bool(step.child_value('is_track_ticket')))
             step_dict.replace_int('sp_level', int(step.attribute('sp_level')))
             step_dict.replace_int('dp_level', int(step.attribute('dp_level')))
             step_dict.replace_int('sp_mplay', int(step.attribute('sp_mplay')))
             step_dict.replace_int('dp_mplay', int(step.attribute('dp_mplay')))
+            step_dict.replace_int('sp_mission_point', str(step_dict.get_int('sp_mission_point')))
+            step_dict.replace_int('dp_mission_point', str(step_dict.get_int('dp_mission_point')))
+            step_dict.replace_int('sp_dj_mission_level', str(step_dict.get_int('sp_dj_mission_level@')))
+            step_dict.replace_int('dp_dj_mission_level', str(step_dict.get_int('dp_dj_mission_level@')))
+            step_dict.replace_int('sp_clear_mission_level', str(step_dict.get_int('sp_clear_mission_level')))
+            step_dict.replace_int('dp_clear_mission_level', str(step_dict.get_int('dp_clear_mission_level')))
+            step_dict.replace_int('sp_dj_mission_clear', str(step_dict.get_int('sp_dj_mission_clear')))
+            step_dict.replace_int('dp_dj_mission_clear', str(step_dict.get_int('dp_dj_mission_clear')))
+            step_dict.replace_int('sp_clear_mission_clear', str(step_dict.get_int('sp_clear_mission_clear')))
+            step_dict.replace_int('dp_clear_mission_clear', str(step_dict.get_int('dp_clear_mission_clear')))
+            step_dict.replace_int('tips_read_list', str(step_dict.get_int('tips_read_list')))
             newprofile.replace_dict('step', step_dict)
 
         # QPro equip in step-up mode
@@ -1996,21 +1786,12 @@ class IIDXCannonBallers(IIDXCourse, IIDXBase):
                 orbs = 0
             newprofile.replace_int('orbs', orbs)
 
-        # OMES Tracking
-        onemore_data = request.child('onemore_data')
-        if onemore_data is not None:
-            omes_dict = newprofile.get_dict('omes')
-            omes_dict.replace_int('defeat_0', int(onemore_data.attribute('defeat_0')))
-            omes_dict.replace_int('defeat_1', int(onemore_data.attribute('defeat_1')))
-            omes_dict.replace_int('defeat_2', int(onemore_data.attribute('defeat_2')))
-            omes_dict.replace_int('defeat_3', int(onemore_data.attribute('defeat_3')))
-            omes_dict.replace_int('defeat_4', int(onemore_data.attribute('defeat_4')))
-            omes_dict.replace_int('defeat_5', int(onemore_data.attribute('defeat_5')))
-            omes_dict.replace_int('defeat_6', int(onemore_data.attribute('defeat_6')))
-            omes_dict.replace_int('challenge_num_n', int(onemore_data.attribute('challenge_num_n')))
-            omes_dict.replace_int('challenge_num_h', int(onemore_data.attribute('challenge_num_h')))
-            omes_dict.replace_int('challenge_num_a', int(onemore_data.attribute('challenge_num_a')))
-            newprofile.replace_dict('omes', omes_dict)
+        # tonyutsu saving
+        tonyutsu = request.child('tonyutsu')
+        if tonyutsu is not None:
+            tonyutsu_dict = newprofile.get_dict('tonyutsu')
+            tonyutsu_dict.replace_int('platinum_pass', tonyutsu.attribute('platinum_pass'))
+            tonyutsu_dict.replace_int('black_pass', tonyutsu.attribute('black_pass'))
 
         # Keep track of play statistics across all mixes
         self.update_play_statistics(userid, play_stats)
