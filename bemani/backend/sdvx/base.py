@@ -1,10 +1,10 @@
 # vim: set fileencoding=utf-8
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 from bemani.backend.base import Base
 from bemani.backend.core import CoreHandler, CardManagerHandler, PASELIHandler
-from bemani.common import ValidatedDict, GameConstants, DBConstants, Parallel
-from bemani.data import UserID
+from bemani.common import ValidatedDict, GameConstants, DBConstants, Parallel, Model
+from bemani.data import UserID, Data
 from bemani.protocol import Node
 
 
@@ -39,6 +39,19 @@ class SoundVoltexBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     CHART_TYPE_EXHAUST = 2
     CHART_TYPE_INFINITE = 3
     CHART_TYPE_MAXIMUM = 4
+
+    def __init__(self, data: Data, config: Dict[str, Any], model: Model) -> None:
+        super().__init__(data, config, model)
+        if model.rev == 'X':
+            self.omnimix = True
+        else:
+            self.omnimix = False
+
+    @property
+    def music_version(self) -> int:
+        if self.omnimix:
+            return DBConstants.OMNIMIX_VERSION_BUMP + self.version
+        return self.version
 
     def previous_version(self) -> Optional['SoundVoltexBase']:
         """
