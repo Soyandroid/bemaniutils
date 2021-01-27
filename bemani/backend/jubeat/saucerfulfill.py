@@ -43,8 +43,36 @@ class JubeatSaucerFulfill(
     GAME_COURSE_RATING_SILVER = 3
     GAME_COURSE_RATING_GOLD = 4
 
+    GAME_CHART_TYPE_BASIC = 0
+    GAME_CHART_TYPE_ADVANCED = 1
+    GAME_CHART_TYPE_EXTREME = 2
+
     def previous_version(self) -> Optional[JubeatBase]:
         return JubeatSaucer(self.data, self.config, self.model)
+
+    def game_to_db_chart(self, game_chart: int, hard_mode: bool) -> int:
+        if hard_mode:
+            return {
+                self.GAME_CHART_TYPE_BASIC: self.CHART_TYPE_HARD_BASIC,
+                self.GAME_CHART_TYPE_ADVANCED: self.CHART_TYPE_HARD_ADVANCED,
+                self.GAME_CHART_TYPE_EXTREME: self.CHART_TYPE_HARD_EXTREME,
+            }[game_chart]
+        else:
+            return {
+                self.GAME_CHART_TYPE_BASIC: self.CHART_TYPE_BASIC,
+                self.GAME_CHART_TYPE_ADVANCED: self.CHART_TYPE_ADVANCED,
+                self.GAME_CHART_TYPE_EXTREME: self.CHART_TYPE_EXTREME,
+            }[game_chart]
+
+    def db_to_game_chart(self, db_chart: int) -> int:
+        return {
+            self.CHART_TYPE_BASIC: self.GAME_CHART_TYPE_BASIC,
+            self.CHART_TYPE_ADVANCED: self.GAME_CHART_TYPE_ADVANCED,
+            self.CHART_TYPE_EXTREME: self.GAME_CHART_TYPE_EXTREME,
+            self.CHART_TYPE_HARD_BASIC: self.GAME_CHART_TYPE_BASIC,
+            self.CHART_TYPE_HARD_ADVANCED: self.GAME_CHART_TYPE_ADVANCED,
+            self.CHART_TYPE_HARD_EXTREME: self.GAME_CHART_TYPE_EXTREME,
+        }[db_chart]
 
     @classmethod
     def run_scheduled_work(cls, data: Data, config: Dict[str, Any]) -> List[Tuple[str, Dict[str, Any]]]:
@@ -265,6 +293,18 @@ class JubeatSaucerFulfill(
         data = request.child('data')
         player = data.child('player')
         extid = player.child_value('jid')
+        mdata_ver = player.child_value('mdata_ver')  # Game requests mdata 3 times per profile for some reason
+        if mdata_ver != 1:
+            root = Node.void('gametop')
+            datanode = Node.void('data')
+            root.add_child(datanode)
+            player = Node.void('player')
+            datanode.add_child(player)
+            player.add_child(Node.s32('jid', extid))
+            playdata = Node.void('playdata')
+            player.add_child(playdata)
+            playdata.set_attribute('count', '0')
+            return root
         root = self.get_scores_by_extid(extid)
         if root is None:
             root = Node.void('gametop')
@@ -685,7 +725,7 @@ class JubeatSaucerFulfill(
                 songid = tune.child_value('music')
                 entry = int(tune.attribute('id'))
                 timestamp = timestamps.get(entry, Time.now())
-                chart = int(result.child('score').attribute('seq'))
+                chart = self.game_to_db_chart(int(result.child('score').attribute('seq')), bool(result.child_value('is_hard_mode')))
                 points = result.child_value('score')
                 flags = int(result.child('score').attribute('clear'))
                 combo = int(result.child('score').attribute('combo'))
@@ -693,7 +733,7 @@ class JubeatSaucerFulfill(
 
                 # Miscelaneous last data for echoing to profile get
                 last.replace_int('music_id', songid)
-                last.replace_int('seq_id', chart)
+                last.replace_int('seq_id', int(result.child('score').attribute('seq')))
 
                 mapping = {
                     self.GAME_FLAG_BIT_CLEARED: self.PLAY_MEDAL_CLEARED,
@@ -757,6 +797,7 @@ class JubeatSaucerFulfill(
 
         music = ValidatedDict()
         for score in scores:
+            chart = self.db_to_game_chart(score.chart)
             data = music.get_dict(str(score.id))
             play_cnt = data.get_int_array('play_cnt', 3)
             clear_cnt = data.get_int_array('clear_cnt', 3)
@@ -765,21 +806,28 @@ class JubeatSaucerFulfill(
             ex_cnt = data.get_int_array('ex_cnt', 3)
             points = data.get_int_array('points', 3)
 
+            # This means that we already assigned a value and it was greater than current
+            # This is possible because we iterate through both hard mode and normal mode scores
+            # and treat them equally.
+            # TODO: generalize score merging code into a library since this does not account for
+            # having a full combo in hard mode but not in normal.
+            if points[chart] >= score.points:
+                continue
             # Replace data for this chart type
-            play_cnt[score.chart] = score.plays
-            clear_cnt[score.chart] = score.data.get_int('clear_count')
-            fc_cnt[score.chart] = score.data.get_int('full_combo_count')
-            ex_cnt[score.chart] = score.data.get_int('excellent_count')
-            points[score.chart] = score.points
+            play_cnt[chart] = score.plays
+            clear_cnt[chart] = score.data.get_int('clear_count')
+            fc_cnt[chart] = score.data.get_int('full_combo_count')
+            ex_cnt[chart] = score.data.get_int('excellent_count')
+            points[chart] = score.points
 
             # Format the clear flags
-            clear_flags[score.chart] = self.GAME_FLAG_BIT_PLAYED
+            clear_flags[chart] = self.GAME_FLAG_BIT_PLAYED
             if score.data.get_int('clear_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_CLEARED
+                clear_flags[chart] |= self.GAME_FLAG_BIT_CLEARED
             if score.data.get_int('full_combo_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_FULL_COMBO
+                clear_flags[chart] |= self.GAME_FLAG_BIT_FULL_COMBO
             if score.data.get_int('excellent_count') > 0:
-                clear_flags[score.chart] |= self.GAME_FLAG_BIT_EXCELLENT
+                clear_flags[chart] |= self.GAME_FLAG_BIT_EXCELLENT
 
             # Save chart data back
             data.replace_int_array('play_cnt', 3, play_cnt)
@@ -791,7 +839,7 @@ class JubeatSaucerFulfill(
 
             # Update the ghost (untyped)
             ghost = data.get('ghost', [None, None, None])
-            ghost[score.chart] = score.data.get('ghost')
+            ghost[chart] = score.data.get('ghost')
             data['ghost'] = ghost
 
             # Save it back

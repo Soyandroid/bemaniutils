@@ -1,10 +1,10 @@
 # vim: set fileencoding=utf-8
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from bemani.backend.base import Base
 from bemani.backend.core import CoreHandler, CardManagerHandler, PASELIHandler
-from bemani.common import DBConstants, GameConstants, ValidatedDict
-from bemani.data import Score, UserID
+from bemani.common import DBConstants, GameConstants, ValidatedDict, Model
+from bemani.data import Data, Score, UserID
 from bemani.protocol import Node
 
 
@@ -35,6 +35,22 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     CHART_TYPE_BASIC = 0
     CHART_TYPE_ADVANCED = 1
     CHART_TYPE_EXTREME = 2
+    CHART_TYPE_HARD_BASIC = 3
+    CHART_TYPE_HARD_ADVANCED = 4
+    CHART_TYPE_HARD_EXTREME = 5
+
+    def __init__(self, data: Data, config: Dict[str, Any], model: Model) -> None:
+        super().__init__(data, config, model)
+        if model.rev == 'X' or model.rev == 'Y':
+            self.omnimix = True
+        else:
+            self.omnimix = False
+
+    @property
+    def music_version(self) -> int:
+        if self.omnimix:
+            return DBConstants.OMNIMIX_VERSION_BUMP + self.version
+        return self.version
 
     def previous_version(self) -> Optional['JubeatBase']:
         """
@@ -137,7 +153,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             return None
 
         userid = self.data.remote.user.from_extid(self.game, self.version, extid)
-        scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+        scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
         if scores is None:
             return None
         profile = self.get_profile(userid)
@@ -156,6 +172,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         combo: int,
         ghost: Optional[List[int]]=None,
         stats: Optional[Dict[str, int]]=None,
+        music_rate: int=None,
     ) -> None:
         """
         Given various pieces of a score, update the user's high score and score
@@ -175,7 +192,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
 
         oldscore = self.data.local.music.get_score(
             self.game,
-            self.version,
+            self.music_version,
             userid,
             songid,
             chart,
@@ -223,13 +240,21 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             # Update the ghost regardless, but don't bother with it in history
             scoredata.replace_int_array('ghost', len(ghost), ghost)
 
+        if music_rate is not None:
+            if oldscore is not None:
+                if music_rate > oldscore.data.get_int('music_rate'):
+                    scoredata.replace_int('music_rate', music_rate)
+            else:
+                scoredata.replace_int('music_rate', music_rate)
+            history.replace_int('music_rate', music_rate)
+
         # Look up where this score was earned
         lid = self.get_machine_id()
 
         # Write the new score back
         self.data.local.music.put_score(
             self.game,
-            self.version,
+            self.music_version,
             userid,
             songid,
             chart,
@@ -243,7 +268,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         # Save the history of this score too
         self.data.local.music.put_attempt(
             self.game,
-            self.version,
+            self.music_version,
             userid,
             songid,
             chart,
