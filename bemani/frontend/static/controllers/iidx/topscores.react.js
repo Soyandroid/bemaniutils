@@ -202,10 +202,36 @@ var top_scores = React.createClass({
         }
 
         return (
-            <div>
-                <div className="section">
-                    <div className="floating right">{ ghosts.length > 0 ?
-                        <div className="section">
+            <section>
+                <div className="left">
+                    <h1>{window.artist} — {window.name}</h1>
+                    <div>
+                        <h3>{window.genre}</h3>
+                    </div>
+                </div>
+                <section>
+                    <div>
+                        <h4>Diffculty {window.difficulties[chart]}★</h4>
+                        <p>
+                            <SelectVersion
+                                name="chart"
+                                value={ valid_charts.indexOf(this.state.chart) }
+                                versions={ valid_charts }
+                                onChange={function(chart) {
+                                    if (this.state.chart == valid_charts[chart]) { return; }
+                                    var viewing = this.getInitialViewingState(this.state.topscores, valid_charts[chart]);
+                                    this.setState({chart: valid_charts[chart]});
+                                    pagenav.navigate(valid_charts[chart]);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </div>
+                </section>
+                <section>
+                    <div>
+                    { ghosts.length > 0 ?
+                        <section>
+                            <h4>Line Graph</h4>
                             <LineGraph
                                 data={{
                                     labels: zero,
@@ -304,32 +330,11 @@ var top_scores = React.createClass({
                                 width="320"
                                 height="200"
                             />
-                        </div> : <div style={{width: '320px', height: '200px'}}></div>
-                    }</div>
-                    <div className="left">
-                        <div className="songname">{window.name}</div>
-                        <div className="songartist">{window.artist}</div>
-                        <div className="songgenre">{window.genre}</div>
-                        <div className="songdifficulty">{window.difficulties[chart]}★</div>
+                        </section> : null
+                    }
                     </div>
-                </div>
-                <div className="section">
-                    {valid_charts.map(function(chart) {
-                        return (
-                            <Nav
-                                title={chart}
-                                active={this.state.chart == chart}
-                                onClick={function(event) {
-                                    if (this.state.chart == chart) { return; }
-                                    var viewing = this.getInitialViewingState(this.state.topscores, chart);
-                                    this.setState({chart: chart, viewing: viewing});
-                                    pagenav.navigate(chart);
-                                }.bind(this)}
-                            />
-                        );
-                    }.bind(this))}
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <Table
                         className="list topscores"
                         columns={[
@@ -382,8 +387,8 @@ var top_scores = React.createClass({
                         paginate={10}
                         emptymessage="There are no scores for this chart."
                     />
-                </div>
-            </div>
+                </section>
+            </section>
         );
     },
 });

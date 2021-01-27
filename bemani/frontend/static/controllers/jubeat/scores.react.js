@@ -40,6 +40,12 @@ var network_scores = React.createClass({
                 return 'Advanced';
             case 2:
                 return 'Extreme';
+            case 3:
+                return 'Hard Mode Basic';
+            case 4:
+                return 'Hard Mode Advanced';
+            case 5:
+                return 'Hard Mode Extreme';
             default:
                 return 'u broke it';
         }
@@ -49,13 +55,15 @@ var network_scores = React.createClass({
         return (
             <div className="score">
                 <div>
-                    <span className="label">Score</span>
-                    <span className="score">{score.points}</span>
-                    <span className="label">Combo</span>
-                    <span className="score">{score.combo < 0 ? '-' : score.combo}</span>
-                </div>
-                <div>
-                    <span className="status">{score.status}</span>
+                    <p>
+                        <span className="bolder">Score:</span> {score.points}
+                        <br/>
+                        <span className="bolder">Combos:</span> {score.combo < 0 ? '-' : score.combo}
+                        <br/>
+                        <span className="bolder">Music Rate:</span> {score.music_rate < 0 ? '-' : score.music_rate}
+                        <br/>
+                        <span className="status clearRate">{score.status}</span>
+                    </p>
                 </div>
             </div>
         );
@@ -69,8 +77,8 @@ var network_scores = React.createClass({
                         <tr>
                             { window.shownames ? <th>Name</th> : null }
                             <th>Timestamp</th>
-                            <th>Song</th>
-                            <th>Chart</th>
+                            <th>Song / Artist</th>
+                            <th>Difficulty</th>
                             <th>Score</th>
                         </tr>
                     </thead>
@@ -89,7 +97,7 @@ var network_scores = React.createClass({
                                         <div>
                                             <Timestamp timestamp={attempt.timestamp} />
                                             { window.shownewrecords && attempt.raised ?
-                                                <span className="raised">new high score!</span> :
+                                                <span className="bolder">New High Score!</span> :
                                                 null
                                             }
                                         </div>

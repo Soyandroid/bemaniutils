@@ -182,16 +182,17 @@ def viewtopscores(musicid: int) -> Response:
     name = None
     artist = None
     genre = None
-    difficulties = [0, 0, 0]
+    difficulties = [0, 0, 0, 0, 0, 0]
 
     for version in versions:
-        for chart in [0, 1, 2]:
-            details = g.data.local.music.get_song(GameConstants.JUBEAT, version, musicid, chart)
-            if details is not None:
-                name = details.name
-                artist = details.artist
-                genre = details.genre
-                difficulties[chart] = details.data.get_int('difficulty', 13)
+        for omniadd in [0, 10000]:
+            for chart in [0, 1, 2, 3, 4, 5]:
+                details = g.data.local.music.get_song(GameConstants.JUBEAT, version + omniadd, musicid, chart)
+                if details is not None:
+                    name = details.name
+                    artist = details.artist
+                    genre = details.genre
+                    difficulties[chart] = details.data.get_int('difficulty', 13)
 
     if name is None:
         # Not a real song!
@@ -296,20 +297,66 @@ def viewsettings() -> Response:
     frontend = JubeatFrontend(g.data, g.config, g.cache)
     userid = g.userID
     info = frontend.get_all_player_info([userid])[userid]
+    versions = sorted(
+        [version for (game, version, name) in frontend.all_games()],
+        reverse=True,
+    )
     if not info:
         abort(404)
 
+    all_emblems = frontend.get_all_items(versions)
     return render_react(
         'Jubeat Game Settings',
         'jubeat/settings.react.js',
         {
             'player': info,
             'versions': {version: name for (game, version, name) in frontend.all_games()},
+            'emblems': all_emblems,
         },
         {
             'updatename': url_for('jubeat_pages.updatename'),
+            'updateemblem': url_for('jubeat_pages.updateemblem')
         },
     )
+
+
+@jubeat_pages.route('/options/emblem/update', methods=['POST'])
+@jsonify
+@loginrequired
+def updateemblem() -> Dict[str, Any]:
+    frontend = JubeatFrontend(g.data, g.config, g.cache)
+    version = int(request.get_json()['version'])
+    emblem = request.get_json()['emblem']
+    user = g.data.local.user.get_user(g.userID)
+    if user is None:
+        raise Exception('Unable to find user to update!')
+
+    # Grab profile and update emblem
+    profile = g.data.local.user.get_profile(GameConstants.JUBEAT, version, user.id)
+    if profile is None:
+        raise Exception('Unable to find profile to update!')
+
+    # Making emblem arr for update
+    emblem_arr = [
+        emblem['background'],
+        emblem['main'],
+        emblem['ornament'],
+        emblem['effect'],
+        emblem['speech_bubble'],
+    ]
+
+    # Grab last dict from profile for updating emblem
+    last_dict = profile.get_dict('last')
+    last_dict.replace_int_array('emblem', 5, emblem_arr)
+
+    # Replace last dict that replaced int arr
+    profile.replace_dict('last', last_dict)
+    g.data.local.user.put_profile(GameConstants.JUBEAT, version, user.id, profile)
+
+    return {
+        'version': version,
+        'emblem': frontend.format_emblem(emblem_arr),
+    }
 
 
 @jubeat_pages.route('/options/name/update', methods=['POST'])

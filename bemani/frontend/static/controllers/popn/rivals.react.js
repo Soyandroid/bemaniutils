@@ -153,111 +153,130 @@ var rivals_view = React.createClass({
                 var player = this.state.results[userid][this.state.version];
                 if (player) { resultlength++; }
             }.bind(this));
+            var filteredVersion = Object.values(this.state.profiles).map(function(version) {
+                return Object.values(window.versions)[version]
+            });
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            });
             return (
                 <div>
-                    <div className="section popn-nav">
-                        <h3>Rivals</h3>
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({
-                                            version: version,
-                                            offset: 0,
-                                        });
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
-                    <div className="section">
-                        <form onSubmit={this.searchForPlayersName}>
-                            <label for="search">Name:</label>
-                            <br />
-                            <input
-                                type="text"
-                                className="inline"
-                                maxlength="6"
-                                size="12"
-                                value={this.state.term_name}
+                    <section>
+                        <p>
+                            <h4>Select Version</h4>
+                            <SelectVersion
+                                name="version"
+                                value={ filteredVersion.indexOf(item[this.state.version]) }
+                                versions={ filteredVersion }
                                 onChange={function(event) {
-                                    var rawvalue = event.target.value;
-                                    var value = "";
-                                    // Nasty conversion to change typing into wide text
-                                    for (var i = 0; i < rawvalue.length; i++) {
-                                        var c = rawvalue.charCodeAt(i);
-                                        if (c >= '0'.charCodeAt(0) && c <= '9'.charCodeAt(0)) {
-                                            c = 0xFF10 + (c - '0'.charCodeAt(0));
-                                        } else if(c >= 'A'.charCodeAt(0) && c <= 'Z'.charCodeAt(0)) {
-                                            c = 0xFF21 + (c - 'A'.charCodeAt(0));
-                                        } else if(c >= 'a'.charCodeAt(0) && c <= 'z'.charCodeAt(0)) {
-                                            c = 0xFF41 + (c - 'a'.charCodeAt(0));
-                                        } else if(c == '@'.charCodeAt(0)) {
-                                            c = 0xFF20;
-                                        } else if(c == ','.charCodeAt(0)) {
-                                            c = 0xFF0C;
-                                        } else if(c == '.'.charCodeAt(0)) {
-                                            c = 0xFF0E;
-                                        } else if(c == '_'.charCodeAt(0)) {
-                                           c = 0xFF3F;
-                                        }
-                                        value = value + String.fromCharCode(c);
-                                    }
-                                    var nameRegex = new RegExp(
-                                        "^[" +
-                                        "\uFF20-\uFF3A" + // widetext A-Z and @
-                                        "\uFF41-\uFF5A" + // widetext a-z
-                                        "\uFF10-\uFF19" + // widetext 0-9
-                                        "\uFF0C\uFF0E\uFF3F" + // widetext ,._
-                                        "\u3041-\u308D\u308F\u3092\u3093" + // hiragana
-                                        "\u30A1-\u30ED\u30EF\u30F2\u30F3\u30FC" + // katakana
-                                        "]*$"
-                                    );
-                                    if (value.length <= 6 && nameRegex.test(value)) {
-                                        this.setState({term_name: value});
-                                    }
+                                    var version = item.indexOf(filteredVersion[event]) + 1
+                                    if (this.state.editing_name) { return; }
+                                    if (this.state.version == version) { return; }
+                                    this.setState({
+                                        version: version,
+                                        offset: 0,
+                                    });
+                                    pagenav.navigate(version);
                                 }.bind(this)}
-                                name="search"
                             />
-                            <input type="submit" value="search" />
-                            { this.state.searching_name ?
-                                <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                                null
-                            }
+                        </p>
+                        <h3>Rivals</h3>
+                    </section>
+                    <section>
+                        <h4>Search Rival</h4>
+                        <form onSubmit={this.searchForPlayersName}>
+                            <div className="fields">
+                                <div className="field half">
+                                    <input
+                                        type="text"
+                                        className="inline"
+                                        maxlength="6"
+                                        size="12"
+                                        placeholder="Player name"
+                                        value={this.state.term_name}
+                                        onChange={function(event) {
+                                            var rawvalue = event.target.value;
+                                            var value = "";
+                                            // Nasty conversion to change typing into wide text
+                                            for (var i = 0; i < rawvalue.length; i++) {
+                                                var c = rawvalue.charCodeAt(i);
+                                                if (c >= '0'.charCodeAt(0) && c <= '9'.charCodeAt(0)) {
+                                                    c = 0xFF10 + (c - '0'.charCodeAt(0));
+                                                } else if(c >= 'A'.charCodeAt(0) && c <= 'Z'.charCodeAt(0)) {
+                                                    c = 0xFF21 + (c - 'A'.charCodeAt(0));
+                                                } else if(c >= 'a'.charCodeAt(0) && c <= 'z'.charCodeAt(0)) {
+                                                    c = 0xFF41 + (c - 'a'.charCodeAt(0));
+                                                } else if(c == '@'.charCodeAt(0)) {
+                                                    c = 0xFF20;
+                                                } else if(c == ','.charCodeAt(0)) {
+                                                    c = 0xFF0C;
+                                                } else if(c == '.'.charCodeAt(0)) {
+                                                    c = 0xFF0E;
+                                                } else if(c == '_'.charCodeAt(0)) {
+                                                c = 0xFF3F;
+                                                }
+                                                value = value + String.fromCharCode(c);
+                                            }
+                                            var nameRegex = new RegExp(
+                                                "^[" +
+                                                "\uFF20-\uFF3A" + // widetext A-Z and @
+                                                "\uFF41-\uFF5A" + // widetext a-z
+                                                "\uFF10-\uFF19" + // widetext 0-9
+                                                "\uFF0C\uFF0E\uFF3F" + // widetext ,._
+                                                "\u3041-\u308D\u308F\u3092\u3093" + // hiragana
+                                                "\u30A1-\u30ED\u30EF\u30F2\u30F3\u30FC" + // katakana
+                                                "]*$"
+                                            );
+                                            if (value.length <= 6 && nameRegex.test(value)) {
+                                                this.setState({term_name: value});
+                                            }
+                                        }.bind(this)}
+                                        name="search"
+                                    />
+                                </div>
+                                <div className="field half">
+                                    <input type="submit" value="search" />
+                                    { this.state.searching_name ?
+                                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                                        null
+                                    }
+                                </div>
+                            </div>
                         </form>
                         <form onSubmit={this.searchForPlayersID}>
-                            <label for="search">Pop'n Music ID:</label>
-                            <br />
-                            <input
-                                type="text"
-                                className="inline"
-                                maxlength="9"
-                                value={this.state.term_id}
-                                onChange={function(event) {
-                                    var value = event.target.value.toUpperCase();
-                                    var intRegex = new RegExp(
-                                        "^[" +
-                                        "0-9" +
-                                        "-" +
-                                        "]*$"
-                                    );
-                                    // Allow pnm IDs as shown in Eclale and such (with
-                                    // extra CRC at the end).
-                                    if (value.length <= 14 && intRegex.test(value)) {
-                                        this.setState({term_id: value});
+                            <div className="fields">
+                                <div className="field half">
+                                    <input
+                                        type="text"
+                                        className="inline"
+                                        maxlength="9"
+                                        placeholder="Pop'n Music ID"
+                                        value={this.state.term_id}
+                                        onChange={function(event) {
+                                            var value = event.target.value.toUpperCase();
+                                            var intRegex = new RegExp(
+                                                "^[" +
+                                                "0-9" +
+                                                "-" +
+                                                "]*$"
+                                            );
+                                            // Allow pnm IDs as shown in Eclale and such (with
+                                            // extra CRC at the end).
+                                            if (value.length <= 14 && intRegex.test(value)) {
+                                                this.setState({term_id: value});
+                                            }
+                                        }.bind(this)}
+                                        name="search"
+                                    />
+                                </div>
+                                <div className="field half">
+                                    <input type="submit" value="search" />
+                                    { this.state.searching_id ?
+                                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                                        null
                                     }
-                                }.bind(this)}
-                                name="search"
-                            />
-                            <input type="submit" value="search" />
-                            { this.state.searching_id ?
-                                <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                                null
-                            }
+                                </div>
+                            </div>
                         </form>
                         {resultlength > 0 ?
                             <table className="list players">
@@ -306,10 +325,10 @@ var rivals_view = React.createClass({
                                     </tr>
                                 </tfoot>
                             </table> :
-                            <div className="placeholder">No players match the specified search.</div>
+                            <p>No players match the specified search.</p>
                         }
-                    </div>
-                    <div className="section">
+                    </section>
+                    <section>
                         <h3>Rivals</h3>
                         <table className="list players">
                             <thead>
@@ -339,30 +358,33 @@ var rivals_view = React.createClass({
                                 }.bind(this))}
                             </tbody>
                         </table>
-                    </div>
+                    </section>
                 </div>
             );
         } else {
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section">
+                    <section>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ item.indexOf(item[this.state.version]) }
+                                versions={ item }
+                                onChange={function(event) {
+                                    var version = item.indexOf(item[event])
+                                    if (this.state.version == version) { return; }
+                                    this.setState({version: version});
+                                    pagenav.navigate(version);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </section>
+                    <section>
                         You have no profile for {window.versions[this.state.version]}!
-                    </div>
-                    <div className="section">
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({version: version, offset: 0});
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
+                    </section>
                 </div>
             );
         }

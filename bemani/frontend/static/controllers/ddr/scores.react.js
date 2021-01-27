@@ -61,17 +61,19 @@ var network_scores = React.createClass({
         return (
             <div className="score">
                 <div>
-                    <span className="grade">{score.rank}</span>
-                    <span className="score">{score.points}</span>
-                </div>
-                { score.combo > 0 ?
-                    <div>
-                        <span className="label">Combo</span>
-                        <span className="score">{score.combo}</span>
-                    </div> : null
-                }
-                <div>
-                    <span className="status">{score.halo}</span>
+                    <p>
+                        <span className="bolder">Grade</span> {score.rank}
+                        <br/>
+                        <span className="bolder">Points</span> {score.points}
+                        <br/>
+                        { score.combo > 0 ?
+                            <div>
+                                <span className="bolder">Combo</span> {score.combo}
+                                <br/>
+                            </div> : null
+                        }
+                        <span className="status clearRate">{score.halo}</span>
+                    </p>
                 </div>
             </div>
         );
@@ -105,15 +107,16 @@ var network_scores = React.createClass({
                                         <div>
                                             <Timestamp timestamp={attempt.timestamp} />
                                             { window.shownewrecords && attempt.raised ?
-                                                <span className="raised">new high score!</span> :
+                                                <span className="bolder">New High Score!</span> :
                                                 null
                                             }
                                         </div>
                                     </td>
                                     <td className="center">
                                         <a href={Link.get('individual_score', attempt.songid)}>
-                                            <div className="songname">{ this.state.songs[attempt.songid].name }</div>
-                                            <div className="songartist">{ this.state.songs[attempt.songid].artist }</div>
+                                            { this.state.songs[attempt.songid].name }
+                                            <br/>
+                                            { this.state.songs[attempt.songid].artist }
                                         </a>
                                     </td>
                                     <td className="center">

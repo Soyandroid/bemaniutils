@@ -6,6 +6,12 @@ function makeSettingName(game_settings) {
 var valid_settings = window.game_settings.map(function(setting) {
     return makeSettingName(setting);
 });
+function getSettings(current) {
+    var value = window.game_settings.filter( settings => makeSettingName(settings) == current )
+    var result = window.game_settings.indexOf(value[0])
+    console.log(result)
+    return result
+}
 var pagenav = new History(valid_settings);
 
 var arcade_management = React.createClass({
@@ -236,149 +242,187 @@ var arcade_management = React.createClass({
 
     renderPIN: function() {
         return (
-            <LabelledSection vertical={true} label="PIN">{
+            <div className="field">
+                <b>PIN</b><br/>
+                {
                 !this.state.editing_pin ?
-                    <span>
-                        <span>{this.state.pin}</span>
-                        <Edit
-                            onClick={function(event) {
-                                this.setState({editing_pin: true, new_pin: this.state.pin});
-                            }.bind(this)}
-                        />
-                    </span> :
+                    <div className="fields">
+                        <div className="field half">
+                            <span>{this.state.pin}</span>
+                        </div>
+                        <div className="field half">
+                            <span>
+                                <a onClick=
+                                    {function(event) {
+                                        this.setState({editing_pin: true, new_pin: this.state.pin});
+                                    }.bind(this)}
+                                >UPDATE</a>
+                            </span>
+                        </div>
+                    </div>
+                    :
                     <form className="inline" onSubmit={this.savePin}>
-                        <input
-                            type="text"
-                            className="inline"
-                            maxlength="8"
-                            size="8"
-                            autofocus="true"
-                            ref={c => (this.focus_element = c)}
-                            value={this.state.new_pin}
-                            onChange={function(event) {
-                                var intRegex = /^\d*$/;
-                                if (event.target.value.length <= 8 && intRegex.test(event.target.value)) {
-                                    this.setState({new_pin: event.target.value});
-                                }
-                            }.bind(this)}
-                            name="pin"
-                        />
-                        <input
-                            type="submit"
-                            value="save"
-                        />
-                        <input
-                            type="button"
-                            value="cancel"
-                            onClick={function(event) {
-                                this.setState({
-                                    new_pin: '',
-                                    editing_pin: false,
-                                });
-                            }.bind(this)}
-                        />
+                        <div className="fields">
+                            <div className="field half">
+                                <input
+                                type="text"
+                                className="inline"
+                                maxlength="8"
+                                size="8"
+                                autofocus="true"
+                                ref={c => (this.focus_element = c)}
+                                value={this.state.new_pin}
+                                onChange={function(event) {
+                                    var intRegex = /^\d*$/;
+                                    if (event.target.value.length <= 8 && intRegex.test(event.target.value)) {
+                                        this.setState({new_pin: event.target.value});
+                                    }
+                                }.bind(this)}
+                                name="pin"
+                                />
+                            </div>
+                            <div className="field half">
+                                <span>
+                                    <input
+                                        type="submit"
+                                        value="save"
+                                    />
+                                    <input
+                                        type="button"
+                                        value="cancel"
+                                        onClick={function(event) {
+                                            this.setState({
+                                                new_pin: '',
+                                                editing_pin: false,
+                                            });
+                                        }.bind(this)}
+                                    />
+                                </span>
+                            </div>
+                        </div>
                     </form>
-            }</LabelledSection>
+            }</div>
         );
     },
 
     render: function() {
         return (
             <div>
-                <div className="section">
-                    <LabelledSection vertical={true} label="Name">{ this.state.name }</LabelledSection>
-                    <LabelledSection vertical={true} label="Description">{
-                        this.state.description ?
-                            <span>{ this.state.description }</span> :
-                            <span className="placeholder">no description</span>
-                    }</LabelledSection>
-                    {this.renderPIN()}
-                    <LabelledSection vertical={true} label="PASELI Enabled">
-                        <span>{ this.state.paseli_enabled ? 'yes' : 'no' }</span>
-                        <Toggle onClick={this.togglePaseliEnabled.bind(this)} />
-                        { this.state.paseli_enabled_saving ?
-                            <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                            null
-                        }
-                    </LabelledSection>
-                    <LabelledSection vertical={true} label="PASELI Infinite">
-                        <span>{ this.state.paseli_infinite ? 'yes' : 'no' }</span>
-                        <Toggle onClick={this.togglePaseliInfinite.bind(this)} />
-                        { this.state.paseli_infinite_saving ?
-                            <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                            null
-                        }
-                    </LabelledSection>
-                    <LabelledSection vertical={true} label="Mask Web Address">
-                        <span>{ this.state.mask_services_url ? 'yes' : 'no' }</span>
-                        <Toggle onClick={this.toggleMaskServicesURL.bind(this)} />
-                        { this.state.mask_services_url_saving ?
-                            <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                            null
-                        }
-                    </LabelledSection>
-                </div>
-                <div className="section">
-                    <h3>PCBIDs Assigned to This Arcade</h3>
-                    <Table
-                        className="list machine"
-                        columns={[
+                <h3>Arcade Information</h3>
+                <form className="inline">
+                    <div className="fields">
+                        <div className="field half">
+                            <b>Name</b><br/>
+                            { this.state.name }
+                        </div>
+                        <div className="field half">
+                            <b>Description</b><br/>
                             {
-                                name: "PCBID",
-                                render: function(machine) { return machine.pcbid; },
-                                sort: function(a, b) { return a.pcbid.localeCompare(b.pcbid); },
-                            },
-                            {
-                                name: "Name",
-                                render: function(machine) { return machine.name; },
-                                sort: function(a, b) { return a.name.localeCompare(b.name); },
-                            },
-                            {
-                                name: "Description",
-                                render: function(machine) { return machine.description; },
-                                sort: function(a, b) { return a.description.localeCompare(b.description); },
-                            },
-                            {
-                                name: "Applicable Game",
-                                render: function(machine) { return machine.game; },
-                                sort: function(a, b) { return a.game.localeCompare(b.game); },
-                                hidden: !window.enforcing,
-                            },
-                            {
-                                name: "Port",
-                                render: function(machine) { return machine.port; },
-                                sort: function(a, b) { return a.port - b.port; },
-                            },
-                        ]}
-                        rows={this.state.machines}
-                        emptymessage="There are no PCBIDs assigned to this arcade."
+                            this.state.description ?
+                                <span>{ this.state.description }</span> :
+                                <span className="placeholder">no description</span>
+                            }
+                        </div>
+                        {this.renderPIN()}
+                    </div>
+                </form>
+
+                <h3>Arcade Options</h3>
+                <form className="inline">
+                    <input
+                        name="Enable PASELI"
+                        id="Enable PASELI"
+                        type="checkbox"
+                        checked={this.state.paseli_enabled}
+                        onChange={this.togglePaseliEnabled.bind(this)}
                     />
-                </div>
-                <div className="section settings-nav">
-                    <h3>Game Settings For This Arcade</h3>
-                    { this.state.settings.map(function(game_settings) {
-                        var current = makeSettingName(game_settings);
-                        return (
-                            <Nav
-                                title={game_settings.name}
-                                active={this.state.current_setting == current}
-                                showAlert={this.state.settings_changed[current]}
-                                onClick={function(event) {
+                    <label htmlFor="Enable PASELI">Enable PASELI</label>
+                    { this.state.paseli_enabled_saving ?
+                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                        null
+                    }
+                    <input
+                        name="Infinite PASELI"
+                        id="Infinite PASELI"
+                        type="checkbox"
+                        checked={this.state.paseli_infinite}
+                        onChange={this.togglePaseliInfinite.bind(this)}
+                    />
+                    <label htmlFor="Infinite PASELI">Infinite PASELI</label>
+                    { this.state.paseli_infinite_saving ?
+                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                        null
+                    }
+                    <input
+                        name="Mask Web Address"
+                        id="Mask Web Address"
+                        type="checkbox"
+                        checked={this.state.mask_services_url}
+                        onChange={this.toggleMaskServicesURL.bind(this)}
+                    />
+                    <label htmlFor="Mask Web Address">Mask Web Address</label>
+                    { this.state.mask_services_url_saving ?
+                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                        null
+                    }
+                </form>
+
+                <h3>PCBIDs Assigned to This Arcade</h3>
+                <Table
+                    className="list machine"
+                    columns={[
+                        {
+                            name: "PCBID",
+                            render: function(machine) { return machine.pcbid; },
+                            sort: function(a, b) { return a.pcbid.localeCompare(b.pcbid); },
+                        },
+                        {
+                            name: "Name",
+                            render: function(machine) { return machine.name; },
+                            sort: function(a, b) { return a.name.localeCompare(b.name); },
+                        },
+                        {
+                            name: "Description",
+                            render: function(machine) { return machine.description; },
+                            sort: function(a, b) { return a.description.localeCompare(b.description); },
+                        },
+                        {
+                            name: "Applicable Game",
+                            render: function(machine) { return machine.game; },
+                            sort: function(a, b) { return a.game.localeCompare(b.game); },
+                            hidden: !window.enforcing,
+                        },
+                        {
+                            name: "Port",
+                            render: function(machine) { return machine.port; },
+                            sort: function(a, b) { return a.port - b.port; },
+                        },
+                    ]}
+                    rows={this.state.machines}
+                    emptymessage="There are no PCBIDs assigned to this arcade."
+                />
+
+                <h3>Game Settings For This Arcade</h3>
+                <form className="inline">
+                    <div className="fields">
+                        <div className="field">
+                            <SelectGame
+                                name="game"
+                                value={ getSettings(this.state.current_setting) }
+                                games={ this.state.settings.map(function(game_settings){ return game_settings }) }
+                                onChange={function(event) {
+                                    var selectedGame = this.state.settings.map(function(game_settings){ return game_settings })[event]
+                                    var current = makeSettingName(selectedGame);
                                     if (this.state.current_setting == current) { return; }
                                     this.setState({current_setting: current});
+                                    console.log(current)
                                     pagenav.navigate(current);
                                 }.bind(this)}
                             />
-                        );
-                    }.bind(this))}
-                </div>
-                <div className="section">
-                    { this.state.settings[this.getSettingIndex(this.state.current_setting)].ints.map(function(setting, index) {
-                        return (
-                            <div className="arcade menuoption">
-                                <Tip
-                                    text={setting.tip}
-                                >
+                        </div>
+                        { this.state.settings[this.getSettingIndex(this.state.current_setting)].ints.map(function(setting, index) {
+                            return (
+                                <div className="field">
                                     <label htmlFor={setting.setting}>{setting.name}:</label>
                                     <SelectInt
                                         name={setting.setting}
@@ -393,17 +437,16 @@ var arcade_management = React.createClass({
                                             });
                                         }.bind(this)}
                                     />
-                                </Tip>
-                            </div>
-                        );
-                    }.bind(this))}
-                    { this.state.settings[this.getSettingIndex(this.state.current_setting)].bools.map(function(setting, index) {
-                        return (
-                            <div className="arcade menuoption">
-                                <Tip
-                                    text={setting.tip}
-                                >
-                                    <label htmlFor={setting.setting}>{setting.name}:</label>
+                                    <br/>
+                                    <blockquote>
+                                        <span className="bolder">TIP:</span> {setting.tip}
+                                    </blockquote>
+                                </div>
+                            );
+                        }.bind(this))}
+                        { this.state.settings[this.getSettingIndex(this.state.current_setting)].bools.map(function(setting, index) {
+                            return (
+                                <div className="field">
                                     <input
                                         name={setting.setting}
                                         id={setting.setting}
@@ -417,16 +460,17 @@ var arcade_management = React.createClass({
                                             });
                                         }.bind(this)}
                                     />
-                                </Tip>
-                            </div>
-                        );
-                    }.bind(this))}
-                    { this.state.settings[this.getSettingIndex(this.state.current_setting)].strs.map(function(setting, index) {
-                        return (
-                            <div className="arcade menuoption">
-                                <Tip
-                                    text={setting.tip}
-                                >
+                                    <label htmlFor={setting.setting}>{setting.name}</label>
+                                    <br/>
+                                    <blockquote>
+                                        <span className="bolder">TIP:</span> {setting.tip}
+                                    </blockquote>
+                                </div>
+                            );
+                        }.bind(this))}
+                        { this.state.settings[this.getSettingIndex(this.state.current_setting)].strs.map(function(setting, index) {
+                            return (
+                                <div className="field">
                                     <label htmlFor={setting.setting}>{setting.name}:</label>
                                     <input
                                         name={setting.setting}
@@ -441,16 +485,16 @@ var arcade_management = React.createClass({
                                             });
                                         }.bind(this)}
                                     />
-                                </Tip>
-                            </div>
-                        );
-                    }.bind(this))}
-                    { this.state.settings[this.getSettingIndex(this.state.current_setting)].longstrs.map(function(setting, index) {
-                        return (
-                            <div className="arcade menuoption">
-                                <Tip
-                                    text={setting.tip}
-                                >
+                                    <br/>
+                                    <blockquote>
+                                        <span className="bolder">TIP:</span> {setting.tip}
+                                    </blockquote>
+                                </div>
+                            );
+                        }.bind(this))}
+                        { this.state.settings[this.getSettingIndex(this.state.current_setting)].longstrs.map(function(setting, index) {
+                            return (
+                                <div className="field">
                                     <label htmlFor={setting.setting}>{setting.name}:</label>
                                     <textarea
                                         name={setting.setting}
@@ -464,120 +508,134 @@ var arcade_management = React.createClass({
                                             });
                                         }.bind(this)}
                                     />
-                                </Tip>
+                                    <br/>
+                                    <blockquote>
+                                        <span className="bolder">TIP:</span> {setting.tip}
+                                    </blockquote>
+                                </div>
+                                
+                            );
+                        }.bind(this))}
+                        <div className="field">
+                             <input
+                                type="submit"
+                                disabled={!this.state.settings_changed[this.state.current_setting]}
+                                value="save"
+                                onClick={function(event) {
+                                    this.saveSettings(event);
+                                }.bind(this)}
+                            />
+                            &emsp;
+                            { this.state.settings_saving[this.state.current_setting] ?
+                                <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                                    null
+                            }
+                            { this.state.settings_saved[this.state.current_setting] ?
+                                <span>&#x2713;</span> :
+                                    null
+                            }
+                        </div>
+                    </div>
+                </form>
+                
+                <h3>User PASELI Balances for This Arcade</h3>
+                { Object.keys(this.state.balances).length == 0 ?
+                    <div>
+                        <span className="placeholder">No users with balances for this arcade!</span>
+                    </div> :
+                    <form onSubmit={this.updateBalance}>
+                        <div className="fields">
+                            <div className="field">
+                                <table className="list blance">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Current Balance</th>
+                                            <th>Credit Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Object.keys(this.state.balances).map(function(userid) {
+                                            var user = this.state.users[userid];
+                                            return (
+                                                <tr>
+                                                    { user ? <td>{user}</td> : <td>anonymous account</td> }
+                                                    <td>{this.state.balances[userid]}</td>
+                                                    <td>
+                                                        <input
+                                                            type="text"
+                                                            className="inline"
+                                                            placeholder="Credit Amount"
+                                                            value={this.state.credits[userid]}
+                                                            onChange={function(event) {
+                                                                var credits = this.state.credits;
+                                                                credits[userid] = event.target.value;
+                                                                this.setState({credits: credits});
+                                                            }.bind(this)}
+                                                            name="credits"
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }.bind(this))}
+                                    </tbody>
+                                </table>
                             </div>
-                        );
-                    }.bind(this))}
-                    <input
-                        type="submit"
-                        disabled={!this.state.settings_changed[this.state.current_setting]}
-                        value="save"
-                        onClick={function(event) {
-                            this.saveSettings(event);
-                        }.bind(this)}
-                    />
-                    { this.state.settings_saving[this.state.current_setting] ?
-                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                            null
-                    }
-                    { this.state.settings_saved[this.state.current_setting] ?
-                        <span>{ "\u2713" }</span> :
-                            null
-                    }
-                </div>
-                <div className="section">
-                    <h3>User PASELI Balances for This Arcade</h3>
-                    { Object.keys(this.state.balances).length == 0 ?
-                        <div>
-                            <span className="placeholder">No users with balances for this arcade!</span>
-                        </div> :
-                        <form onSubmit={this.updateBalance}>
-                            <table className="list blance">
+                            <div className="field">
+                                <input type="submit" value="update balance" />
+                            </div>
+                        </div>
+                    </form>
+                }
+                
+                <h3>Credit PASELI via Card</h3>
+                <form className="inline" onSubmit={this.addBalance}>
+                    <div className="fields">
+                        <div className="field">
+                            <table>
                                 <thead>
                                     <tr>
-                                        <th>User</th>
-                                        <th>Current Balance</th>
+                                        <th>Card Number</th>
                                         <th>Credit Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {Object.keys(this.state.balances).map(function(userid) {
-                                        var user = this.state.users[userid];
-                                        return (
-                                            <tr>
-                                                <td>{ user ?
-                                                    <span>{user}</span> :
-                                                    <span className="placeholder">anonymous account</span>
-                                                }</td>
-                                                <td>{this.state.balances[userid]}</td>
-                                                <td>
-                                                    <input
-                                                        type="text"
-                                                        className="inline"
-                                                        value={this.state.credits[userid]}
-                                                        onChange={function(event) {
-                                                            var credits = this.state.credits;
-                                                            credits[userid] = event.target.value;
-                                                            this.setState({credits: credits});
-                                                        }.bind(this)}
-                                                        name="credits"
-                                                    />
-                                                </td>
-                                            </tr>
-                                        );
-                                    }.bind(this))}
+                                    <tr>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                className="inline"
+                                                placeholder="Card Number"
+                                                value={this.state.credit_card}
+                                                onChange={function(event) {
+                                                    this.setState({credit_card: event.target.value});
+                                                }.bind(this)}
+                                                name="card"
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                className="inline"
+                                                placeholder="Credits"
+                                                value={this.state.credit_amount}
+                                                onChange={function(event) {
+                                                    this.setState({credit_amount: event.target.value});
+                                                }.bind(this)}
+                                                name="credits"
+                                            />
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
-                            <div className="action">
-                                <input type="submit" value="update balance" />
-                            </div>
-                        </form>
-                    }
-                </div>
-                <div className="section">
-                    <h3>Credit PASELI via Card</h3>
-                    <form onSubmit={this.addBalance}>
-                        <table className="add blance">
-                            <thead>
-                                <tr>
-                                    <th>Card Number</th>
-                                    <th>Credit Amount</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <input
-                                            type="text"
-                                            className="inline"
-                                            value={this.state.credit_card}
-                                            onChange={function(event) {
-                                                this.setState({credit_card: event.target.value});
-                                            }.bind(this)}
-                                            name="card"
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="text"
-                                            className="inline"
-                                            value={this.state.credit_amount}
-                                            onChange={function(event) {
-                                                this.setState({credit_amount: event.target.value});
-                                            }.bind(this)}
-                                            name="credits"
-                                        />
-                                    </td>
-                                    <td>
-                                        <input type="submit" value="update balance" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </form>
-                </div>
-                <div className="section">
+                        </div>
+                        <div className="field">
+                            <input type="submit" value="update balance" />
+                        </div>
+                    </div>
+                </form>
+
+                <section>
                     <h3>PASELI Transaction History</h3>
                     { this.state.events.length == 0 ?
                         <div>
@@ -626,7 +684,7 @@ var arcade_management = React.createClass({
                             </tfoot>
                         </table>
                     }
-                </div>
+                </section>
             </div>
         );
     },

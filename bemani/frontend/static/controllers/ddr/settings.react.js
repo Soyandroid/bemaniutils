@@ -170,12 +170,15 @@ var settings_view = React.createClass({
             <LabelledSection vertical={true} label="Name">{
                 !this.state.editing_name ?
                     <span>
-                        <span>{player.name}</span>
-                        <Edit
-                            onClick={function(event) {
-                                this.setState({editing_name: true});
-                            }.bind(this)}
-                        />
+                        <p>
+                            {player.name}
+                            <br/>
+                            <Edit
+                                onClick={function(event) {
+                                    this.setState({editing_name: true});
+                                }.bind(this)}
+                            /> 
+                        </p>
                     </span> :
                     <form className="inline" onSubmit={this.saveName}>
                         <input
@@ -195,11 +198,14 @@ var settings_view = React.createClass({
                             }.bind(this)}
                             name="name"
                         />
+                        <br/>
                         <input
+                            className="small"
                             type="submit"
                             value="save"
                         />
                         <input
+                            className="small"
                             type="button"
                             value="cancel"
                             onClick={function(event) {
@@ -218,17 +224,18 @@ var settings_view = React.createClass({
         return (
             <LabelledSection vertical={true} label="Weight">{
                 !this.state.editing_weight ?
-                    <span>
+                    <p>
                         { player.workout_mode ?
                             <span>{player.weight / 10} kg</span> :
                             <span className="placeholder">workout mode disabled</span>
                         }
+                        <br/>
                         <Edit
                             onClick={function(event) {
                                 this.setState({editing_weight: true});
                             }.bind(this)}
                         />
-                    </span> :
+                    </p> :
                     <form className="inline" onSubmit={this.saveWeight}>
                         <div className="row">
                             <input
@@ -243,10 +250,7 @@ var settings_view = React.createClass({
                                     });
                                 }.bind(this)}
                             />
-                            <label
-                                htmlFor="enable_workout_mode"
-                                className="inline"
-                            >
+                            <label htmlFor="enable_workout_mode">
                                 enable workout mode
                             </label>
                         </div>
@@ -270,11 +274,14 @@ var settings_view = React.createClass({
                             /> :
                             null
                         }
+                        <br/>
                         <input
+                            className="small"
                             type="submit"
                             value="save"
                         />
                         <input
+                            className="small"
                             type="button"
                             value="cancel"
                             onClick={function(event) {
@@ -293,54 +300,63 @@ var settings_view = React.createClass({
     render: function() {
         if (this.state.player[this.state.version]) {
             var player = this.state.player[this.state.version];
+            var filteredVersion = Object.values(this.state.profiles).map(function(version) {
+                return Object.values(window.versions)[version-1]
+            });
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
-                <div>
-                    <div className="section">
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    showAlert={this.state.options_changed[version]}
-                                    onClick={function(event) {
-                                        if (this.state.editing_name) { return; }
-                                        if (this.state.editing_weight) { return; }
-                                        if (this.state.version == version) { return; }
-                                        this.setState({
-                                            version: version,
-                                            new_name: this.state.player[version].name,
-                                            new_weight: (this.state.player[version].weight / 10).toFixed(1),
-                                            new_workout_mode: this.state.player[version].workout_mode,
-                                        });
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
-                    <div className="section">
-                        <h3>User Profile</h3>
+                <div className="inner">
+                    <h2>User Profile - {window.versions[this.state.version]}</h2>
+                    <section>
+                        <p>
+                        <h4>Select Version</h4>
+                        <SelectVersion
+                            name="version"
+                            value={ filteredVersion.indexOf(item[this.state.version - 1]) }
+                            versions={ filteredVersion }
+                            onChange={function(event) {
+                                var version = item.indexOf(filteredVersion[event]) + 1
+                                if (this.state.editing_name) { return; }
+                                if (this.state.version == version) { return; }
+                                this.setState({
+                                    version: version,
+                                    new_name: this.state.player[version].name,
+                                });
+                                pagenav.navigate(version);
+                            }.bind(this)}
+                        />
+                        </p>
+                    </section>
+                    <section>
                         {this.renderName(player)}
                         <LabelledSection vertical={true} label="Fast/Slow Display">
-                            <span>{ this.state.player[this.state.version].early_late ? 'on' : 'off' }</span>
-                            <Toggle onClick={this.toggleEarlyLate.bind(this)} />
-                            { this.state.saving_early_late ?
-                                <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                                null
-                            }
+                            <p>
+                                { this.state.player[this.state.version].early_late ? 'On' : 'Off' }
+                                <br/>
+                                <Toggle onClick={this.toggleEarlyLate.bind(this)} />
+                                { this.state.saving_early_late ?
+                                    <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                                    null
+                                }
+                            </p>
                         </LabelledSection>
                         <LabelledSection vertical={true} label="Combo Position">
-                            <span>{ this.state.player[this.state.version].background_combo ? 'background' : 'foreground' }</span>
-                            <Toggle onClick={this.toggleBackgroundCombo.bind(this)} />
-                            { this.state.saving_background_combo ?
-                                <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                                null
-                            }
+                            <p>
+                                { this.state.player[this.state.version].background_combo ? 'Background' : 'Foreground' }
+                                <br/>
+                                <Toggle onClick={this.toggleBackgroundCombo.bind(this)} />
+                                { this.state.saving_background_combo ?
+                                    <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                                    null
+                                }
+                            </p>
                         </LabelledSection>
                         {this.renderWeight(player)}
-                    </div>
+                    </section>
                     { this.state.player[this.state.version].settings ?
-                        <div className="section">
+                        <section>
                             <h3>Options</h3>
                             {Object.keys(DDROptions[this.state.version]).map(function(option) {
                                 return (
@@ -381,33 +397,34 @@ var settings_view = React.createClass({
                                 <span>{ "\u2713" }</span> :
                                 null
                             }
-                        </div> : null
+                        </section> : null
                     }
                 </div>
             );
         } else {
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section">
-                        You have no profile for {window.versions[this.state.version]}!
-                    </div>
-                    <div className="section">
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({
-                                            version: version,
-                                        });
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
+                    <section>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ item.indexOf(item[this.state.version - 1]) }
+                                versions={ item }
+                                onChange={function(event) {
+                                    var version = item.indexOf(item[event]) + 1
+                                    if (this.state.version == version) { return; }
+                                    this.setState({version: version});
+                                    pagenav.navigate(version);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </section>
+                    <section>
+                        <p>You have no profile for {window.versions[this.state.version]}!</p>
+                    </section>
                 </div>
             );
         }

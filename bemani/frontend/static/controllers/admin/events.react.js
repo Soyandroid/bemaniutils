@@ -97,32 +97,35 @@ var audit_events = React.createClass({
 
     renderFilters: function() {
         return (
-            <div className="section">
+            <section>
+                <h4>Filter</h4>
                 {window.possible_events.map(function(event_id) {
                     return (
-                        <span className="filter">
-                            <input
-                                name={event_id}
-                                id={event_id}
-                                type="checkbox"
-                                checked={this.state.filtering.indexOf(event_id) >= 0}
-                                onChange={function(event) {
-                                    var filtering = this.state.filtering;
-                                    if (event.target.checked) {
-                                        filtering.push(event_id);
-                                    } else {
-                                        filtering = filtering.filter(function(f) {
-                                            return f != event_id;
-                                        }.bind(this));
-                                    }
-                                    this.setState({filtering: filtering, offset: 0});
-                                }.bind(this)}
-                            />
-                            <label htmlFor={event_id}>{window.event_names[event_id]}</label>
-                        </span>
+                        <div>
+                            <span className="filter">
+                                <input
+                                    name={event_id}
+                                    id={event_id}
+                                    type="checkbox"
+                                    checked={this.state.filtering.indexOf(event_id) >= 0}
+                                    onChange={function(event) {
+                                        var filtering = this.state.filtering;
+                                        if (event.target.checked) {
+                                            filtering.push(event_id);
+                                        } else {
+                                            filtering = filtering.filter(function(f) {
+                                                return f != event_id;
+                                            }.bind(this));
+                                        }
+                                        this.setState({filtering: filtering, offset: 0});
+                                    }.bind(this)}
+                                />
+                                <label htmlFor={event_id}>{window.event_names[event_id]}</label>
+                                </span>
+                        </div>
                     );
                 }.bind(this))}
-            </div>
+            </section>
         );
     },
 
@@ -134,16 +137,17 @@ var audit_events = React.createClass({
             return (
                 <div>
                     {this.renderFilters()}
-                    <div className="section">
-                        <span className="placeholder">No events to display!</span>
-                    </div>
+                    <section>
+                        <p>No events to display!</p>
+                    </section>
                 </div>
             );
         }
         return (
             <div>
                 {this.renderFilters()}
-                <div className="section">
+                <section>
+                    <h2>Events List</h2>
                     <table className="list events">
                         <thead>
                             <tr>
@@ -202,7 +206,7 @@ var audit_events = React.createClass({
                             </tr>
                         </tfoot>
                     </table>
-                </div>
+                </section>
             </div>
         );
     },

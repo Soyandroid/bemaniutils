@@ -325,6 +325,7 @@ def viewsettings() -> Response:
             'versions': {version: name for (game, version, name) in frontend.all_games()},
         },
         {
+            'updateqpro': url_for('iidx_pages.updateqpro'),
             'updateflags': url_for('iidx_pages.updateflags'),
             'updatesettings': url_for('iidx_pages.updatesettings'),
             'updatename': url_for('iidx_pages.updatename'),
@@ -374,6 +375,37 @@ def updateflags() -> Dict[str, Any]:
     # Return updated flags
     return {
         'flags': frontend.format_flags(settings_dict),
+        'version': version,
+    }
+
+
+@iidx_pages.route('/options/qpro/update', methods=['POST'])
+@jsonify
+@loginrequired
+def updateqpro() -> Dict[str, Any]:
+    frontend = IIDXFrontend(g.data, g.config, g.cache)
+    qpros = request.get_json()['qpro']
+    version = int(request.get_json()['version'])
+    user = g.data.local.user.get_user(g.userID)
+    if user is None:
+        raise Exception('Unable to find user to update!')
+
+    # Grab profile and qpro dict that needs updating
+    profile = g.data.local.user.get_profile(GameConstants.IIDX, version, user.id)
+    if profile is None:
+        raise Exception('Unable to find profile to update!')
+    qpro_dict = profile.get_dict('qpro')
+
+    for qpro in qpros:
+        qpro_dict.replace_int(qpro, qpros[qpro])
+
+    # Update the qpro dict
+    profile.replace_dict('qpro', qpro_dict)
+    g.data.local.user.put_profile(GameConstants.IIDX, version, user.id, profile)
+
+    # Return updated qpro
+    return {
+        'qpro': frontend.format_qpro(qpro_dict),
         'version': version,
     }
 

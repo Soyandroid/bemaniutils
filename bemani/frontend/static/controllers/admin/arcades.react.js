@@ -128,6 +128,7 @@ var card_management = React.createClass({
                             });
                         }.bind(this)}
                     />
+                    <br/>
                     <Delete
                         onClick={function(event) {
                             this.deleteExistingArcade(event, arcade.id);
@@ -294,10 +295,11 @@ var card_management = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
+                <section>
+                    <h3>Arcade List</h3>
                     <form className="inline" onSubmit={this.saveArcade}>
                         <Table
-                            className="list arcade"
+                            className="alt"
                             columns={[
                                 {
                                     name: 'Name',
@@ -314,19 +316,19 @@ var card_management = React.createClass({
                                     render: this.renderOwners,
                                 },
                                 {
-                                    name: 'PASELI Enabled',
+                                    name: 'PASELI',
                                     render: this.renderPaseliEnabled,
                                 },
                                 {
-                                    name: 'PASELI Infinite',
+                                    name: 'Infinite P',
                                     render: this.renderPaseliInfinite,
                                 },
                                 {
-                                    name: 'Mask Web Address',
+                                    name: 'Mask Web Addr',
                                     render: this.renderMaskServicesURL,
                                 },
                                 {
-                                    name: '',
+                                    name: 'Actions',
                                     render: this.renderEditButton,
                                     action: true,
                                 },
@@ -335,136 +337,119 @@ var card_management = React.createClass({
                             emptymessage="There are no arcades on this network."
                         />
                     </form>
-                </div>
-                <div className="section">
+                </section>
+                <hr/>
+                <section>
                     <h3>Add Arcade</h3>
                     <form className="inline" onSubmit={this.addNewArcade}>
-                        <table className="add arcade">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Owners</th>
-                                    <th>PASELI Enabled</th>
-                                    <th>PASELI Infinite</th>
-                                    <th>Mask Web Address</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <input
-                                            name="name"
-                                            type="text"
-                                            value={ this.state.new_arcade.name }
-                                            onChange={function(event) {
-                                                var arcade = this.state.new_arcade;
-                                                arcade.name = event.target.value;
-                                                this.setState({new_arcade: arcade});
-                                            }.bind(this)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            name="description"
-                                            type="text"
-                                            value={ this.state.new_arcade.description }
-                                            onChange={function(event) {
-                                                var arcade = this.state.new_arcade;
-                                                arcade.description = event.target.value;
-                                                this.setState({new_arcade: arcade});
-                                            }.bind(this)}
-                                        />
-                                    </td>
-                                    <td>{
-                                        this.state.new_arcade.owners.map(function(owner, index) {
-                                            return (
-                                                <div>
-                                                    <SelectUser
-                                                        name="owner"
-                                                        key={index}
-                                                        value={ this.state.new_arcade.owners[index] }
-                                                        usernames={ this.state.usernames }
-                                                        onChange={function(owner) {
-                                                            var arcade = this.state.new_arcade;
-                                                            if (owner) {
-                                                                /* Update the owner */
-                                                                arcade.owners[index] = owner;
-                                                                if (arcade.owners[arcade.owners.length - 1]) {
-                                                                    arcade.owners.push(null);
-                                                                }
-                                                            } else {
-                                                                /* We should kill this if there is more
-                                                                   than one owner. */
-                                                                if (arcade.owners.length > 1) {
-                                                                    arcade.owners.splice(index, 1);
-                                                                } else {
-                                                                    arcade.owners[index] = null;
-                                                                }
-                                                            }
-                                                            this.setState({
-                                                                new_arcade: arcade,
-                                                            });
-                                                        }.bind(this)}
-                                                    />
-                                                </div>
-                                            );
-                                        }.bind(this))
-                                    }</td>
-                                    <td>
-                                        <input
-                                            name="paseli_enabled"
-                                            type="checkbox"
-                                            checked={ this.state.new_arcade.paseli_enabled }
-                                            onChange={function(event) {
-                                                var arcade = this.state.new_arcade;
-                                                arcade.paseli_enabled = event.target.checked;
-                                                this.setState({
-                                                    new_arcade: arcade,
-                                                });
-                                            }.bind(this)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            name="paseli_infinite"
-                                            type="checkbox"
-                                            checked={ this.state.new_arcade.paseli_infinite }
-                                            onChange={function(event) {
-                                                var arcade = this.state.new_arcade;
-                                                arcade.paseli_infinite = event.target.checked;
-                                                this.setState({
-                                                    new_arcade: arcade,
-                                                });
-                                            }.bind(this)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            name="mask_services_url"
-                                            type="checkbox"
-                                            checked={ this.state.new_arcade.mask_services_url }
-                                            onChange={function(event) {
-                                                var arcade = this.state.new_arcade;
-                                                arcade.mask_services_url = event.target.checked;
-                                                this.setState({
-                                                    new_arcade: arcade,
-                                                });
-                                            }.bind(this)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="submit"
-                                            value="save"
-                                        />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div className="field">
+                        <span>
+                            <input
+                                name="paseli_enabled"
+                                type="checkbox"
+                                id="paseli_enabled"
+                                checked={ this.state.new_arcade.paseli_enabled }
+                                onChange={function(event) {
+                                    var arcade = this.state.new_arcade;
+                                    arcade.paseli_enabled = event.target.checked;
+                                    this.setState({
+                                        new_arcade: arcade,
+                                    });
+                                }.bind(this)}
+                            />
+                            <label htmlFor="paseli_enabled">PASERI Enabled</label>
+                            <input
+                                name="paseli_infinite"
+                                type="checkbox"
+                                id="paseli_infinite"
+                                checked={ this.state.new_arcade.paseli_infinite }
+                                onChange={function(event) {
+                                    var arcade = this.state.new_arcade;
+                                    arcade.paseli_infinite = event.target.checked;
+                                    this.setState({
+                                        new_arcade: arcade,
+                                    });
+                                }.bind(this)}
+                            />
+                            <label htmlFor="paseli_infinite">Infinite PASELI Enabled</label>
+                            <input
+                                name="mask_services_url"
+                                type="checkbox"
+                                id="mask_services_url"
+                                checked={ this.state.new_arcade.mask_services_url }
+                                onChange={function(event) {
+                                    var arcade = this.state.new_arcade;
+                                    arcade.mask_services_url = event.target.checked;
+                                    this.setState({
+                                        new_arcade: arcade,
+                                    });
+                                }.bind(this)}
+                            />
+                            <label htmlFor="mask_services_url">Masks Service URL</label>
+                        </span>
+                        </div>
+                        <div className="fields">
+                            <div className="field half">
+                            <input name="name" type="text" value={ this.state.new_arcade.name } placeholder="Arcade Name"
+                                onChange={function(event) {
+                                    var arcade = this.state.new_arcade;
+                                    arcade.name = event.target.value;
+                                    this.setState({new_arcade: arcade});
+                                }.bind(this)} 
+                            />
+                            </div>
+                            <div className="field half">
+                                <input name="description" type="text" value={ this.state.new_arcade.description } placeholder="Arcade Description"
+                                    onChange={function(event) {
+                                        var arcade = this.state.new_arcade;
+                                        arcade.description = event.target.value;
+                                        this.setState({new_arcade: arcade});
+                                    }.bind(this)}
+                                />
+                            </div>
+                        </div>
+                        <div className="field">
+                            Owners:
+                            {
+                                this.state.new_arcade.owners.map(function(owner, index) {
+                                    return (
+                                        <div className="inner">
+                                            <SelectUser
+                                                name="owner"
+                                                key={index}
+                                                value={ this.state.new_arcade.owners[index] }
+                                                usernames={ this.state.usernames }
+                                                onChange={function(owner) {
+                                                    var arcade = this.state.new_arcade;
+                                                    if (owner) {
+                                                        /* Update the owner */
+                                                        arcade.owners[index] = owner;
+                                                        if (arcade.owners[arcade.owners.length - 1]) {
+                                                            arcade.owners.push(null);
+                                                        }
+                                                    } else {
+                                                        /* We should kill this if there is more
+                                                            than one owner. */
+                                                        if (arcade.owners.length > 1) {
+                                                            arcade.owners.splice(index, 1);
+                                                        } else {
+                                                            arcade.owners[index] = null;
+                                                        }
+                                                    }
+                                                    this.setState({
+                                                        new_arcade: arcade,
+                                                    });
+                                                }.bind(this)}
+                                            />
+                                        </div>
+                                    );
+                                }.bind(this))
+                            }
+                        </div>
+                        <br/>
+                        <input type="submit" value="save" className="primary"/>
                     </form>
-                </div>
+                </section>
             </div>
         );
     },

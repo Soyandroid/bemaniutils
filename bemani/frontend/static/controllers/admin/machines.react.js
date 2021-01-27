@@ -405,8 +405,10 @@ var machine_management = React.createClass({
                             });
                         }.bind(this)}
                     />
+                    <br/>
                     <Delete
                         onClick={function(event) {
+                            console.log(event, machine.pcbid)
                             this.deleteExistingMachine(event, machine.pcbid);
                         }.bind(this)}
                     />
@@ -418,10 +420,11 @@ var machine_management = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
+                <section>
                     <form className="inline" onSubmit={this.saveMachine}>
+                        <h4>Machines List</h4>
                         <Table
-                            className="list machines"
+                            className="list machines alt"
                             columns={[
                                 {
                                     name: 'PCBID',
@@ -455,7 +458,7 @@ var machine_management = React.createClass({
                                     sort: this.sortPort,
                                 },
                                 {
-                                    name: '',
+                                    name: 'Actions',
                                     render: this.renderEditButton,
                                 },
                             ]}
@@ -463,120 +466,94 @@ var machine_management = React.createClass({
                             emptymessage="There are no PCBIDs assigned to this network."
                         />
                     </form>
-                </div>
-                <div className="section">
-                    <h3>Add PCBID</h3>
+                </section>
+                <section>
+                    <h4>Add PCBID</h4>
                     <form className="inline" onSubmit={this.addNewMachine}>
-                        <table className="add machine">
-                            <thead>
-                                <tr>
-                                    <th>PCBID</th>
-                                    <th>Description</th>
-                                    <th>Arcade</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <input
-                                            name="pcbid"
-                                            type="text"
-                                            value={ this.state.add_machine.pcbid }
-                                            onChange={function(event) {
-                                                var machine = this.state.add_machine;
-                                                machine.pcbid = event.target.value;
-                                                this.setState({add_machine: machine});
-                                            }.bind(this)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            name="description"
-                                            type="text"
-                                            value={ this.state.add_machine.description }
-                                            onChange={function(event) {
-                                                var machine = this.state.add_machine;
-                                                machine.description = event.target.value;
-                                                this.setState({add_machine: machine});
-                                            }.bind(this)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <SelectArcade
-                                            name="owner"
-                                            value={ this.state.add_machine.arcade }
-                                            arcades={ this.state.arcades }
-                                            onChange={function(owner) {
-                                                var machine = this.state.add_machine;
-                                                machine.arcade = parseInt(owner);
-                                                this.setState({
-                                                    add_machine: machine,
-                                                 });
-                                             }.bind(this)}
-                                         />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="submit"
-                                            value="save"
-                                        />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div className="fields">
+                            <div className="field half">
+                                <input
+                                    name="pcbid"
+                                    type="text"
+                                    placeholder="PCBID"
+                                    value={ this.state.add_machine.pcbid }
+                                    onChange={function(event) {
+                                        var machine = this.state.add_machine;
+                                        machine.pcbid = event.target.value;
+                                        this.setState({add_machine: machine});
+                                    }.bind(this)}
+                                />
+                            </div>
+                            <div className="field half">
+                                <input
+                                    name="description"
+                                    type="text"
+                                    placeholder="Description"
+                                    value={ this.state.add_machine.description }
+                                    onChange={function(event) {
+                                        var machine = this.state.add_machine;
+                                        machine.description = event.target.value;
+                                        this.setState({add_machine: machine});
+                                    }.bind(this)}
+                                />
+                            </div>
+                            <div className="field half">
+                                <SelectArcade
+                                    name="owner"
+                                    value={ this.state.add_machine.arcade }
+                                    arcades={ this.state.arcades }
+                                    onChange={function(owner) {
+                                        var machine = this.state.add_machine;
+                                        machine.arcade = parseInt(owner);
+                                        this.setState({
+                                            add_machine: machine,
+                                            });
+                                        }.bind(this)}
+                                /> 
+                            </div>
+                        </div>
+                        <div>
+                            <input type="submit" value="save" className="primary"/>
+                        </div>
                     </form>
-                </div>
-                <div className="section">
-                    <h3>Generate Random PCBID</h3>
+                </section>
+                <section>
+                    <h4>Generate Random PCBID</h4>
                     <form className="inline" onSubmit={this.generateNewMachine}>
-                        <table className="add machine">
-                            <thead>
-                                <tr>
-                                    <th>Description</th>
-                                    <th>Arcade</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <input
-                                            name="description"
-                                            type="text"
-                                            value={ this.state.random_pcbid.description }
-                                            onChange={function(event) {
-                                                var pcbid = this.state.random_pcbid;
-                                                pcbid.description = event.target.value;
-                                                this.setState({random_pcbid: pcbid});
-                                            }.bind(this)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <SelectArcade
-                                            name="owner"
-                                            value={ this.state.random_pcbid.arcade }
-                                            arcades={ this.state.arcades }
-                                            onChange={function(owner) {
-                                                var arcade = this.state.random_pcbid;
-                                                arcade.arcade = parseInt(owner);
-                                                this.setState({
-                                                    random_pcbid: arcade,
-                                                 });
-                                             }.bind(this)}
-                                         />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="submit"
-                                            value="save"
-                                        />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div className="fields">
+                            <div className="field half">
+                                <input
+                                    name="description"
+                                    type="text"
+                                    placeholder="Description"
+                                    value={ this.state.random_pcbid.description }
+                                    onChange={function(event) {
+                                        var pcbid = this.state.random_pcbid;
+                                        pcbid.description = event.target.value;
+                                        this.setState({random_pcbid: pcbid});
+                                    }.bind(this)}
+                                />
+                            </div>
+                            <div className="field half">
+                                <SelectArcade
+                                    name="owner"
+                                    value={ this.state.random_pcbid.arcade }
+                                    arcades={ this.state.arcades }
+                                    onChange={function(owner) {
+                                        var arcade = this.state.random_pcbid;
+                                        arcade.arcade = parseInt(owner);
+                                        this.setState({
+                                            random_pcbid: arcade,
+                                        });
+                                    }.bind(this)}
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <input type="submit" value="save" className="primary"/>
+                        </div>
                     </form>
-                </div>
+                </section>
             </div>
         );
     },

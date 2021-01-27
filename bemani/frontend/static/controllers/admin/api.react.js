@@ -456,7 +456,7 @@ var api_management = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
+                <section>
                     <h3>Authorized Clients</h3>
                     <form className="inline" onSubmit={this.saveClient}>
                         <Table
@@ -482,8 +482,8 @@ var api_management = React.createClass({
                             emptymessage="There are no clients authorized to talk to this network."
                         />
                     </form>
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>Add Client</h3>
                     <form className="inline" onSubmit={this.addNewClient}>
                         <table className="add client">
@@ -517,8 +517,8 @@ var api_management = React.createClass({
                             </tbody>
                         </table>
                     </form>
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>Remote Servers</h3>
                     <form className="inline" onSubmit={this.saveServer}>
                         <Table
@@ -552,8 +552,8 @@ var api_management = React.createClass({
                             emptymessage="There are no remote servers on this network."
                         />
                     </form>
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>Add Remote Server</h3>
                     <form className="inline" onSubmit={this.addNewServer}>
                         <table className="add server">
@@ -600,7 +600,7 @@ var api_management = React.createClass({
                             </tbody>
                         </table>
                     </form>
-                </div>
+                </section>
             </div>
         );
     },

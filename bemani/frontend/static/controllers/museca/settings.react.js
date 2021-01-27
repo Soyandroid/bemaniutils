@@ -55,12 +55,15 @@ var settings_view = React.createClass({
             <LabelledSection vertical={true} label="Name">{
                 !this.state.editing_name ?
                     <span>
-                        <span>{player.name}</span>
-                        <Edit
-                            onClick={function(event) {
-                                this.setState({editing_name: true});
-                            }.bind(this)}
-                        />
+                        <p>
+                            {player.name}
+                            <br/>
+                            <Edit
+                                onClick={function(event) {
+                                    this.setState({editing_name: true});
+                                }.bind(this)}
+                            />
+                        </p>
                     </span> :
                     <form className="inline" onSubmit={this.saveName}>
                         <input
@@ -86,11 +89,14 @@ var settings_view = React.createClass({
                             }.bind(this)}
                             name="name"
                         />
+                        <br />
                         <input
+                            className="small"
                             type="submit"
                             value="save"
                         />
                         <input
+                            className="small"
                             type="button"
                             value="cancel"
                             onClick={function(event) {
@@ -108,56 +114,60 @@ var settings_view = React.createClass({
     render: function() {
         if (this.state.player[this.state.version]) {
             var player = this.state.player[this.state.version];
+            var filteredVersion = Object.values(this.state.profiles).map(function(version) {
+                return Object.values(window.versions)[version-1]
+            });
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
-                <div>
-                    <div className="section">
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.editing_name) { return; }
-                                        if (this.state.version == version) { return; }
-                                        this.setState({
-                                            version: version,
-                                            new_name: this.state.player[version].name,
-                                        });
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
-                    <div className="section">
-                        <h3>User Profile</h3>
-                        {this.renderName(player)}
-                    </div>
-                </div>
+                <section>
+                <h2>User Profile - {window.versions[this.state.version]}</h2>
+                <p>
+                    <h4>Select Version</h4>
+                    <SelectVersion
+                        name="version"
+                        value={ filteredVersion.indexOf(item[this.state.version - 1]) }
+                        versions={ filteredVersion }
+                        onChange={function(event) {
+                            var version = item.indexOf(filteredVersion[event]) + 1
+                            if (this.state.editing_name) { return; }
+                            if (this.state.version == version) { return; }
+                            this.setState({
+                                version: version,
+                                new_name: this.state.player[version].name,
+                            });
+                            pagenav.navigate(version);
+                        }.bind(this)}
+                    />
+                </p>
+                {this.renderName(player)}
+                </section>
             );
         } else {
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section">
-                        You have no profile for {window.versions[this.state.version]}!
-                    </div>
-                    <div className="section">
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({
-                                            version: version,
-                                        });
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
+                    <section>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ item.indexOf(item[this.state.version - 1]) }
+                                versions={ item }
+                                onChange={function(event) {
+                                    var version = item.indexOf(item[event]) + 1
+                                    if (this.state.version == version) { return; }
+                                    this.setState({version: version});
+                                    pagenav.navigate(version);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </section>
+                    <section>
+                        <p>You have no profile for {window.versions[this.state.version]}!</p>
+                    </section>
                 </div>
             );
         }

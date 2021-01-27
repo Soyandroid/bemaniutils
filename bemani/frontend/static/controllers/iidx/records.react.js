@@ -44,22 +44,23 @@ var HighScore = React.createClass({
         return (
             <div className="score">
                 <div>
-                    <span className="grade">{grades[grade]}</span>
-                    <span className="percent">{(percent * 100).toFixed(2)}%</span>
-                </div>
-                <div>
-                    <span className="label">EX</span>
-                    <span className="score">{this.props.score.points}</span>
-                    <span className="label">M</span>
-                    <span className="score">{this.props.score.miss_count < 0 ? '-' : this.props.score.miss_count}</span>
-                </div>
-                <div>
-                    <span className="status">{this.props.score.status}</span>
+                    <p>
+                        <span className="bolder clearRate">{grades[grade]}</span> {(percent * 100).toFixed(2)}%
+                        <br/>
+                        <span className="bolder">EX</span> {this.props.score.points}
+                        <br/>
+                        <span className="bolder">MISS</span> {this.props.score.miss_count < 0 ? '-' : this.props.score.miss_count}
+                        <br/>
+                        <span className="status clearRate">{this.props.score.status}</span>
+                    </p>
                 </div>
                 { this.props.score.userid && window.showdjnames ?
-                    <div><a href={Link.get('player', this.props.score.userid)}>{
-                        this.props.players[this.props.score.userid].name
-                    }</a></div> : null
+                    <div>
+                        <a href={Link.get('player', this.props.score.userid)}>
+                            {this.props.players[this.props.score.userid].name}
+                        </a>
+                    </div>
+                    : null
                 }
             </div>
         );
@@ -181,33 +182,43 @@ var network_records = React.createClass({
             paginate = true;
         }
 
+        var items = songids.map(function(songid) {
+            if (songid < 1000) {
+                curbutton = curbutton + 1;
+                var subtab = curbutton;
+                return {
+                    songID: songid,
+                    subtab: subtab,
+                    version: versions[songid]
+                }
+            }
+        }).filter(Boolean);
+        var sortable_versions = items.map(function(e) { return e.version });
+
         return (
             <span>
                 { paginate ?
-                    <div className="section">
-                        {songids.map(function(songid) {
-                            if (songid < 1000) {
-                                curbutton = curbutton + 1;
-                                var subtab = curbutton;
-                                return (
-                                    <Nav
-                                        title={ this.state.versions[songid] }
-                                        active={ subtab == this.state.subtab }
-                                        onClick={function(event) {
-                                            if (this.state.subtab == subtab) { return; }
-                                            this.setState({subtab: subtab, offset: 0});
-                                            pagenav.navigate(this.state.sort, window.valid_mixes[subtab]);
-                                        }.bind(this)}
-                                    />
-                                );
-                            } else {
-                                return null;
-                            }
-                        }.bind(this))}
-                    </div> :
+                    <section>
+                    <div>
+                        <h4>Version - {sortable_versions[this.state.subtab]}</h4>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ this.state.subtab }
+                                versions={ sortable_versions }
+                                onChange={function(version) {
+                                    if (this.state.subtab == window.valid_mixes[version]) { return; }
+                                    this.setState({subtab: version, offset: 0});
+                                    pagenav.navigate(this.state.sort, window.valid_mixes[version]);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </div>
+                    </section>
+                    :
                     null
                 }
-                <div className="section">
+                <section>
                     <table className="list records">
                         <thead></thead>
                         <tbody>
@@ -219,7 +230,7 @@ var network_records = React.createClass({
 
                                     return (
                                         <tr key={songid.toString()}>
-                                            <td className="subheader">{ this.state.versions[songid] }</td>
+                                            <td className="subheader"><b>{ this.state.versions[songid] }</b></td>
                                             <td className="subheader">SPN</td>
                                             <td className="subheader">SPH</td>
                                             <td className="subheader">SPA</td>
@@ -313,7 +324,7 @@ var network_records = React.createClass({
                             }.bind(this))}
                         </tbody>
                     </table>
-                </div>
+                </section>
             </span>
         );
     },
@@ -393,24 +404,22 @@ var network_records = React.createClass({
         }
 
         return (
-            <span>
-                <div className="section">
-                    {window.valid_charts.map(function(chartname, index) {
-                        return (
-                            <Nav
-                                title={ chartname }
-                                active={ this.state.subtab == index }
-                                onClick={function(event) {
-                                    if (this.state.subtab == index) { return; }
-                                    this.setState({subtab: index, offset: 0});
-                                    pagenav.navigate(this.state.sort, window.valid_charts[index]);
-                                }.bind(this)}
-                            />
-                        );
-                    }.bind(this))}
-                </div>
+            <section>
+                <h4>Difficulty - {window.valid_charts[this.state.subtab]}</h4>
+                <p>
+                    <SelectVersion
+                        name="chart"
+                        value={ this.state.subtab }
+                        versions={ window.valid_charts }
+                        onChange={function(chart) {
+                            if (this.state.subtab == window.valid_charts[chart]) { return; }
+                            this.setState({subtab: chart, offset: 0});
+                            pagenav.navigate(this.state.sort, window.valid_charts[chart]);
+                        }.bind(this)}
+                    />
+                </p>
                 { this.renderBySongIDList(songids, false) }
-            </span>
+            </section>
         );
     },
 
@@ -445,24 +454,22 @@ var network_records = React.createClass({
         }
 
         return (
-            <span>
-                <div className="section">
-                    {window.valid_charts.map(function(chartname, index) {
-                        return (
-                            <Nav
-                                title={ chartname }
-                                active={ this.state.subtab == index }
-                                onClick={function(event) {
-                                    if (this.state.subtab == index) { return; }
-                                    this.setState({subtab: index, offset: 0});
-                                    pagenav.navigate(this.state.sort, window.valid_charts[index]);
-                                }.bind(this)}
-                            />
-                        );
-                    }.bind(this))}
-                </div>
+            <section>
+                <h4>Chart - {window.valid_charts[this.state.subtab]}</h4>
+                <p>
+                    <SelectVersion
+                        name="chart"
+                        value={ this.state.subtab }
+                        versions={ window.valid_charts }
+                        onChange={function(chart) {
+                            if (this.state.subtab == window.valid_charts[chart]) { return; }
+                            this.setState({subtab: chart, offset: 0});
+                            pagenav.navigate(this.state.sort, window.valid_charts[chart]);
+                        }.bind(this)}
+                    />
+                </p>
                 { this.renderBySongIDList(songids, false) }
-            </span>
+            </section>
         );
     },
 
@@ -612,24 +619,24 @@ var network_records = React.createClass({
 
         return (
             <div>
-                <div className="section">
-                    { window.valid_sorts.map(function(sort, index) {
-                        return (
-                            <Nav
-                                title={"Records Sorted by " + window.sort_names[sort]}
-                                active={this.state.sort == sort}
-                                onClick={function(event) {
-                                    if (this.state.sort == sort) { return; }
-                                    this.setState({sort: sort, offset: 0, subtab: 0});
-                                    pagenav.navigate(sort, window.valid_subsorts[index][0]);
-                                }.bind(this)}
-                            />
-                        );
-                    }.bind(this)) }
-                </div>
-                <div className="section">
+                <section>
+                    <p>
+                        <h4>Sort Options</h4>
+                        <SelectVersion
+                            name="sortOptions"
+                            value={ this.state.sort }
+                            versions={ sort_names }
+                            onChange={function(event) {
+                                if (this.state.sort == event) { return; }
+                                this.setState({sort: event, offset: 0, subtab: 0});
+                                pagenav.navigate(event, window.valid_subsorts[event]);
+                            }.bind(this)}
+                        />
+                    </p>
+                </section>
+                <section>
                     {data}
-                </div>
+                </section>
             </div>
         );
     },

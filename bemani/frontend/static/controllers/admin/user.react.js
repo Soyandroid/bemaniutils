@@ -395,14 +395,14 @@ var user_management = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
+                <section>
                     <h3>User Details</h3>
                     {this.renderUsername()}
                     {this.renderPassword()}
                     {this.renderEmail()}
                     {this.renderPIN()}
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>Cards</h3>
                     {this.state.cards.map(function(card) {
                         return (
@@ -414,8 +414,8 @@ var user_management = React.createClass({
                             </div>
                         );
                     }.bind(this))}
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>Add Card</h3>
                     <form onSubmit={this.addNewCard}>
                         <input
@@ -429,8 +429,8 @@ var user_management = React.createClass({
                         />
                         <input type="submit" value="add card" />
                     </form>
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>PASELI Balance</h3>
                     { Object.keys(this.state.arcades).length == 0 ?
                         <div>
@@ -482,8 +482,8 @@ var user_management = React.createClass({
                             </div>
                         </form>
                     }
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>PASELI Transaction History</h3>
                     { this.state.events.length == 0 ?
                         <div>
@@ -532,7 +532,7 @@ var user_management = React.createClass({
                             </tfoot>
                         </table>
                     }
-                </div>
+                </section>
             </div>
         );
     },

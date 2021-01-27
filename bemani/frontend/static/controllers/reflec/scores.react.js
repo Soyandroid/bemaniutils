@@ -68,23 +68,17 @@ var network_scores = React.createClass({
         return (
             <div className="score">
                 <div>
-                    <span className="grade">{this.renderGrade(score)}</span>
-                    <span className="percent">{score.achievement_rate/100}%</span>
-                </div>
-                <div>
-                    <span className="label">S</span>
-                    <span className="score">{score.points}</span>
-                    <span className="label">M</span>
-                    <span className="score">{score.miss_count < 0 ? '-' : score.miss_count}</span>
-                </div>
-                <div>
-                    <span className="label">Combo</span>
-                    <span className="score">{score.combo < 0 ? '-' : score.combo}</span>
-                </div>
-                <div>
-                    <span className="status">{score.combo_type}</span>
-                    <span className="status"> </span>
-                    <span className="status">{score.clear_type}</span>
+                    <p>
+                        <span className="bolder clearRate">{this.renderGrade(score)}</span> {score.achievement_rate/100}%
+                        <br/>
+                        <span className="bolder">Score:</span> {score.points}
+                        <br />
+                        <span className="bolder">Combo:</span> {score.combo < 0 ? '-' : score.combo}
+                        <br />
+                        <span className="bolder">Miss:</span> {score.miss_count < 0 ? '-' : score.miss_count}
+                        <br/>
+                        <span className="status clearRate">{score.combo_type} {score.clear_type}</span>
+                    </p>
                 </div>
             </div>
         );
@@ -118,7 +112,7 @@ var network_scores = React.createClass({
                                         <div>
                                             <Timestamp timestamp={attempt.timestamp} />
                                             { window.shownewrecords && attempt.raised ?
-                                                <span className="raised">new high score!</span> :
+                                                <span className="bolder">New High Score!</span> :
                                                 null
                                             }
                                         </div>

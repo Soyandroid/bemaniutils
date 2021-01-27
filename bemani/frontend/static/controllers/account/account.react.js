@@ -85,18 +85,29 @@ var account_management = React.createClass({
 
     renderPassword: function() {
         return (
-            <LabelledSection vertical={true} label="Password">{
-                !this.state.editing_password ?
-                    <span>
-                        <span>&bull;&bull;&bull;&bull;&bull;&bull;</span>
-                        <Edit
-                            onClick={function(event) {
-                                this.setState({editing_password: true});
-                            }.bind(this)}
-                        />
-                    </span> :
-                    <form className="inline" onSubmit={this.savePassword}>
-                        <div>
+            <form className="inline" onSubmit={this.savePassword}>
+                {
+                    !this.state.editing_password ?
+                    <div className="fields">
+                        <div className="field">
+                            <b>Password</b>
+                            <br/>
+                            &bull;&bull;&bull;&bull;&bull;&bull;
+                        </div>
+                        <div className="field">
+                            <Edit
+                                onClick={function(event) {
+                                    this.setState({editing_password: true});
+                                }.bind(this)}
+                            />
+                        </div>
+                    </div>
+                    :
+                    <div className="fields">
+                        <div className="field">
+                            <b>Change Password</b>
+                        </div>
+                        <div className="field">
                             <label for="old">Current password:</label>
                             <input
                                 type="password"
@@ -109,7 +120,7 @@ var account_management = React.createClass({
                                 name="old"
                             />
                         </div>
-                        <div>
+                        <div className="field">
                             <label for="new1">New password:</label>
                             <input
                                 type="password"
@@ -120,7 +131,7 @@ var account_management = React.createClass({
                                 name="new1"
                             />
                         </div>
-                        <div>
+                        <div className="field">
                             <label for="new2">New password (again):</label>
                             <input
                                 type="password"
@@ -131,7 +142,7 @@ var account_management = React.createClass({
                                 name="new2"
                             />
                         </div>
-                        <div className="buttons">
+                        <div className="field">
                             <input
                                 type="submit"
                                 value="save"
@@ -149,49 +160,126 @@ var account_management = React.createClass({
                                 }.bind(this)}
                             />
                         </div>
-                    </form>
-            }</LabelledSection>
+                    </div>
+                }
+            </form>
         );
     },
 
     renderEmail: function() {
         return (
-            <LabelledSection vertical={true} label="Email Address">{
-                !this.state.editing_email ?
-                    <span>
-                        <span>{ this.state.email }</span>
-                        <Edit
-                            onClick={function(event) {
-                                this.setState({editing_email: true});
-                            }.bind(this)}
-                        />
-                    </span> :
-                    <form className="inline" onSubmit={this.saveEmail}>
-                        <div>
-                            <label for="old">Current password:</label>
-                            <input
-                                type="password"
-                                autofocus="true"
-                                ref={c => (this.focus_element = c)}
-                                value={this.state.email_password}
-                                onChange={function(event) {
-                                    this.setState({email_password: event.target.value});
+            <form className="inline" onSubmit={this.saveEmail}>
+                {
+                    !this.state.editing_email ?
+                        <div className="fields">
+                            <div className="field">
+                                <b>Email</b>
+                                <br/>
+                                { this.state.email }
+                            </div>
+                            <div className="field">
+                                <Edit
+                                    onClick={function(event) {
+                                        this.setState({editing_email: true});
+                                    }.bind(this)}
+                                />
+                            </div>
+                        </div>
+                        :
+                        <div className="fields">
+                            <div className="field">
+                                <b>Change Email</b>
+                            </div>
+                            <div className="field">
+                                <label for="old">Current password:</label>
+                                <input
+                                    type="password"
+                                    autofocus="true"
+                                    ref={c => (this.focus_element = c)}
+                                    value={this.state.email_password}
+                                    onChange={function(event) {
+                                        this.setState({email_password: event.target.value});
+                                    }.bind(this)}
+                                    name="old"
+                                />
+                            </div>
+                            <div className="field">
+                                <label for="email">New email address:</label>
+                                <input
+                                    type="text"
+                                    value={this.state.new_email}
+                                    onChange={function(event) {
+                                        this.setState({new_email: event.target.value});
+                                    }.bind(this)}
+                                    name="email"
+                                />
+                            </div>
+                            <div className="field">
+                                <input
+                                    type="submit"
+                                    value="save"
+                                />
+                                <input
+                                    type="button"
+                                    value="cancel"
+                                    onClick={function(event) {
+                                        this.setState({
+                                            new_email: this.state.email,
+                                            email_password: '',
+                                            editing_email: false,
+                                        });
+                                    }.bind(this)}
+                                />
+                            </div>
+                        </div>
+                }
+            </form>
+        );
+    },
+
+    renderPIN: function() {
+        return (
+            <form className="inline" onSubmit={this.savePin}>
+                {
+                    !this.state.editing_pin ?
+                    <div className="fields">
+                        <div className="field">
+                            <b>PIN</b>
+                            <br/>
+                            &bull;&bull;&bull;&bull;
+                        </div>
+                        <div className="field">
+                            <Edit
+                                onClick={function(event) {
+                                    this.setState({editing_pin: true});
                                 }.bind(this)}
-                                name="old"
                             />
                         </div>
-                        <div>
-                            <label for="email">New email address:</label>
+                    </div>
+                    :
+                    <div className="fields">
+                        <div className="field">
+                            <b>Change PIN</b>
+                        </div>
+                        <div className="field">
                             <input
                                 type="text"
-                                value={this.state.new_email}
+                                className="inline"
+                                maxlength="4"
+                                size="4"
+                                autofocus="true"
+                                ref={c => (this.focus_element = c)}
+                                value={this.state.new_pin}
                                 onChange={function(event) {
-                                    this.setState({new_email: event.target.value});
+                                    var intRegex = /^\d*$/;
+                                    if (event.target.value.length <= 4 && intRegex.test(event.target.value)) {
+                                        this.setState({new_pin: event.target.value});
+                                    }
                                 }.bind(this)}
-                                name="email"
+                                name="pin"
                             />
                         </div>
-                        <div className="buttons">
+                        <div className="field">
                             <input
                                 type="submit"
                                 value="save"
@@ -201,76 +289,26 @@ var account_management = React.createClass({
                                 value="cancel"
                                 onClick={function(event) {
                                     this.setState({
-                                        new_email: this.state.email,
-                                        email_password: '',
-                                        editing_email: false,
+                                        new_pin: '',
+                                        editing_pin: false,
                                     });
                                 }.bind(this)}
                             />
                         </div>
-                    </form>
-            }</LabelledSection>
-        );
-    },
-
-    renderPIN: function() {
-        return (
-            <LabelledSection vertical={true} label="PIN">{
-                !this.state.editing_pin ?
-                    <span>
-                        <span>&bull;&bull;&bull;&bull;</span>
-                        <Edit
-                            onClick={function(event) {
-                                this.setState({editing_pin: true});
-                            }.bind(this)}
-                        />
-                    </span> :
-                    <form className="inline" onSubmit={this.savePin}>
-                        <input
-                            type="text"
-                            className="inline"
-                            maxlength="4"
-                            size="4"
-                            autofocus="true"
-                            ref={c => (this.focus_element = c)}
-                            value={this.state.new_pin}
-                            onChange={function(event) {
-                                var intRegex = /^\d*$/;
-                                if (event.target.value.length <= 4 && intRegex.test(event.target.value)) {
-                                    this.setState({new_pin: event.target.value});
-                                }
-                            }.bind(this)}
-                            name="pin"
-                        />
-                        <input
-                            type="submit"
-                            value="save"
-                        />
-                        <input
-                            type="button"
-                            value="cancel"
-                            onClick={function(event) {
-                                this.setState({
-                                    new_pin: '',
-                                    editing_pin: false,
-                                });
-                            }.bind(this)}
-                        />
-                    </form>
-            }</LabelledSection>
+                    </div>
+                }
+            </form>
         );
     },
 
     render: function() {
         return (
-            <div>
-                <div className="section">
-                    {this.renderUsername()}
-                    {this.renderPassword()}
-                    {this.renderEmail()}
-                    {this.renderPIN()}
-                </div>
-            </div>
+            <section>
+                {this.renderUsername()}
+                {this.renderPassword()}
+                {this.renderEmail()}
+                {this.renderPIN()}
+            </section>
         );
     },
 });

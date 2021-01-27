@@ -2,7 +2,7 @@
 
 var LabelledSection = React.createClass({
     render: function() {
-        var classname = "labelledsection"
+        var classname = "inner labelledsection"
         if (this.props.vertical) {
             classname = classname + " vertical";
         } else {
@@ -12,11 +12,12 @@ var LabelledSection = React.createClass({
             classname = classname + " " + this.props.className;
         }
         return (
-            <div
-                className={classname}
-            >
-                <div className="label">{this.props.label}</div>
-                <div className="content">{this.props.children}</div>
+            <div className={classname}>
+                <p className="label">
+                    <b>{this.props.label}</b>
+                    <br/>
+                    {this.props.children}
+                </p>
             </div>
         );
     },

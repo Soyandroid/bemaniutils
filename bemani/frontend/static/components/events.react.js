@@ -188,38 +188,38 @@ var PASELITransactionEvent = React.createClass({
                 <td className="details">
                     { user ?
                         <div>
-                            <div className="inline">User:</div>
-                            <div className="inline"><a href={Link.get('viewuser', event.userid)}>{user}</a></div>
+                            <div className="inline"><span className="bolder">User</span></div>
+                            <pre className="inline"><a href={Link.get('viewuser', event.userid)}>{user}</a></pre>
                         </div> : null
                     }
                     { this.props.arcades ?
                         <div>
-                            <div className="inline">Arcade:</div>
+                            <div className="inline"><span className="bolder">Arcade</span></div>
                             <div className="inline">{this.props.arcades[event.arcadeid]}</div>
                         </div> : null
                     }
                     { event.data['pcbid'] ?
                         <div>
-                            <div className="inline">PCBID:</div>
+                            <div className="inline"><span className="bolder">PCBID</span></div>
                             <pre className="inline">{event.data.pcbid}</pre>
                         </div> : null
                     }
                     <div>
-                        <div className="inline">Reason:</div>
+                        <div className="inline"><span className="bolder">Reason</span></div>
                         <pre className="inline">{event.data.reason}</pre>
                     </div>
                     <div>
-                        <div className="inline">Transaction Amount:</div>
+                        <div className="inline"><span className="bolder">Transaction Amount</span></div>
                         <pre className="inline">{event.data.delta}</pre>
                     </div>
                     { event.data['service'] && event.data['service'] != 0 ?
                         <div>
-                            <div className="inline">Service PASELI Amount:</div>
+                            <div className="inline"><span className="bolder">Service PASELI Amount</span></div>
                             <pre className="inline">{event.data.service}</pre>
                         </div> : null
                     }
                     <div>
-                        <div className="inline">New Balance:</div>
+                        <div className="inline"><span className="bolder">New Balance</span></div>
                         <pre className="inline">{event.data.balance}</pre>
                     </div>
                 </td>

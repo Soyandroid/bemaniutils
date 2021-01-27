@@ -3,7 +3,7 @@ import re
 import traceback
 from typing import Callable, Dict, Any, Optional, List
 from react.jsx import JSXTransformer  # type: ignore
-from flask import Flask, flash, request, redirect, Response, url_for, render_template, got_request_exception, jsonify as flask_jsonify, g
+from flask import Flask, flash, request, redirect, Response, url_for, send_file, render_template, got_request_exception, jsonify as flask_jsonify, g
 from flask_caching import Cache  # type: ignore
 from functools import wraps
 
@@ -139,6 +139,15 @@ def jsx(filename: str) -> Response:
         # Set the cache to one year, since we namespace on this file's update time
         g.cache.set(namespace, jsx, timeout=86400 * 365)
     return Response(jsx, mimetype='application/javascript')
+
+
+@app.route('/images/jubeat/emblem/<path:imagename>')
+@cacheable(86400)
+def emblem_images(imagename: str) -> Response:
+    # Find path for filename
+    emblemImage = os.path.join(static_location, f'emblems/{imagename}')
+    print(os.path.join(static_location, f'emblems/{imagename}'))
+    return send_file(emblemImage, mimetype='image/png')
 
 
 def render_react(

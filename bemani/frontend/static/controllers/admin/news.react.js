@@ -208,16 +208,17 @@ var news_management = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
+                <section>
+                    <h3>News List</h3>
                     { this.state.news.length > 0 ?
                         <form className="inline" onSubmit={this.saveNews}>
-                            <table className="list news">
+                            <table>
                                 <thead>
                                     <tr>
                                         <th>Date</th>
                                         <th>Title</th>
                                         <th>Body</th>
-                                        <th className="action"></th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -240,51 +241,59 @@ var news_management = React.createClass({
                             There are no news entries on this network.
                         </span>
                     }
-                </div>
-                <div className="section">
-                    <h3>Add Entry</h3>
+                </section>
+
+                <section>
+                    <h3>Add a news</h3>
+
                     <form className="inline" onSubmit={this.addNews}>
-                        <LabelledSection vertical={true} label="Title">
-                            <input
-                                name="title"
-                                type="text"
-                                size="50"
-                                value={ this.state.new_entry.title }
-                                onChange={function(event) {
-                                    var entry = this.state.new_entry;
-                                    entry.title = event.target.value;
-                                    this.setState({new_entry: entry});
-                                }.bind(this)}
-                            />
-                        </LabelledSection>
-                        <LabelledSection vertical={true} label="Body">
-                            <textarea
-                                name="body"
-                                cols="80"
-                                rows="10"
-                                value={ this.state.new_entry.body }
-                                onChange={function(event) {
-                                    var entry = this.state.new_entry;
-                                    entry.body = event.target.value;
-                                    this.setState({new_entry: entry});
-                                }.bind(this)}
-                            />
-                        </LabelledSection>
-                        <LabelledSection vertical={true}>
-                            <input
-                                type="button"
-                                value="preview"
-                                onClick={function(event) {
-                                    this.previewNews(event, this.state.new_entry);
-                                }.bind(this)}
-                            />
-                            <input
-                                type="submit"
-                                value="save"
-                            />
-                        </LabelledSection>
+                        <div className="fields">
+                            <div className="field">
+                                <input
+                                    name="title"
+                                    placeholder="Title"
+                                    type="text"
+                                    size="50"
+                                    value={ this.state.new_entry.title }
+                                    onChange={function(event) {
+                                        var entry = this.state.new_entry;
+                                        entry.title = event.target.value;
+                                        this.setState({new_entry: entry});
+                                    }.bind(this)}
+                                />
+                            </div>
+                            <div className="field">
+                                <textarea
+                                    name="body"
+                                    placeholder="Message"
+                                    cols="80"
+                                    rows="10"
+                                    value={ this.state.new_entry.body }
+                                    onChange={function(event) {
+                                        var entry = this.state.new_entry;
+                                        entry.body = event.target.value;
+                                        this.setState({new_entry: entry});
+                                    }.bind(this)}
+                                />
+                            </div>
+                            <div className="field">
+                                <span>
+                                    <input
+                                        type="button"
+                                        value="preview"
+                                        onClick={function(event) {
+                                            this.previewNews(event, this.state.new_entry);
+                                        }.bind(this)}
+                                    />
+                                    <input
+                                        type="submit"
+                                        value="save"
+                                    />
+                                </span>
+                            </div>
+                        </div>
                     </form>
-                </div>
+                </section>
             </div>
         );
     },

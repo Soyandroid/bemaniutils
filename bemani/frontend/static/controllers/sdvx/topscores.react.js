@@ -66,27 +66,22 @@ var top_scores = React.createClass({
 
         return (
             <div>
-                <div className="section">
-                    <div className="songname">{window.name}</div>
-                    <div className="songartist">{window.artist}</div>
-                    <div className="songdifficulty">{window.difficulties[chart]}</div>
-                </div>
-                <div className="section">
-                    {valid_charts.map(function(chart) {
-                        return (
-                            <Nav
-                                title={chart}
-                                active={this.state.chart == chart}
-                                onClick={function(event) {
-                                    if (this.state.chart == chart) { return; }
-                                    this.setState({chart: chart});
-                                    pagenav.navigate(chart);
-                                }.bind(this)}
-                            />
-                        );
-                    }.bind(this))}
-                </div>
-                <div className="section">
+                <section>
+                    <h1>{window.artist} — {window.name}</h1>
+                    <h3>Difficulty {window.difficulties[chart]}★</h3>
+                    <p>
+                    <SelectVersion
+                        name="version"
+                        value={ valid_charts.indexOf(this.state.chart) }
+                        versions={ valid_charts }
+                        onChange={function(chart) {
+                            if (this.state.chart == valid_charts[chart]) { return; }
+                            this.setState({chart: valid_charts[chart]});
+                            pagenav.navigate(valid_charts[chart]);
+                        }.bind(this)}
+                    />
+                    </p>
+                    <h3>Scores</h3>
                		<Table
                         className="list topscores"
                         columns={[
@@ -132,7 +127,7 @@ var top_scores = React.createClass({
                         paginate={10}
                         emptymessage="There are no scores for this chart."
                     />
-                </div>
+                </section>
             </div>
         );
     },

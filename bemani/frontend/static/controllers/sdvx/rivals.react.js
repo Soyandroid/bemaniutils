@@ -133,57 +133,71 @@ var rivals_view = React.createClass({
                 var player = this.state.results[userid][this.state.version];
                 if (player) { resultlength++; }
             }.bind(this));
+            var filteredVersion = Object.values(this.state.profiles).map(function(version) {
+                console.log(version - 2)
+                return Object.values(window.versions)[version - 1]
+            });
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section">
-                        <h3>Rivals</h3>
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({
-                                            version: version,
-                                            offset: 0,
-                                        });
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
-                    <div className="section">
-                        <form onSubmit={this.searchForPlayers}>
-                            <label for="search">Name or SDVX ID:</label>
-                            <br />
-                            <input
-                                type="text"
-                                className="inline"
-                                maxlength="9"
-                                value={this.state.term}
+                    <section>
+                        <p>
+                            <h4>Select Version</h4>
+                            <SelectVersion
+                                name="version"
+                                value={ filteredVersion.indexOf(item[this.state.version - 1]) }
+                                versions={ filteredVersion }
                                 onChange={function(event) {
-                                    var value = event.target.value.toUpperCase();
-                                    var intRegex = new RegExp(
-                                        "^[" +
-                                        "0-9" +
-                                        "A-Z" +
-                                        "!?#$&*-. " +
-                                        "]*$"
-                                    );
-                                    // Normally, names are <= 8 characters, but we allow SDVX IDs here too
-                                    if (value.length <= 9 && intRegex.test(value)) {
-                                        this.setState({term: value});
-                                    }
+                                    var version = item.indexOf(filteredVersion[event]) + 1
+                                    if (this.state.editing_name) { return; }
+                                    if (this.state.version == version) { return; }
+                                    this.setState({
+                                        version: version,
+                                        new_name: this.state.player[version].name,
+                                    });
+                                    pagenav.navigate(version);
                                 }.bind(this)}
-                                name="search"
                             />
-                            <input type="submit" value="search" />
-                            { this.state.searching ?
-                                <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                                null
-                            }
+                        </p>
+                        <h3>Rivals</h3>
+                    </section>
+                    <section>
+                        <form onSubmit={this.searchForPlayers}>
+                            <div className="fields">
+                                <div className="field half">
+                                    <input
+                                        type="text"
+                                        className="inline"
+                                        maxlength="9"
+                                        placeholder="Name or SDVX ID"
+                                        value={this.state.term}
+                                        onChange={function(event) {
+                                            var value = event.target.value.toUpperCase();
+                                            var intRegex = new RegExp(
+                                                "^[" +
+                                                "0-9" +
+                                                "A-Z" +
+                                                "!?#$&*-. " +
+                                                "]*$"
+                                            );
+                                            // Normally, names are <= 8 characters, but we allow SDVX IDs here too
+                                            if (value.length <= 9 && intRegex.test(value)) {
+                                                this.setState({term: value});
+                                            }
+                                        }.bind(this)}
+                                        name="search"
+                                    />
+                                </div>
+                                <div className="field half">
+                                    <input type="submit" value="search" />
+                                    { this.state.searching ?
+                                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                                        null
+                                    }
+                                </div>
+                            </div>
                         </form>
                         {resultlength > 0 ?
                             <table className="list players">
@@ -232,10 +246,10 @@ var rivals_view = React.createClass({
                                     </tr>
                                 </tfoot>
                             </table> :
-                            <div className="placeholder">No players match the specified search.</div>
+                            <p>No players match the specified search.</p>
                         }
-                    </div>
-                    <div className="section">
+                    </section>
+                    <section>
                         <h3>Rivals</h3>
                         <table className="list players">
                             <thead>
@@ -265,30 +279,33 @@ var rivals_view = React.createClass({
                                 }.bind(this))}
                             </tbody>
                         </table>
-                    </div>
+                    </section>
                 </div>
             );
         } else {
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section">
-                        You have no profile for {window.versions[this.state.version]}!
-                    </div>
-                    <div className="section">
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({version: version, offset: 0});
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
+                    <section>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ item.indexOf(item[this.state.version - 1]) }
+                                versions={ item }
+                                onChange={function(event) {
+                                    var version = item.indexOf(item[event]) + 1
+                                    if (this.state.version == version) { return; }
+                                    this.setState({version: version});
+                                    pagenav.navigate(version);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </section>
+                    <section>
+                        <p>You have no profile for {window.versions[this.state.version]}!</p>
+                    </section>
                 </div>
             );
         }

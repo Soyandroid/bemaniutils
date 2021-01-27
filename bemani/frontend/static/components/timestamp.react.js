@@ -7,7 +7,7 @@ var Timestamp = React.createClass({
         }
 
         var t = new Date(this.props.timestamp * 1000);
-        var formatted = t.format('Y/m/d @ g:i:s a');
+        var formatted = t.format('Y.m.d  g:i:s A');
         return (
             <div className="timestamp">{ formatted }</div>
         );

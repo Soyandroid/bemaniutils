@@ -9,14 +9,17 @@ var home = React.createClass({
 
     render: function() {
         return (
-            <div>{
+            <div>
+                <h1>News</h1>
+                {
                 this.state.news.map(function(entry) {
                     return (
-                        <div className="section">
-                            <h3>{ entry.title }</h3>
+                        <section>
                             <Timestamp timestamp={entry.timestamp} />
-                            <div dangerouslySetInnerHTML={ {__html: entry.body} }></div>
-                        </div>
+                            <h2>{ entry.title }</h2>
+                            <p dangerouslySetInnerHTML={ {__html: entry.body} }></p>
+                            <hr/>
+                        </section>
                     );
                 }.bind(this))
             }</div>

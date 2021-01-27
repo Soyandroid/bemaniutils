@@ -1,7 +1,7 @@
 /*** @jsx React.DOM */
 
 var valid_sorts = ['series', 'name', 'popularity'];
-var valid_charts = ['Basic', 'Advanced', 'Extreme'];
+var valid_charts = ['Basic', 'Advanced', 'Extreme', 'Hard Mode Basic', 'Hard Mode Advanced', 'Hard Mode Extreme'];
 var valid_mixes = Object.keys(window.versions).map(function(mix) {
     return (parseInt(mix) - 1).toString();
 });
@@ -28,13 +28,15 @@ var HighScore = React.createClass({
         return (
             <div className="score">
                 <div>
-                    <span className="label">Score</span>
-                    <span className="score">{this.props.score.points}</span>
-                    <span className="label">Combo</span>
-                    <span className="score">{this.props.score.combo < 0 ? '-' : this.props.score.combo}</span>
-                </div>
-                <div>
-                    <span className="status">{this.props.score.status}</span>
+                    <p>
+                        <span className="bolder">Score:</span> {this.props.score.points}
+                        <br/>
+                        <span className="bolder">Combos:</span> {this.props.score.combo < 0 ? '-' : this.props.score.combo}
+                        <br/>
+                        <span className="bolder">Rate:</span> {this.props.score.music_rate < 0 ? '-' : this.props.score.music_rate}%
+                        <br/>
+                        <span className="status clearRate">{this.props.score.status}</span>
+                    </p>
                 </div>
                 { this.props.score.userid && window.shownames ?
                     <div><a href={Link.get('player', this.props.score.userid)}>{
@@ -113,7 +115,7 @@ var network_records = React.createClass({
     getPlays: function(record) {
         if (!record) { return 0; }
         var plays = 0;
-        for (var i = 0; i < 4; i++) {
+        for (var i = 0; i < 7; i++) {
             if (record[i]) { plays += record[i].plays; }
         }
         return plays;
@@ -140,6 +142,9 @@ var network_records = React.createClass({
         var lastSeries = 0;
         for (var i = 0; i < songids.length; i++) {
             var curSeries = Math.floor(songids[i] / 10000000);
+            if (curSeries >= 10) {
+                curSeries = 10; // Special case for jubeat qubell extend songs. 
+            }
             if (curSeries != lastSeries) {
                 lastSeries = curSeries;
                 songids.splice(i, 0, curSeries);
@@ -162,33 +167,43 @@ var network_records = React.createClass({
             paginate = true;
         }
 
+        var items = songids.map(function(songid) {
+            if (songid < 10000000) {
+                curbutton = curbutton + 1;
+                var subtab = curbutton;
+                return {
+                    songID: songid,
+                    subtab: subtab,
+                    version: versions[songid]
+                }
+            }
+        }).filter(Boolean);
+        var sortable_versions = items.map(function(e) { return e.version });
+
         return (
             <span>
                 { paginate ?
-                    <div className="section">
-                        {songids.map(function(songid) {
-                            if (songid < 10000000) {
-                                curbutton = curbutton + 1;
-                                var subtab = curbutton;
-                                return (
-                                    <Nav
-                                        title={ this.state.versions[songid] }
-                                        active={ subtab == this.state.subtab }
-                                        onClick={function(event) {
-                                            if (this.state.subtab == subtab) { return; }
-                                            this.setState({subtab: subtab, offset: 0});
-                                            pagenav.navigate(this.state.sort, window.valid_mixes[subtab]);
-                                        }.bind(this)}
-                                    />
-                                );
-                            } else {
-                                return null;
-                            }
-                        }.bind(this))}
-                    </div> :
+                    <section>
+                    <div>
+                        <h4>Version - {sortable_versions[this.state.subtab]}</h4>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ this.state.subtab }
+                                versions={ sortable_versions }
+                                onChange={function(version) {
+                                    if (this.state.subtab == window.valid_mixes[version]) { return; }
+                                    this.setState({subtab: version, offset: 0});
+                                    pagenav.navigate(this.state.sort, window.valid_mixes[version]);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </div>
+                    </section>
+                    :
                     null
                 }
-                <div className="section">
+                <section>
                     <table className="list records">
                         <thead></thead>
                         <tbody>
@@ -200,10 +215,13 @@ var network_records = React.createClass({
 
                                     return (
                                         <tr key={songid.toString()}>
-                                            <td className="subheader">{ this.state.versions[songid] }</td>
+                                            <td className="subheader"><b>{ this.state.versions[songid] }</b></td>
                                             <td className="subheader">Basic</td>
                                             <td className="subheader">Advanced</td>
                                             <td className="subheader">Extreme</td>
+                                            <td className="subheader">Hard Mode Basic</td>
+                                            <td className="subheader">Hard Mode Advanced</td>
+                                            <td className="subheader">Hard Mode Extreme</td>
                                         </tr>
                                     );
                                 } else {
@@ -214,7 +232,6 @@ var network_records = React.createClass({
                                         records = {};
                                     }
 
-                                    var difficulties = this.state.songs[songid].difficulties;
                                     return (
                                         <tr key={songid.toString()}>
                                             <td className="center">
@@ -228,6 +245,12 @@ var network_records = React.createClass({
                                                 {this.renderDifficulty(songid, 1)}
                                                 <span> / </span>
                                                 {this.renderDifficulty(songid, 2)}
+                                                <span> / </span>
+                                                {this.renderDifficulty(songid, 3)}
+                                                <span> / </span>
+                                                {this.renderDifficulty(songid, 4)}
+                                                <span> / </span>
+                                                {this.renderDifficulty(songid, 5)}
                                             </div>
                                             </td>
                                             <td>
@@ -254,13 +277,37 @@ var network_records = React.createClass({
                                                     score={records[2]}
                                                 />
                                             </td>
+                                            <td>
+                                                <HighScore
+                                                    players={this.state.players}
+                                                    songid={songid}
+                                                    chart={3}
+                                                    score={records[3]}
+                                                />
+                                            </td>
+                                            <td>
+                                                <HighScore
+                                                    players={this.state.players}
+                                                    songid={songid}
+                                                    chart={4}
+                                                    score={records[4]}
+                                                />
+                                            </td>
+                                            <td>
+                                                <HighScore
+                                                    players={this.state.players}
+                                                    songid={songid}
+                                                    chart={5}
+                                                    score={records[5]}
+                                                />
+                                            </td>
                                         </tr>
                                     );
                                 }
                             }.bind(this))}
                         </tbody>
                     </table>
-                </div>
+                </section>
             </span>
         );
     },
@@ -333,24 +380,22 @@ var network_records = React.createClass({
         }
 
         return (
-            <span>
-                <div className="section">
-                    {window.valid_charts.map(function(chartname, index) {
-                        return (
-                            <Nav
-                                title={ chartname }
-                                active={ this.state.subtab == index }
-                                onClick={function(event) {
-                                    if (this.state.subtab == index) { return; }
-                                    this.setState({subtab: index, offset: 0});
-                                    pagenav.navigate(this.state.sort, window.valid_charts[index]);
-                                }.bind(this)}
-                            />
-                        );
-                    }.bind(this))}
-                </div>
+            <section>
+                <h4>Difficulty - {window.valid_charts[this.state.subtab]}</h4>
+                <p>
+                    <SelectVersion
+                        name="chart"
+                        value={ this.state.subtab }
+                        versions={ window.valid_charts }
+                        onChange={function(chart) {
+                            if (this.state.subtab == window.valid_charts[chart]) { return; }
+                            this.setState({subtab: chart, offset: 0});
+                            pagenav.navigate(this.state.sort, window.valid_charts[chart]);
+                        }.bind(this)}
+                    />
+                </p>
                 { this.renderBySongIDList(songids, false) }
-            </span>
+            </section>
         );
     },
 
@@ -383,24 +428,22 @@ var network_records = React.createClass({
         }
 
         return (
-            <span>
-                <div className="section">
-                    {window.valid_charts.map(function(chartname, index) {
-                        return (
-                            <Nav
-                                title={ chartname }
-                                active={ this.state.subtab == index }
-                                onClick={function(event) {
-                                    if (this.state.subtab == index) { return; }
-                                    this.setState({subtab: index, offset: 0});
-                                    pagenav.navigate(this.state.sort, window.valid_charts[index]);
-                                }.bind(this)}
-                            />
-                        );
-                    }.bind(this))}
-                </div>
+            <section>
+                <h4>Difficulty - {window.valid_charts[this.state.subtab]}</h4>
+                <p>
+                    <SelectVersion
+                        name="chart"
+                        value={ this.state.subtab }
+                        versions={ window.valid_charts }
+                        onChange={function(chart) {
+                            if (this.state.subtab == window.valid_charts[chart]) { return; }
+                            this.setState({subtab: chart, offset: 0});
+                            pagenav.navigate(this.state.sort, window.valid_charts[chart]);
+                        }.bind(this)}
+                    />
+                </p>
                 { this.renderBySongIDList(songids, false) }
-            </span>
+            </section>
         );
     },
 
@@ -414,6 +457,9 @@ var network_records = React.createClass({
                         <th className="subheader">Basic</th>
                         <th className="subheader">Advanced</th>
                         <th className="subheader">Extreme</th>
+                        <th className="subheader">Hard Mode Basic</th>
+                        <th className="subheader">Hard Mode Advanced</th>
+                        <th className="subheader">Hard Mode Extreme</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -444,6 +490,12 @@ var network_records = React.createClass({
                                         {this.renderDifficulty(songid, 1)}
                                         <span> / </span>
                                         {this.renderDifficulty(songid, 2)}
+                                        <span> / </span>
+                                        {this.renderDifficulty(songid, 3)}
+                                        <span> / </span>
+                                        {this.renderDifficulty(songid, 4)}
+                                        <span> / </span>
+                                        {this.renderDifficulty(songid, 5)}
                                     </div>
                                     { showplays ? <div className="songplays">#{index + 1} - {plays}{plays == 1 ? ' play' : ' plays'}</div> : null }
                                 </td>
@@ -471,13 +523,37 @@ var network_records = React.createClass({
                                         score={records[2]}
                                     />
                                 </td>
+                                <td>
+                                    <HighScore
+                                        players={this.state.players}
+                                        songid={songid}
+                                        chart={3}
+                                        score={records[3]}
+                                    />
+                                </td>
+                                <td>
+                                    <HighScore
+                                        players={this.state.players}
+                                        songid={songid}
+                                        chart={4}
+                                        score={records[4]}
+                                    />
+                                </td>
+                                <td>
+                                    <HighScore
+                                        players={this.state.players}
+                                        songid={songid}
+                                        chart={5}
+                                        score={records[5]}
+                                    />
+                                </td>
                             </tr>
                         );
                     }.bind(this))}
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colSpan={4}>
+                        <td colSpan={7}>
                             { this.state.offset > 0 ?
                                 <Prev onClick={function(event) {
                                      var page = this.state.offset - this.state.limit;
@@ -516,24 +592,24 @@ var network_records = React.createClass({
 
         return (
             <div>
-                <div className="section">
-                    { window.valid_sorts.map(function(sort, index) {
-                        return (
-                            <Nav
-                                title={"Records Sorted by " + window.sort_names[sort]}
-                                active={this.state.sort == sort}
-                                onClick={function(event) {
-                                    if (this.state.sort == sort) { return; }
-                                    this.setState({sort: sort, offset: 0, subtab: 0});
-                                    pagenav.navigate(sort, window.valid_subsorts[index][0]);
-                                }.bind(this)}
-                            />
-                        );
-                    }.bind(this)) }
-                </div>
-                <div className="section">
+                <section>
+                    <p>
+                        <h4>Sort Options</h4>
+                        <SelectVersion
+                            name="sortOptions"
+                            value={ this.state.sort }
+                            versions={ sort_names }
+                            onChange={function(event) {
+                                if (this.state.sort == event) { return; }
+                                this.setState({sort: event, offset: 0, subtab: 0});
+                                pagenav.navigate(event, window.valid_subsorts[valid_sorts.indexOf(event)][0]);
+                            }.bind(this)}
+                        />
+                    </p>
+                </section>
+                <section>
                     {data}
-                </div>
+                </section>
             </div>
         );
     },

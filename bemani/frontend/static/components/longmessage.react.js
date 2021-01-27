@@ -15,24 +15,21 @@ var LongMessage = React.createClass({
                 return (
                     <div className="longmessage">
                         <pre>{text}</pre>
-                        <button
-                            className="viewmore"
-                            onClick={function(event) {
-                                this.setState({expanded: false});
-                            }.bind(this)}
-                        >view less</button>
+                        <button className="viewmore" onClick={function(event) { this.setState({expanded: false}); }.bind(this)}>
+                            View Less
+                        </button>
                     </div>
                 );
             } else {
                 return (
                     <div className="longmessage">
                         <pre>{text.substring(0, length)}...</pre>
-                        <button
-                            className="viewmore"
+                        <a className="viewmore"
                             onClick={function(event) {
                                 this.setState({expanded: true});
-                            }.bind(this)}
-                        >view more</button>
+                            }.bind(this)}>
+                            View More
+                        </a>
                     </div>
                 );
             }

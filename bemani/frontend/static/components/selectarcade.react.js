@@ -17,7 +17,7 @@ var SelectArcade = React.createClass({
                     }
                 }.bind(this)}
             >
-                <option className="placeholder" value="__NOTHING_VALUE__">no arcade</option>
+                <option className="placeholder" value="__NOTHING_VALUE__">No Arcade</option>
                 {Object.keys(this.props.arcades).map(function(key, index) {
                     return <option value={key}>{ this.props.arcades[key] }</option>;
                 }.bind(this))}

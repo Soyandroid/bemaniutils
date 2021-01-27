@@ -1,63 +1,114 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="section">
-        To change any of these settings, edit <span class="file">server.yaml</span>.
-    </div>
-    <div class="section">
-        <h3>Database Settings</h3>
-        <dl>
-            <dt>Host</dt>
-            <dd>{{ config['database']['address'] }}</dd>
-            <dt>Database</dt>
-            <dd>{{ config['database']['database'] }}</dd>
-            <dt>User</dt>
-            <dd>{{ config['database']['user'] }}</dd>
-            <dt>Password</dt>
-            <dd>&bull;&bull;&bull;&bull;&bull;&bull;</dd>
-        </dl>
-    </div>
-    <div class="section">
-        <h3>Backend Settings</h3>
-        <dl>
-            <dt>Host</dt>
-            <dd>{{ config['server']['address'] }}</dd>
-            <dt>Port</dt>
-            <dd>{{ config['server']['port'] }}</dd>
-            <dt>HTTPS</dt>
-            <dd>{{ 'active' if config['server']['https'] else 'inactive' }}</dd>
-            <dt>Keepalive Address</dt>
-            <dd>{{ config['server']['keepalive'] }}</dd>
-            <dt>HTTP Get Redirect Address</dt>
-            <dd>{{ config['server']['redirect'] if config['server']['redirect'] else 'disabled' }}</dd>
-        </dl>
-    </div>
-    <div class="section">
-        <h3>Frontend Settings</h3>
-        <dl>
-            <dt>Web Address</dt>
-            <dd>{{ config['server']['uri'] if config['server']['uri'] else 'http://eagate.573.jp' }}</dd>
-            <dt>Network Name</dt>
-            <dd>{{ config.get('name','e-AMUSEMENT Network') }}</dd>
-        </dl>
-    </div>
-    <div class="section">
-        <h3>Data Exchange API Settings</h3>
-        <dl>
-            <dt>Administrative Email</dt>
-            <dd>{{ config.get('email','nobody@nowhere.com') }}</dd>
-        </dl>
-    </div>
-    <div class="section">
-        <h3>Server Settings</h3>
-        <dl>
-            <dt>PCBID Enforcement</dt>
-            <dd>{{ 'active' if config['server']['enforce_pcbid'] else 'inactive' }}</dd>
-            <dt>PASELI Enabled</dt>
-            <dd>{{ 'yes' if config['paseli']['enabled'] else 'no' }} (can be overridden by arcade settings)</dd>
-            <dt>Infinite PASELI Enabled</dt>
-            <dd>{{ 'yes' if config['paseli']['infinite'] else 'no' }} (can be overridden by arcade settings)</dd>
-            <dt>Event Log Preservation Duration</dt>
-            <dd>{{ (config['event_log_duration']|string + ' seconds') if config['event_log_duration'] else 'infinite' }}</dd>
-        </dl>
-    </div>
+<p>
+    To change any of these settings, edit <code>config/server.yaml</code>.
+</p>
+<h3>Database Settings</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Host</td>
+            <td>{{ config['database']['address'] }}</td>
+        </tr>
+        <tr>
+            <td>Database</td>
+            <td>{{ config['database']['database'] }}</td>
+        </tr>
+        <tr>
+            <td>User</td>
+            <td>{{ config['database']['user'] }}</td>
+        </tr>
+        <tr>
+            <td>Password</td>
+            <td>&bull;&bull;&bull;&bull;&bull;&bull;</td>
+        </tr>
+    </tbody>
+</table>
+<h3>Backend Settings</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Host</td>
+            <td>{{ config['server']['address'] }}</td>
+        </tr>
+        <tr>
+            <td>Port</td>
+            <td>{{ config['server']['port'] }}</td>
+        </tr>
+        <tr>
+            <td>HTTPS</td>
+            <td>{{ 'active' if config['server']['https'] else 'inactive' }}</td>
+        </tr>
+        <tr>
+            <td>Keepalive Address</td>
+            <td>{{ config['server']['keepalive'] }}</td>
+        </tr>
+        <tr>
+            <td>HTTP Get Redirect Address</td>
+            <td>{{ config['server']['redirect'] if config['server']['redirect'] else 'disabled' }}</td>
+        </tr>
+    </tbody>
+</table>
+<h3>Frontend Settings</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Web Address</td>
+            <td><a href="{{ config['server']['uri'] if config['server']['uri'] else 'http://eagate.573.jp' }}">{{ config['server']['uri'] if config['server']['uri'] else 'http://eagate.573.jp' }}</a></td>
+        </tr>
+        <tr>
+            <td>Network Name</td>
+            <td>{{ config.get('name','e-AMUSEMENT Network') }}</td>
+        </tr>
+    </tbody>
+</table>
+<h3>Data Exchange API Settings</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Administrative Email</td>
+            <td><code>{{ config.get('email','nobody@nowhere.com') }}</code></td>
+        </tr>
+        <tr>
+            <td>PCBID Enforcement</td>
+            <td>{{ 'active' if config['server']['enforce_pcbid'] else 'inactive' }}</td>
+        </tr>
+        <tr>
+            <td>PASELI Enabled</td>
+            <td>{{ 'yes' if config['paseli']['enabled'] else 'no' }} (can be overridden by arcade settings)</td>
+        </tr>
+        <tr>
+            <td>Infinite PASELI Enabled</td>
+            <td>{{ 'yes' if config['paseli']['infinite'] else 'no' }} (can be overridden by arcade settings)</td>
+        </tr>
+        <tr>
+            <td>Event Log Preservation Duration</td>
+            <td>{{ (config['event_log_duration']|string + ' seconds') if config['event_log_duration'] else 'infinite' }}</td>
+        </tr>
+    </tbody>
+</table>
 {% endblock %}

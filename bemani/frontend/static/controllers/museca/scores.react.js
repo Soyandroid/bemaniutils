@@ -61,16 +61,15 @@ var network_scores = React.createClass({
         return (
             <div className="score">
                 <div>
-                    <span className="label">Score</span>
-                    <span className="score">{score.points}</span>
-                    <span className="status">{score.grade}</span>
-                <div>
-                </div>
-                    <span className="label">Combo</span>
-                    <span className="score">{score.combo < 0 ? '-' : score.combo}</span>
-                </div>
-                <div>
-                    <span className="status">{score.clear_type}</span>
+                    <p>
+                        <span className="bolder">Score:</span> {score.points}
+                        <br/>
+                        <span className="bolder">Grade:</span> {score.grade}
+                        <br />
+                        <span className="bolder">Combos:</span> {score.combo < 0 ? '-' : score.combo}
+                        <br/>
+                        <span className="status clearRate">{score.clear_type}</span>
+                    </p>
                 </div>
             </div>
         );
@@ -104,7 +103,7 @@ var network_scores = React.createClass({
                                         <div>
                                             <Timestamp timestamp={attempt.timestamp} />
                                             { window.shownewrecords && attempt.raised ?
-                                                <span className="raised">new high score!</span> :
+                                                <span className="bolder">New High Score!</span> :
                                                 null
                                             }
                                         </div>

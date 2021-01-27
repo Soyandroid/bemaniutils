@@ -106,7 +106,7 @@ var card_management = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
+                <section>
                     <h3>All cards</h3>
                     <Table
                         className="list cards"
@@ -130,8 +130,8 @@ var card_management = React.createClass({
                         rows={this.state.cards}
                         emptymessage="There are no cards in use on this network."
                     />
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>Add Card</h3>
                     <form onSubmit={this.addNewCard}>
                         <table className="add cards">
@@ -175,7 +175,7 @@ var card_management = React.createClass({
                             </tbody>
                         </table>
                     </form>
-                </div>
+                </section>
             </div>
         );
     },

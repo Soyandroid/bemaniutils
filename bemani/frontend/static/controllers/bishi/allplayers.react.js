@@ -28,7 +28,7 @@ var all_players = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
+                <section>
                     <Table
                         className="list players"
                         columns={[
@@ -97,7 +97,7 @@ var all_players = React.createClass({
                         rows={Object.keys(this.state.players)}
                         paginate={10}
                     />
-                </div>
+                </section>
             </div>
         );
     },

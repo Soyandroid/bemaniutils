@@ -4,7 +4,7 @@ var Button = React.createClass({
     render: function() {
         return (
             <button
-                className={this.props.className}
+                className={this.props.className + " small"}
                 style={this.props.style}
                 disabled={this.props.disabled}
                 onClick={function(event) {

@@ -72,30 +72,35 @@ var card_management = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
+                <section>
                     <h3>User Search</h3>
                     <form onSubmit={this.searchUsers}>
-                        <label htmlFor="card">Card Number:</label>
-                        <br />
-                        <input
-                            type="text"
-                            className="inline"
-                            value={this.state.user_search.card}
-                            onChange={function(event) {
-                                var user = this.state.user_search;
-                                user.card = event.target.value;
-                                this.setState({user_search: user});
-                            }.bind(this)}
-                            name="card"
-                        />
-                        <input type="submit" value="search" />
+                        <div className="fields">
+                            <div className="field half">
+                                <input
+                                type="text"
+                                placeholder="Card Number"
+                                className="inline"
+                                value={this.state.user_search.card}
+                                onChange={function(event) {
+                                    var user = this.state.user_search;
+                                    user.card = event.target.value;
+                                    this.setState({user_search: user});
+                                }.bind(this)}
+                                name="card"
+                                />
+                            </div>
+                            <div className="field half">
+                                <input type="submit" value="search" />
+                            </div>
+                        </div>
                         { this.state.searching ?
                             <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
                             null
                         }
                     </form>
-                </div>
-                <div className="section">
+                </section>
+                <section>
                     <h3>User List</h3>
                     <Table
                         className="list users"
@@ -122,9 +127,9 @@ var card_management = React.createClass({
                             }
                         ]}
                         rows={this.state.users}
-                        emptymessage="There are no users to display."
+                        emptymessage="No Search result. Or, There are no users to display."
                     />
-                </div>
+                </section>
             </div>
         );
     },

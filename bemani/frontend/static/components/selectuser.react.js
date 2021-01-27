@@ -17,7 +17,7 @@ var SelectUser = React.createClass({
                     }
                 }.bind(this)}
             >
-                <option className="placeholder" value="__NOBODY_VALUE__">nobody</option>
+                <option className="placeholder" value="__NOBODY_VALUE__">Nobody</option>
                 {this.props.usernames.map(function(username) {
                     return <option value={username}>{ username }</option>;
                 }.bind(this))}

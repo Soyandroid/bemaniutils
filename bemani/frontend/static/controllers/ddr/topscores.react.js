@@ -96,71 +96,72 @@ var top_scores = React.createClass({
 
         return (
             <div>
-                <div className="section">
-                    { hasGroove ? <div className="floating right">
-                        <RadarGraph
-                            data={{
-                                labels: ['Stream', 'Chaos', 'Freeze', 'Air', 'Voltage'],
-                                datasets: [{
-                                    data: this.getGroove(window.chart_map[chart]),
-                                    fill: true,
-                                    backgroundColor: "rgba(54, 162, 235, 0.2)",
-                                    borderColor: "rgb(54, 162, 235)",
-                                }],
-                            }}
-                            options={{
-                                scale: {
-                                    ticks: {
-                                        callback: function(tick, index, ticks) {
-                                            return '';
-                                        },
-                                        min: 0,
-                                        max: 4000,
-                                        beginAtZero: true,
-                                        stepSize: 4000,
-                                    },
-                                },
-                                elements: {
-                                    point: {
-                                        radius: 0,
-                                    },
-                                },
-                                legend: {
-                                    display: false,
-                                },
-                                tooltips: {
-                                    enabled: false,
-                                },
-                                animation: false,
-                                responsive: false,
-                            }}
-                            width="250"
-                            height="200"
-                        />
-                    </div> : null }
+                <section>
                     <div className="left">
-                        <div className="songname">{window.name}</div>
-                        <div className="songartist">{window.artist}</div>
-                        <div className="songdifficulty">{window.difficulties[window.chart_map[chart]]}</div>
+                        <h1>{window.artist} - {window.name}</h1>
                     </div>
-                </div>
-                <div className="section">
-                    {valid_charts.map(function(chart) {
-                        return (
-                            <Nav
-                                title={chart}
-                                active={this.state.chart == chart}
-                                onClick={function(event) {
-                                    if (this.state.chart == chart) { return; }
-                                    this.setState({chart: chart});
-                                    pagenav.navigate(chart);
-                                }.bind(this)}
+                </section>
+                <section>
+                    <h2>Difficulty {window.difficulties[window.chart_map[chart]]}</h2>
+                    <p>
+                        <SelectVersion
+                            name="chart"
+                            value={ valid_charts.indexOf(this.state.chart) }
+                            versions={ valid_charts }
+                            onChange={function(chart) {
+                                if (this.state.chart == valid_charts[chart]) { return; }
+                                this.setState({chart: valid_charts[chart]});
+                                pagenav.navigate(valid_charts[chart]);
+                                console.log(this.state.chart)
+                            }.bind(this)}
+                        />
+                    </p>
+                </section>
+                <section>
+                    { hasGroove ? <div>
+                            <RadarGraph
+                                data={{
+                                    labels: ['Stream', 'Chaos', 'Freeze', 'Air', 'Voltage'],
+                                    datasets: [{
+                                        data: this.getGroove(window.chart_map[chart]),
+                                        fill: true,
+                                        backgroundColor: "rgba(54, 162, 235, 0.2)",
+                                        borderColor: "rgb(54, 162, 235)",
+                                    }],
+                                }}
+                                options={{
+                                    scale: {
+                                        ticks: {
+                                            callback: function(tick, index, ticks) {
+                                                return '';
+                                            },
+                                            min: 0,
+                                            max: 4000,
+                                            beginAtZero: true,
+                                            stepSize: 4000,
+                                        },
+                                    },
+                                    elements: {
+                                        point: {
+                                            radius: 0,
+                                        },
+                                    },
+                                    legend: {
+                                        display: false,
+                                    },
+                                    tooltips: {
+                                        enabled: false,
+                                    },
+                                    animation: false,
+                                    responsive: false,
+                                }}
+                                width="250"
+                                height="200"
                             />
-                        );
-                    }.bind(this))}
-                </div>
-                <div className="section">
-                    <Table
+                        </div> : null }
+                </section>
+                <section>
+                   <Table
                         className="list topscores"
                         columns={[
                             {
@@ -205,7 +206,7 @@ var top_scores = React.createClass({
                         paginate={10}
                         emptymessage="There are no scores for this chart."
                     />
-                </div>
+                </section>
             </div>
         );
     },

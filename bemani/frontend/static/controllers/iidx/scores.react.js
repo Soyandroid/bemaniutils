@@ -72,21 +72,25 @@ var network_scores = React.createClass({
 
         return (
             <div className="score">
-                {topscore > 0 ?
-                    <div>
-                        <span className="grade">{grades[grade]}</span>
-                        <span className="percent">{(percent * 100).toFixed(2)}%</span>
-                    </div> :
-                    null
-                }
                 <div>
-                    <span className="label">EX</span>
-                    <span className="score">{score.points}</span>
-                    <span className="label">M</span>
-                    <span className="score">{score.miss_count < 0 ? '-' : score.miss_count}</span>
-                </div>
-                <div>
-                    <span className="status">{score.status}</span>
+                    <p>
+                        {
+                            topscore > 0 ?
+                            <div>
+                                <span className="bolder">Grade </span>
+                                <span className="clearRate">{grades[grade]}</span>
+                                <span>, {(percent * 100).toFixed(2)}%</span>
+                                <br />
+                            </div>
+                            :
+                            null
+                        }
+                        <span className="bolder">EX</span> {score.points}
+                        <br/>
+                        <span className="bolder">MISS</span> {score.miss_count < 0 ? '-' : score.miss_count}
+                        <br/>
+                        <span className="status clearRate">{score.status}</span>
+                    </p>
                 </div>
             </div>
         );
@@ -122,16 +126,18 @@ var network_scores = React.createClass({
                                         <div>
                                             <Timestamp timestamp={attempt.timestamp} />
                                             { window.shownewrecords && attempt.raised ?
-                                                <span className="raised">new high score!</span> :
+                                                <span className="bolder">New High Score!</span> :
                                                 null
                                             }
                                         </div>
                                     </td>
                                     <td className="center">
                                         <a href={Link.get('individual_score', attempt.songid)}>
-                                            <div className="songname">{ this.state.songs[attempt.songid].name }</div>
-                                            <div className="songartist">{ this.state.songs[attempt.songid].artist }</div>
-                                            <div className="songgenre">{ this.state.songs[attempt.songid].genre }</div>
+                                            { this.state.songs[attempt.songid].name }
+                                            <br />
+                                            { this.state.songs[attempt.songid].artist }
+                                            <br />
+                                            { this.state.songs[attempt.songid].genre }
                                         </a>
                                     </td>
                                     <td className="center">

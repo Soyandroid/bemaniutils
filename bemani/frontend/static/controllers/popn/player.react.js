@@ -39,25 +39,31 @@ var profile_view = React.createClass({
     render: function() {
         if (this.state.player[this.state.version]) {
             var player = this.state.player[this.state.version];
+            var filteredVersion = Object.values(this.state.profiles).map(function(version) {
+                return Object.values(window.versions)[version]
+            });
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section popn-nav">
+                    <section>
                         <h3>{player.name}'s profile</h3>
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({version: version});
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
-                    <div className="section">
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ filteredVersion.indexOf(item[this.state.version]) }
+                                versions={ filteredVersion }
+                                onChange={function(event) {
+                                    var version = item.indexOf(filteredVersion[event]) + 1
+                                    if (this.state.version == version) { return; }
+                                    this.setState({version: version});
+                                    pagenav.navigate(version);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </section>
+                    <section>
                         <LabelledSection label="User ID">{player.extid}</LabelledSection>
                         <LabelledSection label="Register Time">
                             <Timestamp timestamp={player.first_play_time}/>
@@ -68,41 +74,44 @@ var profile_view = React.createClass({
                         <LabelledSection label="Total Plays">
                             {player.plays}回
                         </LabelledSection>
-                    </div>
-                    <div className="section">
-                        <a href={Link.get('records')}>{ window.own_profile ?
+                    </section>
+                    <section>
+                        <a className="button primary small" href={Link.get('records')}>{ window.own_profile ?
                             <span>view your records</span> :
                             <span>view {player.name}'s records</span>
                         }</a>
-                        <span className="separator">&middot;</span>
-                        <a href={Link.get('scores')}>{ window.own_profile ?
+                        <span>&#9;</span>
+                        <a className="button small" href={Link.get('scores')}>{ window.own_profile ?
                             <span>view all your scores</span> :
                             <span>view all {player.name}'s scores</span>
                         }</a>
-                    </div>
+                    </section>
                 </div>
             );
         } else {
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section">
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({version: version});
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
-                    <div className="section">
-                        This player has no profile for {window.versions[this.state.version]}!
-                    </div>
+                    <section>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ item.indexOf(item[this.state.version]) }
+                                versions={ item }
+                                onChange={function(event) {
+                                    var version = item.indexOf(item[event])
+                                    if (this.state.version == version) { return; }
+                                    this.setState({version: version});
+                                    pagenav.navigate(version);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </section>
+                    <section>
+                        <p>This player has no profile for {window.versions[this.state.version]}!</p>
+                    </section>
                 </div>
             );
         }

@@ -153,157 +153,178 @@ var rivals_view = React.createClass({
                 var player = this.state.results[userid][this.state.version];
                 if (player) { resultlength++; }
             }.bind(this));
+            var filteredVersion = Object.values(this.state.profiles).map(function(version) {
+                console.log(version - 2)
+                return Object.values(window.versions)[version - 2]
+            });
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section">
+                    <section>
+                        <h4>Select Version</h4>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ filteredVersion.indexOf(item[this.state.version - 2]) }
+                                versions={ filteredVersion }
+                                onChange={function(event) {
+                                    var version = item.indexOf(filteredVersion[event]) + 2
+                                    console.log(`onChange version ${version}`)
+                                    if (this.state.version == version) { return; }
+                                    this.setState({
+                                        version: version,
+                                        offset: 0,
+                                    });
+                                    pagenav.navigate(version);
+                                }.bind(this)}
+                            />
+                        </p>
                         <h3>Rivals</h3>
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({
-                                            version: version,
-                                            offset: 0,
-                                        });
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
-                    <div className="section">
+                    </section>
+                    <section>
+                        <h4>Search Rival</h4>
                         <form onSubmit={this.searchForPlayersName}>
-                            <label for="search">Name:</label>
-                            <br />
-                            <input
-                                type="text"
-                                className="inline"
-                                maxlength="8"
-                                value={this.state.term_name}
-                                onChange={function(event) {
-                                    var rawvalue = event.target.value;
-                                    if (this.state.version <= 3) {
-                                        // Only allow uppercase, so convert to be helpful
-                                        rawvalue = rawvalue.toUpperCase();
-                                    }
-                                    var value = "";
-                                    // Nasty conversion to change typing into wide text
-                                    for (var i = 0; i < rawvalue.length; i++) {
-                                        var c = rawvalue.charCodeAt(i);
-                                        if (c >= '0'.charCodeAt(0) && c <= '9'.charCodeAt(0)) {
-                                            c = 0xFF10 + (c - '0'.charCodeAt(0));
-                                        } else if(c >= 'A'.charCodeAt(0) && c <= 'Z'.charCodeAt(0)) {
-                                            c = 0xFF21 + (c - 'A'.charCodeAt(0));
-                                        } else if(c >= 'a'.charCodeAt(0) && c <= 'z'.charCodeAt(0)) {
-                                            c = 0xFF41 + (c - 'a'.charCodeAt(0));
-                                        } else if(c == '.'.charCodeAt(0)) {
-                                            c = 0xFF0E;
-                                        } else if(c == '-'.charCodeAt(0)) {
-                                            c = 0x2212;
-                                        } else if(c == '_'.charCodeAt(0)) {
-                                            c = 0xFF3F;
-                                        } else if(c == '&'.charCodeAt(0)) {
-                                            c = 0xFF06;
-                                        } else if(c == '!'.charCodeAt(0)) {
-                                            c = 0xFF01;
-                                        } else if(c == '?'.charCodeAt(0)) {
-                                            c = 0xFF1F;
-                                        } else if(c == '/'.charCodeAt(0)) {
-                                            c = 0xFF0F;
-                                        } else if(c == '*'.charCodeAt(0)) {
-                                            c = 0xFF0A;
-                                        } else if(c == '#'.charCodeAt(0)) {
-                                            c = 0xFF03;
-                                        } else if(c == '@'.charCodeAt(0)) {
-                                            c = 0xFF20;
-                                        } else if(c == '('.charCodeAt(0)) {
-                                            c = 0xFF08;
-                                        } else if(c == ')'.charCodeAt(0)) {
-                                            c = 0xFF09;
-                                        } else if(c == '^'.charCodeAt(0)) {
-                                            c = 0xFF3E;
-                                        } else if(c == '%'.charCodeAt(0)) {
-                                            c = 0xFF05;
-                                        } else if(c == ' '.charCodeAt(0)) {
-                                            c = 0x3000;
+                            <div className="fields">
+                                <div className="field half">
+                                    <input
+                                    type="text"
+                                    className="inline"
+                                    maxlength="8"
+                                    placeholder="Player name"
+                                    value={this.state.term_name}
+                                    onChange={function(event) {
+                                        var rawvalue = event.target.value;
+                                        if (this.state.version <= 3) {
+                                            // Only allow uppercase, so convert to be helpful
+                                            rawvalue = rawvalue.toUpperCase();
                                         }
-                                        value = value + String.fromCharCode(c);
+                                        var value = "";
+                                        // Nasty conversion to change typing into wide text
+                                        for (var i = 0; i < rawvalue.length; i++) {
+                                            var c = rawvalue.charCodeAt(i);
+                                            if (c >= '0'.charCodeAt(0) && c <= '9'.charCodeAt(0)) {
+                                                c = 0xFF10 + (c - '0'.charCodeAt(0));
+                                            } else if(c >= 'A'.charCodeAt(0) && c <= 'Z'.charCodeAt(0)) {
+                                                c = 0xFF21 + (c - 'A'.charCodeAt(0));
+                                            } else if(c >= 'a'.charCodeAt(0) && c <= 'z'.charCodeAt(0)) {
+                                                c = 0xFF41 + (c - 'a'.charCodeAt(0));
+                                            } else if(c == '.'.charCodeAt(0)) {
+                                                c = 0xFF0E;
+                                            } else if(c == '-'.charCodeAt(0)) {
+                                                c = 0x2212;
+                                            } else if(c == '_'.charCodeAt(0)) {
+                                                c = 0xFF3F;
+                                            } else if(c == '&'.charCodeAt(0)) {
+                                                c = 0xFF06;
+                                            } else if(c == '!'.charCodeAt(0)) {
+                                                c = 0xFF01;
+                                            } else if(c == '?'.charCodeAt(0)) {
+                                                c = 0xFF1F;
+                                            } else if(c == '/'.charCodeAt(0)) {
+                                                c = 0xFF0F;
+                                            } else if(c == '*'.charCodeAt(0)) {
+                                                c = 0xFF0A;
+                                            } else if(c == '#'.charCodeAt(0)) {
+                                                c = 0xFF03;
+                                            } else if(c == '@'.charCodeAt(0)) {
+                                                c = 0xFF20;
+                                            } else if(c == '('.charCodeAt(0)) {
+                                                c = 0xFF08;
+                                            } else if(c == ')'.charCodeAt(0)) {
+                                                c = 0xFF09;
+                                            } else if(c == '^'.charCodeAt(0)) {
+                                                c = 0xFF3E;
+                                            } else if(c == '%'.charCodeAt(0)) {
+                                                c = 0xFF05;
+                                            } else if(c == ' '.charCodeAt(0)) {
+                                                c = 0x3000;
+                                            }
+                                            value = value + String.fromCharCode(c);
+                                        }
+                                        var nameRegex;
+                                        if (this.state.version <= 3) {
+                                            nameRegex = new RegExp(
+                                                "^[" +
+                                                "\uFF21-\uFF3A" +
+                                                "\uFF10-\uFF19" +
+                                                "\uFF0E\u2212\uFF3F\u30FB" +
+                                                "\uFF06\uFF01\uFF1F\uFF0F" +
+                                                "\uFF0A\uFF03\u266D\u2605" +
+                                                "\uFF20\u266A\u2193\u2191" +
+                                                "\u2192\u2190\uFF08\uFF09" +
+                                                "\u221E\u25C6\u25CF\u25BC" +
+                                                "\uFFE5\uFF3E\u2200\uFF05" +
+                                                "\u3000" +
+                                                "]*$"
+                                            );
+                                        } else {
+                                            nameRegex = new RegExp(
+                                                "^[" +
+                                                "\uFF21-\uFF3A" +
+                                                "\uFF41-\uFF5A" +
+                                                "\uFF10-\uFF19" +
+                                                "\uFF0E\u2212\uFF3F\u30FB" +
+                                                "\uFF06\uFF01\uFF1F\uFF0F" +
+                                                "\uFF0A\uFF03\u266D\u2605" +
+                                                "\uFF20\u266A\u2193\u2191" +
+                                                "\u2192\u2190\uFF08\uFF09" +
+                                                "\u221E\u25C6\u25CF\u25BC" +
+                                                "\uFFE5\uFF3E\u2200\uFF05" +
+                                                "\u3000" +
+                                                "]*$"
+                                            );
+                                        }
+                                        if (value.length <= 8 && nameRegex.test(value)) {
+                                            this.setState({term_name: value});
+                                        }
+                                    }.bind(this)}
+                                    name="search"
+                                />
+                                </div>
+                                <div className="field half">
+                                    <input type="submit" value="search" />
+                                    { this.state.searching_name ?
+                                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                                        null
                                     }
-                                    var nameRegex;
-                                    if (this.state.version <= 3) {
-                                        nameRegex = new RegExp(
-                                            "^[" +
-                                            "\uFF21-\uFF3A" +
-                                            "\uFF10-\uFF19" +
-                                            "\uFF0E\u2212\uFF3F\u30FB" +
-                                            "\uFF06\uFF01\uFF1F\uFF0F" +
-                                            "\uFF0A\uFF03\u266D\u2605" +
-                                            "\uFF20\u266A\u2193\u2191" +
-                                            "\u2192\u2190\uFF08\uFF09" +
-                                            "\u221E\u25C6\u25CF\u25BC" +
-                                            "\uFFE5\uFF3E\u2200\uFF05" +
-                                            "\u3000" +
-                                            "]*$"
-                                        );
-                                    } else {
-                                        nameRegex = new RegExp(
-                                            "^[" +
-                                            "\uFF21-\uFF3A" +
-                                            "\uFF41-\uFF5A" +
-                                            "\uFF10-\uFF19" +
-                                            "\uFF0E\u2212\uFF3F\u30FB" +
-                                            "\uFF06\uFF01\uFF1F\uFF0F" +
-                                            "\uFF0A\uFF03\u266D\u2605" +
-                                            "\uFF20\u266A\u2193\u2191" +
-                                            "\u2192\u2190\uFF08\uFF09" +
-                                            "\u221E\u25C6\u25CF\u25BC" +
-                                            "\uFFE5\uFF3E\u2200\uFF05" +
-                                            "\u3000" +
-                                            "]*$"
-                                        );
-                                    }
-                                    if (value.length <= 8 && nameRegex.test(value)) {
-                                        this.setState({term_name: value});
-                                    }
-                                }.bind(this)}
-                                name="search"
-                            />
-                            <input type="submit" value="search" />
-                            { this.state.searching_name ?
-                                <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                                null
-                            }
+                                </div>
+                            </div>
                         </form>
+
                         <form onSubmit={this.searchForPlayersID}>
-                            <label for="search">Reflec Beat ID:</label>
-                            <br />
-                            <input
-                                type="text"
-                                className="inline"
-                                maxlength="9"
-                                value={this.state.term_id}
-                                onChange={function(event) {
-                                    var value = event.target.value.toUpperCase();
-                                    var intRegex = new RegExp(
-                                        "^[" +
-                                        "0-9" +
-                                        "-" +
-                                        "]*$"
-                                    );
-                                    if (value.length <= 9 && intRegex.test(value)) {
-                                        this.setState({term_id: value});
+                            <div className="fields">
+                                <div className="field half">
+                                    <input
+                                        type="text"
+                                        className="inline"
+                                        placeholder="Reflect beat ID"
+                                        maxlength="9"
+                                        value={this.state.term_id}
+                                        onChange={function(event) {
+                                            var value = event.target.value.toUpperCase();
+                                            var intRegex = new RegExp(
+                                                "^[" +
+                                                "0-9" +
+                                                "-" +
+                                                "]*$"
+                                            );
+                                            if (value.length <= 9 && intRegex.test(value)) {
+                                                this.setState({term_id: value});
+                                            }
+                                        }.bind(this)}
+                                        name="search"
+                                    />
+                                </div>
+                                <div className="field half">
+                                    <input type="submit" value="search" />
+                                    { this.state.searching_id ?
+                                        <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
+                                        null
                                     }
-                                }.bind(this)}
-                                name="search"
-                            />
-                            <input type="submit" value="search" />
-                            { this.state.searching_id ?
-                                <img className="loading" src={Link.get('static', 'loading-16.gif')} /> :
-                                null
-                            }
+                                </div>
+                            </div>
                         </form>
                         {resultlength > 0 ?
                             <table className="list players">
@@ -352,10 +373,10 @@ var rivals_view = React.createClass({
                                     </tr>
                                 </tfoot>
                             </table> :
-                            <div className="placeholder">No players match the specified search.</div>
+                            <p>No players match the specified search.</p>
                         }
-                    </div>
-                    <div className="section">
+                    </section>
+                    <section>
                         <h3>Rivals</h3>
                         <table className="list players">
                             <thead>
@@ -385,30 +406,33 @@ var rivals_view = React.createClass({
                                 }.bind(this))}
                             </tbody>
                         </table>
-                    </div>
+                    </section>
                 </div>
             );
         } else {
+            var item = Object.keys(window.versions).map(function(k){
+                return window.versions[k]
+            })
             return (
                 <div>
-                    <div className="section">
-                        You have no profile for {window.versions[this.state.version]}!
-                    </div>
-                    <div className="section">
-                        {this.state.profiles.map(function(version) {
-                            return (
-                                <Nav
-                                    title={window.versions[version]}
-                                    active={this.state.version == version}
-                                    onClick={function(event) {
-                                        if (this.state.version == version) { return; }
-                                        this.setState({version: version, offset: 0});
-                                        pagenav.navigate(version);
-                                    }.bind(this)}
-                                />
-                            );
-                        }.bind(this))}
-                    </div>
+                    <section>
+                        <p>
+                            <SelectVersion
+                                name="version"
+                                value={ item.indexOf(item[this.state.version - 1]) }
+                                versions={ item }
+                                onChange={function(event) {
+                                    var version = item.indexOf(item[event]) + 1
+                                    if (this.state.version == version) { return; }
+                                    this.setState({version: version});
+                                    pagenav.navigate(version);
+                                }.bind(this)}
+                            />
+                        </p>
+                    </section>
+                    <section>
+                        <p>You have no profile for {window.versions[this.state.version]}!</p>
+                    </section>
                 </div>
             );
         }

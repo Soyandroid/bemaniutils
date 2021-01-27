@@ -70,34 +70,55 @@ var card_management = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="section">
-                    <h3>Your Cards</h3>
-                    {this.state.cards.map(function(card) {
-                        return (
-                            <div>
-                                <Card number={card} />
-                                <Delete
-                                    onClick={this.deleteExistingCard.bind(this, card)}
-                                />
-                            </div>
-                        );
-                    }.bind(this))}
-                </div>
-                <div className="section">
-                    <h3>Add Card</h3>
-                    <form onSubmit={this.addNewCard}>
-                        <input
-                            type="text"
-                            className="inline"
-                            value={this.state.newCard}
-                            onChange={function(event) {
-                                this.setState({newCard: event.target.value});
-                            }.bind(this)}
-                            name="card_number"
-                        />
-                        <input type="submit" value="add card" />
-                    </form>
-                </div>
+                <h3>Your Cards</h3>
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Card Number</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            this.state.cards.map(function(card) {
+                                return (
+                                    <tr>
+                                        <td>
+                                            <Card number={card} />
+                                        </td>
+                                        <td>
+                                            <Delete
+                                                onClick={this.deleteExistingCard.bind(this, card)}
+                                            />
+                                        </td>
+                                    </tr>
+                                );
+                            }.bind(this))
+                        }
+                        </tbody>
+                    </table>
+                }
+                <h3>Add Card</h3>
+                <form onSubmit={this.addNewCard}>
+                    <div className="fields">
+                        <div className="field">
+                            <input
+                                type="text"
+                                className="inline"
+                                placeholder="Card Number"
+                                value={this.state.newCard}
+                                onChange={function(event) {
+                                    this.setState({newCard: event.target.value});
+                                }.bind(this)}
+                                name="card_number"
+                            />
+                        </div>
+                        <div className="field">
+                            <input type="submit" value="add card" />
+                        </div>
+                    </div>
+                </form>
             </div>
         );
     },
