@@ -1,10 +1,10 @@
 # vim: set fileencoding=utf-8
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from bemani.backend.base import Base
 from bemani.backend.core import CoreHandler, CardManagerHandler, PASELIHandler
-from bemani.common import ValidatedDict, GameConstants, DBConstants, Time
-from bemani.data import Machine, ScoreSaveException, UserID
+from bemani.common import ValidatedDict, GameConstants, DBConstants, Time, Model
+from bemani.data import Machine, ScoreSaveException, UserID, Data
 from bemani.protocol import Node
 
 
@@ -33,6 +33,19 @@ class ReflecBeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
     COMBO_TYPE_ALMOST_COMBO = DBConstants.REFLEC_BEAT_COMBO_TYPE_ALMOST_COMBO
     COMBO_TYPE_FULL_COMBO = DBConstants.REFLEC_BEAT_COMBO_TYPE_FULL_COMBO
     COMBO_TYPE_FULL_COMBO_ALL_JUST = DBConstants.REFLEC_BEAT_COMBO_TYPE_FULL_COMBO_ALL_JUST
+
+    def __init__(self, data: Data, config: Dict[str, Any], model: Model) -> None:
+        super().__init__(data, config, model)
+        if model.rev == 'X':
+            self.omnimix = True
+        else:
+            self.omnimix = False
+
+    @property
+    def music_version(self) -> int:
+        if self.omnimix:
+            return DBConstants.OMNIMIX_VERSION_BUMP + self.version
+        return self.version
 
     def previous_version(self) -> Optional['ReflecBeatBase']:
         """
@@ -156,7 +169,7 @@ class ReflecBeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
 
         oldscore = self.data.local.music.get_score(
             self.game,
-            self.version,
+            self.music_version,
             userid,
             songid,
             chart,
@@ -243,7 +256,7 @@ class ReflecBeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
             # Write the new score back
             self.data.local.music.put_score(
                 self.game,
-                self.version,
+                self.music_version,
                 userid,
                 songid,
                 chart,
@@ -258,7 +271,7 @@ class ReflecBeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
                 # Save the history of this score too
                 self.data.local.music.put_attempt(
                     self.game,
-                    self.version,
+                    self.music_version,
                     userid,
                     songid,
                     chart,

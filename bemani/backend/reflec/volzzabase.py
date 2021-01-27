@@ -80,7 +80,7 @@ class ReflecBeatVolzzaBase(ReflecBeatBase):
         shop_score.add_child(yesterday)
 
         all_profiles = self.data.local.user.get_all_profiles(self.game, self.version)
-        all_attempts = self.data.local.music.get_all_attempts(self.game, self.version, timelimit=(Time.beginning_of_today() - Time.SECONDS_IN_DAY))
+        all_attempts = self.data.local.music.get_all_attempts(self.game, self.music_version, timelimit=(Time.beginning_of_today() - Time.SECONDS_IN_DAY))
         machine = self.data.local.machine.get_machine(self.config['machine']['pcbid'])
         if machine.arcade is not None:
             lids = [
@@ -176,7 +176,7 @@ class ReflecBeatVolzzaBase(ReflecBeatBase):
             'weekly',
             Time.now() - Time.SECONDS_IN_WEEK,
             Time.now(),
-            self.data.local.music.get_hit_chart(self.game, self.version, 1024, 7),
+            self.data.local.music.get_hit_chart(self.game, self.music_version, 1024, 7),
         )
 
         # Monthly hit chart
@@ -184,7 +184,7 @@ class ReflecBeatVolzzaBase(ReflecBeatBase):
             'monthly',
             Time.now() - Time.SECONDS_IN_DAY * 30,
             Time.now(),
-            self.data.local.music.get_hit_chart(self.game, self.version, 1024, 30),
+            self.data.local.music.get_hit_chart(self.game, self.music_version, 1024, 30),
         )
 
         # All time hit chart
@@ -192,7 +192,7 @@ class ReflecBeatVolzzaBase(ReflecBeatBase):
             'total',
             Time.now() - Time.SECONDS_IN_DAY * 365,
             Time.now(),
-            self.data.local.music.get_hit_chart(self.game, self.version, 1024, 365),
+            self.data.local.music.get_hit_chart(self.game, self.music_version, 1024, 365),
         )
 
         return root
@@ -210,7 +210,7 @@ class ReflecBeatVolzzaBase(ReflecBeatBase):
         for songid in range(start_music_id, end_music_id + 1):
             allscores = self.data.local.music.get_all_scores(
                 self.game,
-                self.version,
+                self.music_version,
                 songid=songid,
             )
 

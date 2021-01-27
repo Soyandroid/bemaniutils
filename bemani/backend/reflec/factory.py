@@ -7,6 +7,7 @@ from bemani.backend.reflec.colette import ReflecBeatColette
 from bemani.backend.reflec.groovin import ReflecBeatGroovin
 from bemani.backend.reflec.volzza import ReflecBeatVolzza
 from bemani.backend.reflec.volzza2 import ReflecBeatVolzza2
+from bemani.backend.reflec.reflesia import ReflecBeatReflesia
 from bemani.common import Model, VersionConstants
 from bemani.data import Data
 
@@ -20,6 +21,7 @@ class ReflecBeatFactory(Factory):
         ReflecBeatGroovin,
         ReflecBeatVolzza,
         ReflecBeatVolzza2,
+        ReflecBeatReflesia,
     ]
 
     @classmethod
@@ -63,6 +65,8 @@ class ReflecBeatFactory(Factory):
                     return ReflecBeatGroovin(data, config, model)
                 if parentversion == VersionConstants.REFLEC_BEAT_VOLZZA_2:
                     return ReflecBeatVolzza(data, config, model)
+                if parentversion == VersionConstants.REFLEC_BEAT_REFLESIA:
+                    return ReflecBeatVolzza2(data, config, model)
 
                 # Unknown older version
                 return None
@@ -76,6 +80,8 @@ class ReflecBeatFactory(Factory):
                 return ReflecBeatVolzza(data, config, model)
             if version == VersionConstants.REFLEC_BEAT_VOLZZA_2:
                 return ReflecBeatVolzza2(data, config, model)
+            if version == VersionConstants.REFLEC_BEAT_REFLESIA:
+                return ReflecBeatReflesia(data, config, model)
 
         # Unknown game version
         return None

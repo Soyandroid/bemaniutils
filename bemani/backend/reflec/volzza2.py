@@ -59,7 +59,7 @@ class ReflecBeatVolzza2(ReflecBeatVolzzaBase):
 
         mycourse_ctrl = Node.void('mycourse_ctrl')
         root.add_child(mycourse_ctrl)
-        songs = {song.id for song in self.data.local.music.get_all_songs(self.game, self.version)}
+        songs = {song.id for song in self.data.local.music.get_all_songs(self.game, self.music_version)}
         for song in songs:
             data = Node.void('data')
             mycourse_ctrl.add_child(data)
@@ -82,7 +82,7 @@ class ReflecBeatVolzza2(ReflecBeatVolzzaBase):
         if userid is None:
             scores: List[Score] = []
         else:
-            scores = self.data.remote.music.get_scores(self.game, self.version, userid)
+            scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
 
         root = Node.void('player')
         pdata = Node.void('pdata')
@@ -123,7 +123,7 @@ class ReflecBeatVolzza2(ReflecBeatVolzzaBase):
             score = None
             profile = None
         else:
-            score = self.data.remote.music.get_score(self.game, self.version, userid, songid, chart)
+            score = self.data.remote.music.get_score(self.game, self.music_version, userid, songid, chart)
             profile = self.get_any_profile(userid)
 
         root = Node.void('player')
@@ -162,7 +162,7 @@ class ReflecBeatVolzza2(ReflecBeatVolzzaBase):
                 rl.add_child(Node.string('nm', rprofile.get_str('name')))
                 rl.add_child(Node.s16('ic', rprofile.get_dict('config').get_int('icon_id')))
 
-                scores = self.data.remote.music.get_scores(self.game, self.version, link.other_userid)
+                scores = self.data.remote.music.get_scores(self.game, self.music_version, link.other_userid)
                 scores_by_musicid: Dict[int, List[Score]] = {}
                 for score in scores:
                     if score.id not in scores_by_musicid:
@@ -198,7 +198,7 @@ class ReflecBeatVolzza2(ReflecBeatVolzzaBase):
         current_minigame_score = request.child_value('mg_sc')
 
         # First, grab all scores on the network for this version.
-        all_scores = self.data.remote.music.get_all_scores(self.game, self.version)
+        all_scores = self.data.remote.music.get_all_scores(self.game, self.music_version)
 
         # Now grab all participating users that had scores
         all_users = {userid for (userid, score) in all_scores}
@@ -494,7 +494,7 @@ class ReflecBeatVolzza2(ReflecBeatVolzzaBase):
 
         if game_config.get_bool('force_unlock_songs'):
             ids: Dict[int, int] = {}
-            songs = self.data.local.music.get_all_songs(self.game, self.version)
+            songs = self.data.local.music.get_all_songs(self.game, self.music_version)
             for song in songs:
                 if song.id not in ids:
                     ids[song.id] = 0
