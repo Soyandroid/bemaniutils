@@ -78,6 +78,15 @@ var profile_view = React.createClass({
                         <LabelledSection label="Total Plays">
                             {player.plays}回
                         </LabelledSection>
+                        <LabelledSection label="Total Jubility">
+                            {player.common_jubility+player.pick_up_jubility}
+                        </LabelledSection>
+                        <LabelledSection label="Common Jubility">
+                            {player.common_jubility}
+                        </LabelledSection>
+                        <LabelledSection label="Pick up Jubility">
+                            {player.pick_up_jubility}
+                        </LabelledSection>
                     </section>
                     <section>
                         <a className="button small primary" href={Link.get('records')}>{ window.own_profile ?
