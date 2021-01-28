@@ -1754,6 +1754,28 @@ class JubeatFesto(
             newprofile.replace_int('born_status', born.child_value('status'))
             newprofile.replace_int('born_year', born.child_value('year'))
 
+        # jubility list sent looks like this
+        # <jubility>
+        #     <target_music>
+        #         <hot_music_list param="36385">
+        #             <music>
+        #                 <music_id __type="s32">90000130</music_id>
+        #                 <seq __type="s8">2</seq>
+        #                 <rate __type="s32">975</rate>
+        #                 <value __type="s32">1280</value>
+        #                 <is_hard_mode __type="bool">0</is_hard_mode>
+        #             </music>
+        #         <other_music_list param="36770">
+
+        # Grab jubility
+        jubility = player.child('jubility')
+        if jubility is not None:
+            target_music = jubility.child('target_music')
+            hot_music_list = target_music.child('hot_music_list')
+            common_list = target_music.child('other_music_list')
+            newprofile.replace_float('pick_up_jubility', int(hot_music_list.attribute('param')) / 10)
+            newprofile.replace_float('common_jubility', int(common_list.attribute('param')) / 10)
+
         # Clan course saving
         clan_course_list = player.child('course_list')
         if clan_course_list is not None:

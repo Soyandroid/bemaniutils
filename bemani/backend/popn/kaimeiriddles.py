@@ -11,5 +11,5 @@ class PopnMusicKaimeiRiddles(PopnMusicBase):
     name = "Pop'n Music 解明リドルズ"
     version = VersionConstants.POPN_MUSIC_KAIMEI_RIDDLES
 
-   def previous_version(self) -> Optional[PopnMusicBase]:
+    def previous_version(self) -> Optional[PopnMusicBase]:
         return PopnMusicPeace(self.data, self.config, self.model)
