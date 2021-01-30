@@ -1765,16 +1765,49 @@ class JubeatFesto(
         #                 <value __type="s32">1280</value>
         #                 <is_hard_mode __type="bool">0</is_hard_mode>
         #             </music>
+        #         </hot_music_list>
         #         <other_music_list param="36770">
 
         # Grab jubility
         jubility = player.child('jubility')
         if jubility is not None:
             target_music = jubility.child('target_music')
+            # Pick up jubility stuff
             hot_music_list = target_music.child('hot_music_list')
-            common_list = target_music.child('other_music_list')
-            newprofile.replace_float('pick_up_jubility', int(hot_music_list.attribute('param')) / 10)
-            newprofile.replace_float('common_jubility', int(common_list.attribute('param')) / 10)
+            pick_up_chart = newprofile.get_dict('pick_up_chart')
+            for music in hot_music_list.children:
+                music_id = music.child_value('music_id')
+                chart = self.game_to_db_chart(int(music.child_value('seq')), bool(music.child_value('is_hard_mode')))
+                music_rate = float(music.child_value('rate')) / 10
+                value = float(music.child_value('value')) / 10
+                entry = {
+                    'music_id': music_id,
+                    'seq': chart,
+                    'music_rate': music_rate,
+                    'value': value,
+                }
+                pick_up_chart.replace_dict(f'{music_id}_{chart}', entry)
+            # Save it back
+            newprofile.replace_dict('pick_up_chart', pick_up_chart)
+            newprofile.replace_float('pick_up_jubility', float(hot_music_list.attribute('param')) / 10)
+            # Common jubility stuff
+            other_music_list = target_music.child('other_music_list')
+            common_chart = newprofile.get_dict('common_chart')
+            for music in other_music_list.children:
+                music_id = music.child_value('music_id')
+                chart = self.game_to_db_chart(int(music.child_value('seq')), bool(music.child_value('is_hard_mode')))
+                music_rate = float(music.child_value('rate')) / 10
+                value = float(music.child_value('value')) / 10
+                entry = {
+                    'music_id': music_id,
+                    'seq': chart,
+                    'music_rate': music_rate,
+                    'value': value,
+                }
+                common_chart.replace_dict(f'{music_id}_{chart}', entry)
+            # Save it back
+            newprofile.replace_dict('common_chart', common_chart)
+            newprofile.replace_float('common_jubility', float(other_music_list.attribute('param')) / 10)
 
         # Clan course saving
         clan_course_list = player.child('course_list')
