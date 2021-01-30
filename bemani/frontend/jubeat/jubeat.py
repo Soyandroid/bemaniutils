@@ -122,8 +122,11 @@ class JubeatFrontend(FrontendBase):
         formatted_profile = super().format_profile(profile, playstats)
         formatted_profile['plays'] = playstats.get_int('total_plays')
         formatted_profile['emblem'] = self.format_emblem(profile.get_dict('last').get_int_array('emblem', 5))
+        formatted_profile['jubility'] = profile.get_int('jubility')
         formatted_profile['pick_up_jubility'] = profile.get_float('pick_up_jubility')
         formatted_profile['common_jubility'] = profile.get_float('common_jubility')
+        formatted_profile['ex_count'] = profile.get_int('ex_cnt')
+        formatted_profile['fc_count'] = profile.get_int('fc_cnt')
         return formatted_profile
 
     def format_song(self, song: Song) -> Dict[str, Any]:

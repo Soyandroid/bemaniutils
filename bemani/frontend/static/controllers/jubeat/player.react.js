@@ -36,6 +36,42 @@ var profile_view = React.createClass({
         );
     },
 
+    renderJubility: function(player) {
+        return(
+            // version == qubell ( No Jubility )
+            this.state.version == 11 ?
+            null
+            :
+            // version == prop ( No Jubility )
+            this.state.version == 10 ?
+            null
+            :
+            // version == festo
+            this.state.version == 13 ? 
+                <div>
+                    <LabelledSection label="Jubility">
+                    {player.common_jubility+player.pick_up_jubility}
+                    </LabelledSection>
+                    <LabelledSection label="Common Jubility">
+                        {player.common_jubility}
+                    </LabelledSection>
+                    <LabelledSection label="Pick up Jubility">
+                        {player.pick_up_jubility}
+                    </LabelledSection>
+                </div>
+            :
+            // Default which version >= Saucer except qubell and festo
+            this.state.version >= 8 ? 
+                <div>
+                    <LabelledSection label="Jubility">
+                    {player.jubility / 100}
+                    </LabelledSection>
+                </div>
+            :
+            null
+        )
+    },
+
     render: function() {
         if (this.state.player[this.state.version]) {
             var player = this.state.player[this.state.version];
@@ -68,25 +104,25 @@ var profile_view = React.createClass({
                         </p>
                     </section>
                     <section>
-                        <LabelledSection label="User ID">{player.extid}</LabelledSection>
-                        <LabelledSection label="Register Time">
-                            <Timestamp timestamp={player.first_play_time}/>
-                        </LabelledSection>
-                        <LabelledSection label="Last Play Time">
-                            <Timestamp timestamp={player.last_play_time}/>
-                        </LabelledSection>
-                        <LabelledSection label="Total Plays">
-                            {player.plays}回
-                        </LabelledSection>
-                        <LabelledSection label="Total Jubility">
-                            {player.common_jubility+player.pick_up_jubility}
-                        </LabelledSection>
-                        <LabelledSection label="Common Jubility">
-                            {player.common_jubility}
-                        </LabelledSection>
-                        <LabelledSection label="Pick up Jubility">
-                            {player.pick_up_jubility}
-                        </LabelledSection>
+                        <div>
+                            <LabelledSection label="User ID">{player.extid}</LabelledSection>
+                            <LabelledSection label="Register Time">
+                                <Timestamp timestamp={player.first_play_time}/>
+                            </LabelledSection>
+                            <LabelledSection label="Last Play Time">
+                                <Timestamp timestamp={player.last_play_time}/>
+                            </LabelledSection>
+                            <LabelledSection label="Total Plays">
+                                {player.plays}回
+                            </LabelledSection>
+                            <LabelledSection label="EXCELLENTs">
+                                {player.ex_count}回
+                            </LabelledSection>
+                            <LabelledSection label="FULL COMBOs">
+                                {player.fc_count}回
+                            </LabelledSection>
+                        </div>
+                        {this.renderJubility(player)}
                     </section>
                     <section>
                         <a className="button small primary" href={Link.get('records')}>{ window.own_profile ?
