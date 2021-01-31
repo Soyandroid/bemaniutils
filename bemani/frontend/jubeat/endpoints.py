@@ -269,12 +269,14 @@ def viewplayer(userid: UserID) -> Response:
             'playerid': userid,
             'own_profile': userid == g.userID,
             'player': info,
+            'songs': frontend.get_all_songs(),
             'versions': {version: name for (game, version, name) in frontend.all_games()},
         },
         {
             'refresh': url_for('jubeat_pages.listplayer', userid=userid),
             'records': url_for('jubeat_pages.viewrecords', userid=userid),
             'scores': url_for('jubeat_pages.viewscores', userid=userid),
+            'individual_score': url_for('jubeat_pages.viewtopscores', musicid=-1),
         },
     )
 

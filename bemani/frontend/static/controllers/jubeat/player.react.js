@@ -9,6 +9,7 @@ var profile_view = React.createClass({
         var profiles = Object.keys(window.player);
         return {
             player: window.player,
+            songs: window.songs,
             profiles: profiles,
             version: pagenav.getInitialState(profiles[profiles.length - 1]),
         };
@@ -33,6 +34,68 @@ var profile_view = React.createClass({
                 });
                 setTimeout(this.refreshProfile, 5000);
             }.bind(this)
+        );
+    },
+
+    getJubilitySongids: function(jubilityChart) {
+        if (!jubilityChart) { return []; }
+        var songids = [];
+        for (var i = 0; i < 30; i++) {
+            songids.push(jubilityChart[i]['music_id']);
+        }
+        return songids;
+    },
+
+    getJubilityEntry: function(jubilityChart, songid) {
+        for (var i = 0; i < 30; i++) {
+            if(jubilityChart[i]['music_id'] == songid)
+                return jubilityChart[i];
+        }
+    },
+
+    renderJubilityBreakdown: function(player, pickup) {
+        if (this.state.version != 13)
+            return null;
+        if(pickup == true)
+            jubilityChart = player.pick_up_chart;
+        else
+            jubilityChart = player.common_chart;
+        var songids = this.getJubilitySongids(jubilityChart);
+        if (songids.length == 0) {
+            return null;
+        }
+        return (
+            <span>
+                <section>
+                    <table className="jubility breakdown">
+                        <thead>
+                            <th className="subheader">Song</th>
+                            <th className="subheader">Music Rate</th>
+                            <th className="subheader">Jubility</th>
+                        </thead>
+                        <tbody>
+                            {songids.map(function(songid) {
+                                jubilityEntry = this.getJubilityEntry(jubilityChart, songid)
+                                return (
+                                    <tr key={songid.toString()}>
+                                        <td className="center">
+                                            <a href={Link.get('individual_score', songid)}>
+                                                <div className="songname">{ this.state.songs[songid].name }</div>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {jubilityEntry.music_rate.toFixed(1)}%
+                                        </td>
+                                        <td>
+                                            {jubilityEntry.value.toFixed(1)}
+                                        </td>
+                                    </tr>
+                                );
+                            }.bind(this))}
+                        </tbody>
+                    </table>
+                </section>
+            </span>
         );
     },
 
@@ -123,6 +186,12 @@ var profile_view = React.createClass({
                             </LabelledSection>
                         </div>
                         {this.renderJubility(player)}
+                        <LabelledSection label="Pick-up jubility">
+                            {this.renderJubilityBreakdown(player, true)}
+                        </LabelledSection>
+                        <LabelledSection label="Common jubility">
+                            {this.renderJubilityBreakdown(player, false)}
+                        </LabelledSection>
                     </section>
                     <section>
                         <a className="button small primary" href={Link.get('records')}>{ window.own_profile ?

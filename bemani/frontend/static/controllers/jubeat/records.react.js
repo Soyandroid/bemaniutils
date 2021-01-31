@@ -239,19 +239,19 @@ var network_records = React.createClass({
                                                     <div className="songname">{ this.state.songs[songid].name }</div>
                                                     <div className="songartist">{ this.state.songs[songid].artist }</div>
                                                 </a>
-                                            <div className="songdifficulties">
-                                                {this.renderDifficulty(songid, 0)}
-                                                <span> / </span>
-                                                {this.renderDifficulty(songid, 1)}
-                                                <span> / </span>
-                                                {this.renderDifficulty(songid, 2)}
-                                                <span> / </span>
-                                                {this.renderDifficulty(songid, 3)}
-                                                <span> / </span>
-                                                {this.renderDifficulty(songid, 4)}
-                                                <span> / </span>
-                                                {this.renderDifficulty(songid, 5)}
-                                            </div>
+                                                <div className="songdifficulties">
+                                                    {this.renderDifficulty(songid, 0)}
+                                                    <span> / </span>
+                                                    {this.renderDifficulty(songid, 1)}
+                                                    <span> / </span>
+                                                    {this.renderDifficulty(songid, 2)}
+                                                    <span> / </span>
+                                                    {this.renderDifficulty(songid, 3)}
+                                                    <span> / </span>
+                                                    {this.renderDifficulty(songid, 4)}
+                                                    <span> / </span>
+                                                    {this.renderDifficulty(songid, 5)}
+                                                </div>
                                             </td>
                                             <td>
                                                 <HighScore
