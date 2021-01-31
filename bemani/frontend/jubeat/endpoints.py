@@ -269,14 +269,13 @@ def viewplayer(userid: UserID) -> Response:
             'playerid': userid,
             'own_profile': userid == g.userID,
             'player': info,
-            'songs': frontend.get_all_songs(),
             'versions': {version: name for (game, version, name) in frontend.all_games()},
         },
         {
             'refresh': url_for('jubeat_pages.listplayer', userid=userid),
             'records': url_for('jubeat_pages.viewrecords', userid=userid),
             'scores': url_for('jubeat_pages.viewscores', userid=userid),
-            'individual_score': url_for('jubeat_pages.viewtopscores', musicid=-1),
+            'jubility': url_for('jubeat_pages.showjubility', userid=userid)
         },
     )
 
@@ -291,6 +290,32 @@ def listplayer(userid: UserID) -> Dict[str, Any]:
     return {
         'player': info,
     }
+
+
+@jubeat_pages.route('/players/<int:userid>/jubility')
+@loginrequired
+def showjubility(userid: UserID) -> Response:
+    frontend = JubeatFrontend(g.data, g.config, g.cache)
+    info = frontend.get_all_player_info([userid])[userid]
+    if not info:
+        abort(404)
+    latest_version = sorted(info.keys(), reverse=True)[0]
+
+    return render_react(
+        f'{info[latest_version]["name"]}\'s Jubility Breakdown',
+        'jubeat/jubility.react.js',
+        {
+            'playerid': userid,
+            'player': info,
+            'songs': frontend.get_all_songs(),
+            'versions': {version: name for (game, version, name) in frontend.all_games()},
+        },
+        {
+            'refresh': url_for('jubeat_pages.listplayer', userid=userid),
+            'individual_score': url_for('jubeat_pages.viewtopscores', musicid=-1),
+            'profile': url_for('jubeat_pages.viewplayer', userid=userid),
+        },
+    )
 
 
 @jubeat_pages.route('/options')
