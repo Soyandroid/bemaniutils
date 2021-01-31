@@ -69,6 +69,45 @@ var all_players = React.createClass({
                                 }.bind(this),
                                 reverse: true,
                             },
+                            {
+                                name: 'Total Jubility',
+                                render: function(userid) {
+                                    var player = this.state.players[userid];
+                                    return (player.common_jubility+player.pick_up_jubility).toFixed(1);
+                                }.bind(this),
+                                sort: function(aid, bid) {
+                                    var a = this.state.players[aid];
+                                    var b = this.state.players[bid];
+                                    return (a.common_jubility+a.pick_up_jubility) - (b.common_jubility+b.pick_up_jubility);
+                                }.bind(this),
+                                reverse: true,
+                            },
+                            {
+                                name: 'Pick Up Jubility',
+                                render: function(userid) {
+                                    var player = this.state.players[userid];
+                                    return player.pick_up_jubility.toFixed(1);
+                                }.bind(this),
+                                sort: function(aid, bid) {
+                                    var a = this.state.players[aid];
+                                    var b = this.state.players[bid];
+                                    return a.pick_up_jubility - b.pick_up_jubility;
+                                }.bind(this),
+                                reverse: true,
+                            },
+                            {
+                                name: 'Common Jubility',
+                                render: function(userid) {
+                                    var player = this.state.players[userid];
+                                    return player.common_jubility.toFixed(1);
+                                }.bind(this),
+                                sort: function(aid, bid) {
+                                    var a = this.state.players[aid];
+                                    var b = this.state.players[bid];
+                                    return a.common_jubility - b.common_jubility;
+                                }.bind(this),
+                                reverse: true,
+                            },
                         ]}
                         rows={Object.keys(this.state.players)}
                         paginate={10}

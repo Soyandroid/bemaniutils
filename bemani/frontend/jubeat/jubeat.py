@@ -91,7 +91,8 @@ class JubeatFrontend(FrontendBase):
             JubeatBase.PLAY_MEDAL_EXCELLENT: "EXCELLENT",
         }.get(score.data.get_int('medal'), 'NO PLAY')
         formatted_score['music_rate'] = score.data.get_int('music_rate', 0) / 10
-        formatted_score["clear_cnt"] = score.data.get_int('clear_count', 0)
+        formatted_score['clear_cnt'] = score.data.get_int('clear_count', 0)
+        formatted_score['stats'] = score.data.get_dict('stats')
         return formatted_score
 
     def format_attempt(self, userid: UserID, attempt: Attempt) -> Dict[str, Any]:
@@ -107,6 +108,7 @@ class JubeatFrontend(FrontendBase):
             JubeatBase.PLAY_MEDAL_EXCELLENT: "EXCELLENT",
         }.get(attempt.data.get_int('medal'), 'NO PLAY')
         formatted_attempt['music_rate'] = attempt.data.get_int('music_rate', 0) / 10
+        formatted_attempt['stats'] = attempt.data.get_dict('stats')
         return formatted_attempt
 
     def format_emblem(self, emblem: list) -> Dict[str, Any]:
@@ -124,7 +126,11 @@ class JubeatFrontend(FrontendBase):
         formatted_profile['emblem'] = self.format_emblem(profile.get_dict('last').get_int_array('emblem', 5))
         formatted_profile['jubility'] = profile.get_int('jubility')
         formatted_profile['pick_up_jubility'] = profile.get_float('pick_up_jubility')
+        #  Only reason this is a dictionary of dictionaries is because ValidatedDict doesn't support a list of dictionaries. Probably intentionally lol
+        #  Just listify the pickup/common charts and then sort them by the value key in each dictionary since that's the actual number of points
+        formatted_profile['pick_up_chart'] = sorted(list(profile.get_dict('pick_up_chart').values()), key=lambda x: x['value'], reverse=True)
         formatted_profile['common_jubility'] = profile.get_float('common_jubility')
+        formatted_profile['common_chart'] = sorted(list(profile.get_dict('common_chart').values()), key=lambda x: x['value'], reverse=True)
         formatted_profile['ex_count'] = profile.get_int('ex_cnt')
         formatted_profile['fc_count'] = profile.get_int('fc_cnt')
         return formatted_profile

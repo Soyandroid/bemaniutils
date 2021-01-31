@@ -50,13 +50,13 @@ var profile_view = React.createClass({
             this.state.version == 13 ? 
                 <div>
                     <LabelledSection label="Jubility">
-                    {player.common_jubility+player.pick_up_jubility}
+                    {(player.common_jubility+player.pick_up_jubility).toFixed(1)}
                     </LabelledSection>
                     <LabelledSection label="Common Jubility">
-                        {player.common_jubility}
+                        {player.common_jubility.toFixed(1)}
                     </LabelledSection>
                     <LabelledSection label="Pick up Jubility">
-                        {player.pick_up_jubility}
+                        {player.pick_up_jubility.toFixed(1)}
                     </LabelledSection>
                 </div>
             :
