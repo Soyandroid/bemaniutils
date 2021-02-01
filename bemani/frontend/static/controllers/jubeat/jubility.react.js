@@ -37,19 +37,6 @@ var jubility_view = React.createClass({
         );
     },
 
-    getJubilitySongids: function(jubilityChart) {
-        if (!jubilityChart) { return []; }
-        return jubilityChart.map(function(chart) {
-            return chart.music_id
-        })
-    },
-
-    getJubilityEntry: function(jubilityChart, songid) {
-        return jubilityChart.filter(function(chart) {
-            return chart.music_id == songid
-        }).shift();
-    },
-
     renderJubilityBreakdown: function(player) {
         return (
             <div className="row">
@@ -62,12 +49,11 @@ var jubility_view = React.createClass({
     renderJubilityTable: function(player, pickup) {
         if (this.state.version != 13)
             return null;
-        if(pickup == true)
+        if (pickup == true)
             jubilityChart = player.pick_up_chart;
         else
             jubilityChart = player.common_chart;
-        var songids = this.getJubilitySongids(jubilityChart);
-        if (typeof songids === 'undefined' || songids.length == 0) {
+        if (typeof jubilityChart === 'undefined' || jubilityChart.length == 0) {
             return null;
         }
         return(
@@ -80,24 +66,31 @@ var jubility_view = React.createClass({
                 <table>
                     <thead>
                         <th>Song</th>
+                        <th>Hard Mode</th>
                         <th>Music Rate</th>
                         <th>Jubility</th>
                     </thead>
                     <tbody>
-                        {songids.map(function(songid) {
-                            jubilityEntry = this.getJubilityEntry(jubilityChart, songid)
+                        {jubilityChart.map(function(entry) {
+                            songid = entry.music_id;
+                            music_rate = entry.music_rate;
+                            hard_mode = entry.seq >= 3;
+                            value = entry.value;
                             return (
-                                <tr key={songid.toString()}>
+                                <tr>
                                     <td>
                                         <a href={Link.get('individual_score', songid)}>
                                             <div>{ this.state.songs[songid].name }</div>
                                         </a>
                                     </td>
                                     <td>
-                                        {jubilityEntry.music_rate.toFixed(1)}%
+                                        {hard_mode ? 'Yes' : 'No'}
                                     </td>
                                     <td>
-                                        {jubilityEntry.value.toFixed(1)}
+                                        {music_rate.toFixed(1)}%
+                                    </td>
+                                    <td>
+                                        {value.toFixed(1)}
                                     </td>
                                 </tr>
                             );
