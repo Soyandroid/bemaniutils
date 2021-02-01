@@ -183,16 +183,23 @@ def viewtopscores(musicid: int) -> Response:
     artist = None
     genre = None
     difficulties = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    found = [False, False, False, False, False, False]
 
     for version in versions:
-        for omniadd in [0, 10000]:
+        for omniadd in [10000, 0]:
             for chart in [0, 1, 2, 3, 4, 5]:
                 details = g.data.local.music.get_song(GameConstants.JUBEAT, version + omniadd, musicid, chart)
                 if details is not None:
+                    found[chart] = True
+                    print(version+omniadd)
                     name = details.name
                     artist = details.artist
                     genre = details.genre
                     difficulties[chart] = details.data.get_float('difficulty', 13)
+            if False not in found:
+                break
+        if False not in found:
+            break
 
     if name is None:
         # Not a real song!
