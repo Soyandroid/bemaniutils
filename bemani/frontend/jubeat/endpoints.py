@@ -182,7 +182,7 @@ def viewtopscores(musicid: int) -> Response:
     name = None
     artist = None
     genre = None
-    difficulties = [0, 0, 0, 0, 0, 0]
+    difficulties = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     for version in versions:
         for omniadd in [0, 10000]:
@@ -192,7 +192,7 @@ def viewtopscores(musicid: int) -> Response:
                     name = details.name
                     artist = details.artist
                     genre = details.genre
-                    difficulties[chart] = details.data.get_int('difficulty', 13)
+                    difficulties[chart] = details.data.get_float('difficulty', 13)
 
     if name is None:
         # Not a real song!

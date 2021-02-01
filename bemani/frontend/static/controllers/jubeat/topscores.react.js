@@ -63,11 +63,11 @@ var top_scores = React.createClass({
 
     render: function() {
         var chart = this.convertChart(this.state.chart);
-
+        var diff = window.difficulties[chart];
         return (
             <section>
                 <h1>{window.artist} — {window.name}</h1>
-                <h3>Difficulty {window.difficulties[chart]}★</h3>
+                <h3>Difficulty {diff >= 9 ? diff.toFixed(1) : diff.toFixed(0)}★</h3>
                 <p>
                     <SelectVersion
                         name="version"

@@ -863,7 +863,7 @@ class GlobalMusicData(BaseGlobalData):
             data={
                 'bpm_min': int(data['bpm_min']),
                 'bpm_max': int(data['bpm_max']),
-                'difficulty': int(data['difficulty']),
+                'difficulty': float(data['difficulty']),
             },
         )
 

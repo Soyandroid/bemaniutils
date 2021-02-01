@@ -217,12 +217,16 @@ class FrontendBase:
                     newscore[1].id = altid
                     newscore[1].chart = altchart
                     records[index] = newscore
-
+        players = self.get_latest_player_info(userids)
+        for i in list(players.values()):
+            i['common_chart'] = []
+            i['pick_up_chart'] = []
+            i['emblem'] = {}
         return {
             'records': [
                 self.format_score(records[index][0], records[index][1]) for index in records
             ],
-            'players': self.get_latest_player_info(userids),
+            'players': players,
         }
 
     def get_scores(self, userid: UserID, limit: Optional[int]=None) -> List[Dict[str, Any]]:

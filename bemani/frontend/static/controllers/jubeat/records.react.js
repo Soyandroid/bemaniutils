@@ -122,10 +122,11 @@ var network_records = React.createClass({
     },
 
     renderDifficulty: function(songid, chart) {
+        var diff = this.state.songs[songid].difficulties[chart];
         if (this.state.songs[songid].difficulties[chart] == 0) {
             return <span className="difficulty">--</span>;
         } else {
-            return <span className="difficulty">{this.state.songs[songid].difficulties[chart]}★</span>;
+            return <span className="difficulty">{diff >= 9 ? diff.toFixed(1) : diff.toFixed(0)}★</span>;
         }
     },
 

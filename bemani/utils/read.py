@@ -1499,11 +1499,18 @@ class ImportJubeat(ImportBase):
             bpm_max = float(music_entry.find('bpm_max').text)
             if bpm_max > 0 and bpm_min < 0:
                 bpm_min = bpm_max
-            difficulties = [
-                int(music_entry.find('level_bsc').text),
-                int(music_entry.find('level_adv').text),
-                int(music_entry.find('level_ext').text),
-            ]
+            if music_entry.find('detail_level_bsc') is not None:
+                difficulties = [
+                    float(music_entry.find('detail_level_bsc').text),
+                    float(music_entry.find('detail_level_adv').text),
+                    float(music_entry.find('detail_level_ext').text),
+                ]
+            else:
+                difficulties = [
+                    float(music_entry.find('level_bsc').text),
+                    float(music_entry.find('level_adv').text),
+                    float(music_entry.find('level_ext').text),
+                ]
             genre = "other"
             if music_entry.find('genre') is not None:  # Qubell extend music_info doesn't have this field
                 for possible_genre in music_entry.find('genre'):

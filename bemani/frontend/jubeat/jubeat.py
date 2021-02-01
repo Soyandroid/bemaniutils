@@ -136,8 +136,8 @@ class JubeatFrontend(FrontendBase):
         return formatted_profile
 
     def format_song(self, song: Song) -> Dict[str, Any]:
-        difficulties = [0, 0, 0, 0, 0, 0]
-        difficulties[song.chart] = song.data.get_int('difficulty', 13)
+        difficulties = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        difficulties[song.chart] = song.data.get_float('difficulty', 13)
 
         formatted_song = super().format_song(song)
         formatted_song['bpm_min'] = song.data.get_int('bpm_min', 120)
@@ -148,5 +148,5 @@ class JubeatFrontend(FrontendBase):
     def merge_song(self, existing: Dict[str, Any], new: Song) -> Dict[str, Any]:
         new_song = super().merge_song(existing, new)
         if existing['difficulties'][new.chart] == 0:
-            new_song['difficulties'][new.chart] = new.data.get_int('difficulty', 13)
+            new_song['difficulties'][new.chart] = new.data.get_float('difficulty', 13)
         return new_song

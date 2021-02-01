@@ -87,7 +87,7 @@ var network_scores = React.createClass({
                             if (index < this.state.offset || index >= this.state.offset + this.state.limit) {
                                 return null;
                             }
-
+                            var diff = window.songs[attempt.songid].difficulties[attempt.chart];
                             return (
                                 <tr>
                                     { window.shownames ? <td><a href={Link.get('player', attempt.userid)}>{
@@ -115,7 +115,7 @@ var network_scores = React.createClass({
                                             }</a>
                                         </div>
                                         <div>
-                                            <span>{window.songs[attempt.songid].difficulties[attempt.chart]}★</span>
+                                            <span>{diff >= 9 ? diff.toFixed(1) : diff.toFixed(0)}★</span>
                                         </div>
                                     </td>
                                     <td>{ this.renderScore(attempt) }</td>
