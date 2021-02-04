@@ -191,7 +191,7 @@ def viewtopscores(musicid: int) -> Response:
                 details = g.data.local.music.get_song(GameConstants.JUBEAT, version + omniadd, musicid, chart)
                 if details is not None:
                     found[chart] = True
-                    print(version+omniadd)
+                    print(version + omniadd)
                     name = details.name
                     artist = details.artist
                     genre = details.genre

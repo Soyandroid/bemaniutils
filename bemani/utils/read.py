@@ -1629,10 +1629,10 @@ class ImportJubeat(ImportBase):
         # at this arbitrary songid since they weren't assigned one originally
         # In jubeat festo, these songs were given proper songids so we need to account for this
         legacy_to_modern_map = {
-            71000001: 70000124, # PPAP
-            71000002: 70000154, # Bonjour the world
-            50000020: 80000037, # 千本桜 was removed and then revived in clan
-            60000063: 70000100, # Khamen break sdvx had the first id for prop(never released officially)
+            71000001: 70000124,  # PPAP
+            71000002: 70000154,  # Bonjour the world
+            50000020: 80000037,  # 千本桜 was removed and then revived in clan
+            60000063: 70000100,  # Khamen break sdvx had the first id for prop(never released officially)
         }
 
         legacy_songid = legacy_to_modern_map.get(songid)
