@@ -367,8 +367,9 @@ class ImportPopn(ImportBase):
         no_combine: bool,
         update: bool,
     ) -> None:
-        if version in ['19', '20', '21', '22', '23', '24', '25', '26']:
+        if version in ['18', '19', '20', '21', '22', '23', '24', '25', '26']:
             actual_version = {
+                '18': VersionConstants.POPN_MUSIC_SENGOKU_RETSUDEN,
                 '19': VersionConstants.POPN_MUSIC_TUNE_STREET,
                 '20': VersionConstants.POPN_MUSIC_FANTASIA,
                 '21': VersionConstants.POPN_MUSIC_SUNNY_PARK,
@@ -383,7 +384,8 @@ class ImportPopn(ImportBase):
                 'omni-25': VersionConstants.POPN_MUSIC_PEACE,
             }.get(version, -1) + DBConstants.OMNIMIX_VERSION_BUMP
 
-        if actual_version == VersionConstants.POPN_MUSIC_TUNE_STREET:
+        if actual_version in [VersionConstants.POPN_MUSIC_SENGOKU_RETSUDEN,
+                              VersionConstants.POPN_MUSIC_TUNE_STREET]:
             # Pop'n 19 has extra charts for old play modes (challenge and enjoy mode).
             # Cho challenge is analogous to regular mode in newer games, but Pop'n
             # 19 doesn't have easy charts, just 5 button charts.
@@ -412,7 +414,102 @@ class ImportPopn(ImportBase):
                     return (offset - start) + section.PointerToRawData
             raise Exception(f'Couldn\'t find raw offset for virtual offset 0x{offset:08x}')
         game_version = self.version if self.version < 10000 else self.version - 10000
-        if game_version == VersionConstants.POPN_MUSIC_TUNE_STREET:
+        if game_version == VersionConstants.POPN_MUSIC_SENGOKU_RETSUDEN:
+            # Based on J39:J:A:A:2010040500
+
+            # Normal offset for music DB, size
+            offset = 0x159FC0
+            step = 72
+            length = 976
+
+            # Offset and step of file DB
+            file_offset = 0x299D60
+            file_step = 24
+
+            # Standard lookups
+            genre_offset = 0
+            title_offset = 1
+            artist_offset = 2
+            comment_offset = 3
+            english_title_offset = -1
+            english_artist_offset = -1
+            extended_genre_offset = -1
+            charts_offset = 6
+            folder_offset = 7
+
+            # Offsets for normal chart difficulties
+            easy_offset = 12
+            normal_offset = 10
+            hyper_offset = 11
+            ex_offset = 13
+
+            # Offsets for battle chart difficulties
+            battle_normal_offset = 14
+            battle_hyper_offset = 15
+
+            # Offsets into which offset to seek to for file lookups
+            easy_file_offset = 18
+            normal_file_offset = 16
+            hyper_file_offset = 17
+            ex_file_offset = 19
+            battle_normal_file_offset = 20
+            battle_hyper_file_offset = 21
+
+            packedfmt = (
+                '<'
+                'I'  # Genre
+                'I'  # Title
+                'I'  # Artist
+                'I'  # Comment
+                'H'  # ??
+                'H'  # ??
+                'I'  # Available charts mask
+                'I'  # Folder
+                'I'  # Event flags?
+                'B'  # Event flags?
+                'B'  # Normal difficulty
+                'B'  # Hyper difficulty
+                'B'  # Easy difficulty
+                'B'  # EX difficulty
+                'B'  # Battle normal difficulty
+                'B'  # Battle hyper difficulty
+                'x'  # ??
+                'x'  # ??
+                'x'  # ??
+                'H'  # Normal chart pointer
+                'H'  # Hyper chart pointer
+                'H'  # Easy chart pointer
+                'H'  # EX chart pointer
+                'H'  # Battle normal pointer
+                'H'  # Battle hyper pointer
+                'xxxxxxxxxxxxxxxxxx'
+            )
+
+            # Offsets into file DB for finding file and folder.
+            file_folder_offset = 0
+            file_name_offset = 1
+
+            filefmt = (
+                '<'
+                'I'  # Folder
+                'I'  # Filename
+                'I'
+                'I'
+                'I'
+                'I'
+            )
+
+            # Decoding function for chart masks
+            def available_charts(mask: int) -> Tuple[bool, bool, bool, bool, bool, bool]:
+                return (
+                    True,  # Always an easy chart
+                    True,  # Always a normal chart
+                    mask & 0x1000000 > 0,  # Hyper chart bit
+                    mask & 0x2000000 > 0,  # Ex chart bit
+                    True,  # Always a battle normal chart
+                    mask & 0x4000000 > 0,  # Battle hyper chart bit
+                )
+        elif game_version == VersionConstants.POPN_MUSIC_TUNE_STREET:
             # Based on K39:J:A:A:2010122200
 
             # Normal offset for music DB, size

@@ -23,6 +23,7 @@ class PopnMusicFrontend(FrontendBase):
     max_active_rivals = {
         # Technically there is support for Rivals in Tune Street but I
         # couldn't get it booting anymore to test.
+        VersionConstants.POPN_MUSIC_SENGOKU_RETSUDEN: 0,
         VersionConstants.POPN_MUSIC_TUNE_STREET: 0,
         VersionConstants.POPN_MUSIC_FANTASIA: 2,
         VersionConstants.POPN_MUSIC_SUNNY_PARK: 2,

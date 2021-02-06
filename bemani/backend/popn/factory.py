@@ -19,8 +19,8 @@ from bemani.backend.popn.stubs import (
     PopnMusicAdventure,
     PopnMusicParty,
     PopnMusicTheMovie,
-    PopnMusicSengokuRetsuden,
 )
+from bemani.backend.popn.sengokuretsuden import PopnMusicSengokuRetsuden
 from bemani.backend.popn.tunestreet import PopnMusicTuneStreet
 from bemani.backend.popn.fantasia import PopnMusicFantasia
 from bemani.backend.popn.sunnypark import PopnMusicSunnyPark

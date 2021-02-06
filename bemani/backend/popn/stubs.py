@@ -153,12 +153,3 @@ class PopnMusicTheMovie(PopnMusicBase):
 
     def previous_version(self) -> Optional[PopnMusicBase]:
         return PopnMusicParty(self.data, self.config, self.model)
-
-
-class PopnMusicSengokuRetsuden(PopnMusicBase):
-
-    name = "Pop'n Music せんごく列伝"
-    version = VersionConstants.POPN_MUSIC_SENGOKU_RETSUDEN
-
-    def previous_version(self) -> Optional[PopnMusicBase]:
-        return PopnMusicTheMovie(self.data, self.config, self.model)

@@ -3,7 +3,7 @@ import copy
 from typing import Optional
 
 from bemani.backend.popn.base import PopnMusicBase
-from bemani.backend.popn.sengokuretsuden import PopnMusicSengokuRetsuden
+from bemani.backend.popn.stubs import PopnMusicTheMovie
 
 from bemani.backend.base import Status
 from bemani.common import ValidatedDict, VersionConstants
@@ -11,10 +11,10 @@ from bemani.data import Score, UserID
 from bemani.protocol import Node
 
 
-class PopnMusicTuneStreet(PopnMusicBase):
+class PopnMusicSengokuRetsuden(PopnMusicBase):
 
-    name = "Pop'n Music TUNE STREET"
-    version = VersionConstants.POPN_MUSIC_TUNE_STREET
+    name = "Pop'n Music せんごく列伝"
+    version = VersionConstants.POPN_MUSIC_SENGOKU_RETSUDEN
 
     # Play modes, as reported by profile save from the game
     GAME_PLAY_MODE_CHALLENGE = 3
@@ -57,7 +57,7 @@ class PopnMusicTuneStreet(PopnMusicBase):
     GAME_MAX_MUSIC_ID = 1045
 
     def previous_version(self) -> Optional[PopnMusicBase]:
-        return PopnMusicSengokuRetsuden(self.data, self.config, self.model)
+        return PopnMusicTheMovie(self.data, self.config, self.model)
 
     def __format_flags_for_score(self, score: Score) -> int:
         # Format song flags (cleared/not, combo flags)
@@ -367,16 +367,6 @@ class PopnMusicTuneStreet(PopnMusicBase):
                 refid,
                 self.NEW_PROFILE_ONLY if modelstring is None else self.OLD_PROFILE_ONLY,
             )
-            if root is None:
-                root = Node.void('playerdata')
-                root.set_attribute('status', str(Status.NO_PROFILE))
-            return root
-
-        elif method == 'conversion':
-            refid = request.child_value('ref_id')
-            name = request.child_value('name')
-            chara = request.child_value('chara')
-            root = self.new_profile_by_refid(refid, name, chara)
             if root is None:
                 root = Node.void('playerdata')
                 root.set_attribute('status', str(Status.NO_PROFILE))
