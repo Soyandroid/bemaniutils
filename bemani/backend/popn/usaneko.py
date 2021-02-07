@@ -814,7 +814,8 @@ class PopnMusicUsaNeko(PopnMusicBase):
         root.add_child(account)
         account.add_child(Node.string('g_pm_id', self.format_extid(profile.get_int('extid'))))
         account.add_child(Node.string('name', profile.get_str('name', 'なし')))
-        account.add_child(Node.s16('tutorial', profile.get_int('tutorial')))
+        # account.add_child(Node.s16('tutorial', profile.get_int('tutorial')))
+        account.add_child(Node.s16('tutorial', 0))  # Fix demon tutorial???
         account.add_child(Node.s16('area_id', profile.get_int('area_id')))
         account.add_child(Node.s16('use_navi', profile.get_int('use_navi')))
         account.add_child(Node.s16('read_news', profile.get_int('read_news')))
@@ -1177,7 +1178,7 @@ class PopnMusicUsaNeko(PopnMusicBase):
 
         account = request.child('account')
         if account is not None:
-            newprofile.replace_int('tutorial', account.child_value('tutorial'))
+            # newprofile.replace_int('tutorial', account.child_value('tutorial'))
             newprofile.replace_int('read_news', account.child_value('read_news'))
             newprofile.replace_int('area_id', account.child_value('area_id'))
             newprofile.replace_int('use_navi', account.child_value('use_navi'))
