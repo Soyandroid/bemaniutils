@@ -150,6 +150,9 @@ class JubeatGamendRegisterHandler(JubeatBase):
         player.add_child(Node.s32('end_final_session_id', 1))
         return gameend
 
+    def handle_gameend_log_request(self, request: Node) -> Node:
+        # Respond to request with nothing since we don't care about cardless players
+        return Node.void('gameend')
 
 class JubeatGametopGetMeetingHandler(JubeatBase):
 
